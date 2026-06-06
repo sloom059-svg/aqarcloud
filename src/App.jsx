@@ -21,6 +21,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import CompleteProfile from '@/pages/CompleteProfile';
 import CheckProfile from '@/pages/CheckProfile';
 import VenueDashboard from '@/pages/VenueDashboard';
+import AdminDashboard from '@/pages/AdminDashboard';
 import VenueForm from '@/pages/VenueForm';
 import VenueBookings from '@/pages/VenueBookings';
 import VenuePublicPage from '@/pages/VenuePublicPage';
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
         <Route path="/venue/add" element={<VenueForm />} />
         <Route path="/venue/edit/:id" element={<VenueForm />} />
         <Route path="/venue/bookings/:id" element={<VenueBookings />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />
