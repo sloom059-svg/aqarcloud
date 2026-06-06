@@ -216,6 +216,27 @@ export const base44 = {
         const { data } = supabase.storage.from('images').getPublicUrl(fileName)
         return { file_url: data.publicUrl }
       },
+      DeleteFile: async (url) => {
+        try {
+          // استخراج اسم الملف من الـ URL
+          const parts = url.split('/images/')
+          if (parts.length < 2) return
+          const fileName = parts[1].split('?')[0]
+          await supabase.storage.from('images').remove([fileName])
+        } catch (e) {
+          console.warn('فشل حذف الصورة من Storage:', e)
+        }
+      },
+      DeleteFiles: async (urls = []) => {
+        try {
+          const fileNames = urls
+            .map(url => { const p = url.split('/images/'); return p.length > 1 ? p[1].split('?')[0] : null })
+            .filter(Boolean)
+          if (fileNames.length) await supabase.storage.from('images').remove(fileNames)
+        } catch (e) {
+          console.warn('فشل حذف الصور من Storage:', e)
+        }
+      },
     },
   },
 }
