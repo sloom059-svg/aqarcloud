@@ -47,6 +47,10 @@ export const AuthProvider = ({ children }) => {
     await checkUserAuth();
   };
 
+  const refreshUser = async () => {
+    await checkUserAuth();
+  };
+
   const logout = async (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
@@ -69,7 +73,8 @@ export const AuthProvider = ({ children }) => {
       logout,
       navigateToLogin,
       checkUserAuth,
-      checkAppState
+      checkAppState,
+      refreshUser,
     }}>
       {children}
     </AuthContext.Provider>
