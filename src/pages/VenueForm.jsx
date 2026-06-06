@@ -365,7 +365,10 @@ export default function VenueForm() {
               {form.images.map((img, i) => (
                 <div key={i} className="relative aspect-square rounded-xl overflow-hidden border">
                   <img src={img} className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => setForm(p => ({ ...p, images: p.images.filter((_,j)=>j!==i) }))}
+                  <button type="button" onClick={async () => {
+                    await base44.integrations.Core.DeleteFile(img);
+                    setForm(p => ({ ...p, images: p.images.filter((_,j)=>j!==i) }));
+                  }}
                     className="absolute top-1 left-1 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center">
                     <X className="w-3 h-3" />
                   </button>
