@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -10,39 +10,40 @@ import PropertyCard from '@/components/property/PropertyCard';
 import PropertyCardExport from '@/components/property/PropertyCardExport';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from 'react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [exportProperty, setExportProperty] = useState(null);
 
   React.useEffect(() => {
     if (user?.business_type && user.business_type !== 'وسيط') {
       navigate('/venue', { replace: true });
     }
   }, [user, navigate]);
-  const queryClient = useQueryClient();
-  const [exportProperty, setExportProperty] = useState(null);
 
   const { data: properties = [], isLoading } = useQuery({
     queryKey: ['my-properties'],
-    queryFn: () => base44.entities.Property.filter({ created_by_id: user.id }, '-created_date'),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('property')
+        .select('*')
+        .eq('created_by_id', user?.id)
+        .order('created_date', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Property.delete(id),
+    mutationFn: async (id) => {
+      const { error } = await supabase.from('property').delete().eq('id', id);
+      if (error) throw error;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-properties'] });
       toast.success('تم حذف العقار بنجاح');
@@ -52,7 +53,7 @@ export default function Dashboard() {
   const activeProperties = properties.filter(p => p.status === 'نشط');
 
   const copyProfileLink = () => {
-    const url = `${window.location.origin}/agent/${user.id}`;
+    const url = `${window.location.origin}/agent/${user?.id}`;
     navigator.clipboard.writeText(url);
     toast.success('تم نسخ رابط البروفايل');
   };
@@ -66,19 +67,16 @@ export default function Dashboard() {
         </div>
         <div className="flex gap-3">
           <Button variant="outline" onClick={copyProfileLink} className="gap-2">
-            <Share2 className="w-4 h-4" />
-            شارك بروفايلك
+            <Share2 className="w-4 h-4" />شارك بروفايلك
           </Button>
           <Button onClick={() => navigate('/add-property')} className="gap-2">
-            <Plus className="w-4 h-4" />
-            أضف عقار
+            <Plus className="w-4 h-4" />أضف عقار
           </Button>
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="bg-gradient-to-bl from-primary/5 to-transparent border-primary/10">
             <CardContent className="p-5 flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -106,7 +104,6 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      {/* Properties */}
       <h2 className="text-lg font-heading font-bold mb-4">عقاراتي</h2>
       {isLoading ? (
         <div className="flex justify-center py-20">
@@ -119,8 +116,7 @@ export default function Dashboard() {
             <h3 className="font-heading font-semibold text-lg mb-2">لا توجد عقارات بعد</h3>
             <p className="text-muted-foreground mb-6">ابدأ بإضافة أول عقار لك</p>
             <Button onClick={() => navigate('/add-property')} className="gap-2">
-              <Plus className="w-4 h-4" />
-              أضف عقار
+              <Plus className="w-4 h-4" />أضف عقار
             </Button>
           </CardContent>
         </Card>
@@ -130,46 +126,28 @@ export default function Dashboard() {
             <div key={property.id} className="relative group">
               <PropertyCard property={property} index={i} />
               <div className="absolute top-3 left-3 flex gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="h-8 w-8 shadow-lg"
-                  onClick={(e) => { e.preventDefault(); navigate(`/edit-property/${property.id}`); }}
-                >
+                <Button size="icon" variant="secondary" className="h-8 w-8 shadow-lg"
+                  onClick={(e) => { e.preventDefault(); navigate(`/edit-property/${property.id}`); }}>
                   <Pencil className="w-3.5 h-3.5" />
                 </Button>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="h-8 w-8 shadow-lg bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={(e) => { e.preventDefault(); setExportProperty(property); }}
-                  title="تصدير بطاقة"
-                >
+                <Button size="icon" variant="secondary" className="h-8 w-8 shadow-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={(e) => { e.preventDefault(); setExportProperty(property); }}>
                   <Download className="w-3.5 h-3.5" />
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-8 w-8 shadow-lg"
-                      onClick={(e) => e.preventDefault()}
-                    >
+                    <Button size="icon" variant="destructive" className="h-8 w-8 shadow-lg" onClick={(e) => e.preventDefault()}>
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>حذف العقار</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        هل أنت متأكد من حذف هذا العقار؟ لا يمكن التراجع عن هذا الإجراء.
-                      </AlertDialogDescription>
+                      <AlertDialogDescription>هل أنت متأكد من حذف هذا العقار؟ لا يمكن التراجع عن هذا الإجراء.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2">
                       <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => deleteMutation.mutate(property.id)}>
-                        حذف
-                      </AlertDialogAction>
+                      <AlertDialogAction onClick={() => deleteMutation.mutate(property.id)}>حذف</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -179,15 +157,12 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Export Card Dialog */}
       <Dialog open={!!exportProperty} onOpenChange={() => setExportProperty(null)}>
         <DialogContent className="max-w-2xl p-4 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-heading text-right">بطاقة النشر</DialogTitle>
           </DialogHeader>
-          {exportProperty && (
-            <PropertyCardExport property={exportProperty} agent={user} />
-          )}
+          {exportProperty && <PropertyCardExport property={exportProperty} agent={user} />}
         </DialogContent>
       </Dialog>
     </div>
