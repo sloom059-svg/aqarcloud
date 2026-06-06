@@ -1,17 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
-// ============================================
-// Supabase Client
-// ============================================
 export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY
 )
-
-// ============================================
-// طبقة توافق base44 → Supabase
-// تترجم أوامر base44 القديمة لـ Supabase تلقائياً
-// ============================================
 
 const TABLE_MAP = {
   Property: 'property',
@@ -84,14 +76,28 @@ const makeEntity = (entityName) => {
         if (!clean.created_by) clean.created_by = user.email
         if (!clean.owner_id) clean.owner_id = user.id
       }
-      const { data, error } = await supabase.from(table).insert(clean).select().single()
-      if (error) throw error
-      return data
+      // تنظيف القيم الفارغة
+      Object.keys(clean).forEach(k => {
+        if (clean[k] === undefined) delete clean[k]
+      })
+      const { data, error } = await supabase.from(table).insert(clean).select()
+      if (error) {
+        alert('خطأ في الحفظ: ' + error.message)
+        throw error
+      }
+      return data?.[0]
     },
     update: async (id, payload) => {
-      const { data, error } = await supabase.from(table).update(payload).eq('id', id).select().single()
-      if (error) throw error
-      return data
+      const clean = { ...payload }
+      Object.keys(clean).forEach(k => {
+        if (clean[k] === undefined) delete clean[k]
+      })
+      const { data, error } = await supabase.from(table).update(clean).eq('id', id).select()
+      if (error) {
+        alert('خطأ في التحديث: ' + error.message)
+        throw error
+      }
+      return data?.[0]
     },
     delete: async (id) => {
       const { error } = await supabase.from(table).delete().eq('id', id)
