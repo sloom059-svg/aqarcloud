@@ -98,13 +98,16 @@ export default function VenueDashboard() {
 
   const [toastMessage, setToastMessage]   = useState('');
   const [showRevenue, setShowRevenue]     = useState(false);
+  const [showNotifs, setShowNotifs]       = useState(false);
   const [itemToDelete, setItemToDelete]   = useState(null);
   const revenueRef = useRef(null);
+  const notifsRef = useRef(null);
 
-  // ── إغلاق نافذة الإيرادات عند الضغط خارجها ──
+  // ── إغلاق النوافذ المنبثقة عند الضغط خارجها ──
   useEffect(() => {
     const handler = (e) => {
       if (revenueRef.current && !revenueRef.current.contains(e.target)) setShowRevenue(false);
+      if (notifsRef.current && !notifsRef.current.contains(e.target)) setShowNotifs(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -136,11 +139,29 @@ export default function VenueDashboard() {
 
   const getBookingCount = (venueId) => bookings.filter(b => b.venue_id === venueId).length;
 
-  // حساب إجمالي الإيرادات التقريبي (الحجوزات × متوسط سعر الويكند)
-  const totalRevenue = venues.reduce((sum, v) => {
-    const count = getBookingCount(v.id);
-    return sum + (v.price_weekend || 0) * count;
-  }, 0);
+  // ── إيرادات الشهر الحالي من الحجوزات المؤكدة فقط ──
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+
+  const isThisMonth = (b) => {
+    const d = b.check_in ? new Date(b.check_in) : (b.created_date ? new Date(b.created_date) : null);
+    return d && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  };
+
+  const venuePrice = (venueId) => {
+    const v = venues.find(x => x.id === venueId);
+    return v?.price_weekend || 0;
+  };
+
+  // إجمالي إيرادات الشهر: الحجوزات المؤكدة فقط (الملغية لا تُحسب)
+  const monthlyRevenue = bookings
+    .filter(b => b.status === 'مؤكد' && isThisMonth(b))
+    .reduce((sum, b) => sum + (b.total_price ? Number(b.total_price) : venuePrice(b.venue_id)), 0);
+
+  // ── الإشعارات: الحجوزات الجديدة ──
+  const newBookings = bookings.filter(b => b.status === 'جديد');
+  const hasNotifications = newBookings.length > 0;
 
   const handleShare = (venue) => {
     const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
@@ -245,25 +266,72 @@ export default function VenueDashboard() {
           <div className="flex items-center gap-2">
 
             {/* الإشعارات */}
-            <button className="relative p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white">
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
-            </button>
+            <div className="relative" ref={notifsRef}>
+              <button
+                onClick={() => setShowNotifs(!showNotifs)}
+                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white'}`}
+                title="الإشعارات"
+              >
+                <Bell className="w-4 h-4" />
+                {hasNotifications && (
+                  <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                )}
+              </button>
+              {showNotifs && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                  <div className="px-4 py-3 bg-[#15317E] text-white flex items-center justify-between">
+                    <span className="text-sm font-bold">الإشعارات</span>
+                    {hasNotifications && (
+                      <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">{newBookings.length}</span>
+                    )}
+                  </div>
+                  {newBookings.length === 0 ? (
+                    <div className="px-4 py-6 text-center">
+                      <p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p>
+                    </div>
+                  ) : (
+                    <div className="max-h-64 overflow-y-auto">
+                      {newBookings.map(b => {
+                        const v = venues.find(x => x.id === b.venue_id);
+                        return (
+                          <Link
+                            key={b.id}
+                            to={`/venue/bookings/${b.venue_id}`}
+                            onClick={() => setShowNotifs(false)}
+                            className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-[#15317E]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Calendar className="w-4 h-4 text-[#15317E]" />
+                            </div>
+                            <div className="flex-1 min-w-0 text-right">
+                              <p className="text-sm font-bold text-slate-700">حجز جديد</p>
+                              <p className="text-xs text-slate-500 truncate">
+                                {b.client_name || 'عميل'} — {v?.name || 'شاليه'}
+                              </p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* الإيرادات */}
             <div className="relative" ref={revenueRef}>
               <button
                 onClick={() => setShowRevenue(!showRevenue)}
                 className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}
-                title="إجمالي الإيرادات"
+                title="إيرادات الشهر"
               >
                 <Wallet className="w-4 h-4" />
               </button>
               {showRevenue && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center">
-                  <p className="text-[11px] text-slate-500 font-medium mb-1">إجمالي إيرادات الحجوزات</p>
-                  <p className="text-xl font-bold text-[#15317E]">
-                    {totalRevenue.toLocaleString('ar-SA')} <span className="text-[10px] font-normal text-slate-400">ر.س</span>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
+                  <p className="text-[11px] text-slate-500 font-medium mb-1">إيرادات الشهر (مؤكدة)</p>
+                  <p className="text-xl font-bold text-[#15317E]" dir="ltr">
+                    {monthlyRevenue.toLocaleString('en-US')} <span className="text-[10px] font-normal text-slate-400">ر.س</span>
                   </p>
                 </div>
               )}
@@ -328,14 +396,16 @@ export default function VenueDashboard() {
               <div className="flex items-center justify-between px-4 py-4">
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5 font-medium">السعر / ليلة ويكند</p>
-                  <p className="text-lg font-bold text-[#15317E]">
-                    {venue.price_weekend?.toLocaleString('ar-SA') ?? '—'} <span className="text-xs font-normal text-slate-400">ر.س</span>
+                  <p className="text-lg font-bold text-[#15317E]" dir="ltr">
+                    {venue.price_weekend?.toLocaleString('en-US') ?? '—'} <span className="text-xs font-normal text-slate-400">ر.س</span>
                   </p>
                 </div>
                 <div className="w-px h-8 bg-slate-200" />
                 <div className="text-left">
                   <p className="text-xs text-slate-500 mb-0.5 font-medium">حجوزات الشهر</p>
-                  <p className="text-lg font-bold text-[#15317E]">{getBookingCount(venue.id)}</p>
+                  <p className="text-lg font-bold text-[#15317E]" dir="ltr">
+                    {bookings.filter(b => b.venue_id === venue.id && b.status !== 'ملغي' && isThisMonth(b)).length}
+                  </p>
                 </div>
               </div>
 
