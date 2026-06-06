@@ -195,8 +195,14 @@ export const base44 = {
   },
 
   functions: {
-    invoke: async () => {
-      return { data: { error: 'الميزة غير متاحة حالياً' } }
+    invoke: async (functionName, body) => {
+      const res = await fetch(`/api/${functionName}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      const data = await res.json()
+      return { data }
     },
   },
 
