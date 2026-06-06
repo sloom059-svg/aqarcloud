@@ -246,15 +246,18 @@ export default function VenueDashboard() {
 
           {/* بيانات المالك */}
           <div className="flex items-center gap-3">
-            <div className="relative p-0.5 bg-white/10 rounded-2xl backdrop-blur-sm">
-              {user?.avatar ? (
-                <img src={user.avatar} alt="Profile" className="w-11 h-11 rounded-xl object-cover" />
-              ) : (
-                <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-lg font-bold">
-                  {(user?.full_name || user?.office_name || 'م')[0]}
-                </div>
-              )}
-              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
+            {/* الشعار - دائرة ثابتة زي واتساب */}
+            <div className="relative flex-shrink-0">
+              <div className="w-12 h-12 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
+                {user?.office_logo_url ? (
+                  <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xl font-bold text-white">
+                    {(user?.full_name || user?.office_name || 'م')[0]}
+                  </span>
+                )}
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
             </div>
             <div>
               <p className="text-[11px] text-white/70 mb-0.5 tracking-wider">مرحباً بك،</p>
@@ -329,7 +332,7 @@ export default function VenueDashboard() {
               </button>
               {showRevenue && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
-                  <p className="text-[11px] text-slate-500 font-medium mb-1">إيرادات الشهر (مؤكدة)</p>
+                  <p className="text-[11px] text-slate-500 font-medium mb-1">إيرادات الشهر (الحجوزات المؤكدة)</p>
                   <p className="text-xl font-bold text-[#15317E]" dir="ltr">
                     {monthlyRevenue.toLocaleString('en-US')} <span className="text-[10px] font-normal text-slate-400">ر.س</span>
                   </p>
