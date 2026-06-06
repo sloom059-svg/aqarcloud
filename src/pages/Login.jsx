@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/api/base44Client';
+import { base44 } from '@/api/base44Client';
 import { Loader2, ArrowLeft, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 
 const GoogleIcon = ({ className }) => (
@@ -19,6 +19,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setMounted(true);
@@ -26,17 +27,25 @@ export default function Login() {
     document.documentElement.lang = 'ar';
   }, []);
 
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      setError("يرجى إدخال جميع البيانات المطلوبة");
-      return;
+        setError("يرجى إدخال جميع البيانات المطلوبة");
+        return;
     }
     setError("");
     setLoading(true);
+    
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      await base44.auth.loginViaEmailPassword(email, password);
       window.location.href = "/";
     } catch (err) {
       setError(err.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة");
@@ -45,88 +54,149 @@ export default function Login() {
     }
   };
 
-  const handleGoogle = async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+  const handleGoogle = () => {
+    base44.auth.loginWithProvider("google", "/check-profile");
   };
 
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center font-sans relative overflow-hidden bg-[#f8fafc] px-4"
+    <div className="min-h-screen flex items-center justify-center font-sans relative overflow-hidden bg-[#f8fafc] px-4" 
          style={{ fontFamily: "'Tajawal', 'Cairo', sans-serif" }}>
+      
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        .dot-pattern {
+          background-image: radial-gradient(rgba(26, 43, 66, 0.06) 1px, transparent 1px);
+          background-size: 24px 24px;
+        }
+        
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+          display: none;
+        }
+      `}} />
 
-      <style dangerouslySetInnerHTML={{__html: `@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap');`}} />
+      <div className="absolute inset-0 dot-pattern pointer-events-none"></div>
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[120px] pointer-events-none mix-blend-multiply"></div>
+      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-slate-200/50 rounded-full blur-[100px] pointer-events-none mix-blend-multiply"></div>
 
       <div className="relative w-full max-w-[420px] z-10">
-        <div className="relative bg-white/90 backdrop-blur-xl border border-slate-200/60 rounded-[2rem] p-8 sm:p-10 shadow-[0_30px_60px_-15px_rgba(26,43,66,0.12)]">
-
+        
+        <div className="relative bg-white/90 backdrop-blur-xl border border-slate-200/60 rounded-[2rem] p-8 sm:p-10 shadow-[0_30px_60px_-15px_rgba(26,43,66,0.12)] overflow-hidden z-10">
+          
           <div className="text-center mb-8">
-            <div className="w-40 h-40 mx-auto mb-4">
-              <img src="https://media.base44.com/images/public/6a218975cdf06fe8cd10f742/4f84b960a_10000065611.png" alt="عقار كلاود" className="w-full h-full object-contain" />
+            <div className="w-40 h-40 mx-auto mb-4 transform transition-transform hover:scale-105 duration-300">
+                <img src="https://media.base44.com/images/public/6a218975cdf06fe8cd10f742/4f84b960a_10000065611.png" alt="عقار كلاود" className="w-full h-full object-contain drop-shadow-sm" />
             </div>
           </div>
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm text-center font-medium">
+            <div className="mb-6 p-3.5 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm text-center font-medium animate-in fade-in slide-in-from-top-2">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            
             <div className="space-y-1.5 text-right">
               <label className="text-sm font-bold text-[#1a2b42] px-1">البريد الإلكتروني</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+              <div className="relative group/input">
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400 group-focus-within/input:text-[#1a2b42] transition-colors">
                   <Mail className="w-4 h-4" />
                 </div>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="block w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-4 pr-10 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#1a2b42]/10 focus:border-[#1a2b42]/30 transition-all text-left"
-                  dir="ltr" required />
+                  className="block w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-4 pr-10 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1a2b42]/10 focus:border-[#1a2b42]/30 transition-all text-left shadow-sm"
+                  dir="ltr"
+                  required
+                />
               </div>
             </div>
 
             <div className="space-y-1.5 text-right">
               <div className="flex items-center justify-between px-1">
-                <Link to="/forgot-password" className="text-xs text-[#1a2b42] hover:text-blue-600 font-bold">نسيت كلمة المرور؟</Link>
+                <Link to="/forgot-password" className="text-xs text-[#1a2b42] hover:text-blue-600 transition-colors font-bold underline decoration-transparent hover:decoration-blue-600 underline-offset-4">
+                  نسيت كلمة المرور؟
+                </Link>
                 <label className="text-sm font-bold text-[#1a2b42]">كلمة المرور</label>
               </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+              <div className="relative group/input">
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400 group-focus-within/input:text-[#1a2b42] transition-colors">
                   <Lock className="w-4 h-4" />
                 </div>
-                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-10 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#1a2b42]/10 focus:border-[#1a2b42]/30 transition-all text-left"
-                  dir="ltr" required />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 hover:text-[#1a2b42]">
+                  className="block w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-10 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1a2b42]/10 focus:border-[#1a2b42]/30 transition-all text-left shadow-sm"
+                  dir="ltr"
+                  required
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 hover:text-[#1a2b42] transition-colors"
+                >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" disabled={loading}
-              className="w-full bg-[#1a2b42] hover:bg-[#121f30] text-white rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-70">
-              {loading ? <><Loader2 className="w-5 h-5 animate-spin" /><span>جاري التحقق...</span></> : <><span>تسجيل الدخول</span><ArrowLeft className="w-4 h-4" /></>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="relative w-full group/btn overflow-hidden rounded-xl mt-4 active:scale-[0.98] transition-all duration-200 shadow-md shadow-[#1a2b42]/20 hover:shadow-lg hover:shadow-[#1a2b42]/30 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              <div className="absolute inset-0 bg-[#1a2b42] transition-colors duration-300 group-hover/btn:bg-[#121f30]"></div>
+              
+              <div className="relative flex items-center justify-center gap-2 py-3.5 px-4 text-white font-bold text-sm">
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>جاري التحقق...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>تسجيل الدخول</span>
+                    <ArrowLeft className="w-4 h-4 transform group-hover/btn:-translate-x-1 transition-transform" />
+                  </>
+                )}
+              </div>
             </button>
           </form>
 
           <div className="relative my-7">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
-            <div className="relative flex justify-center text-xs"><span className="bg-white px-4 text-slate-400">أو</span></div>
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-4 text-slate-400 font-medium">أو</span>
+            </div>
           </div>
 
-          <button onClick={handleGoogle} type="button" disabled={loading}
-            className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 px-4 rounded-xl font-bold transition-all disabled:opacity-70">
+          <button
+            onClick={handleGoogle}
+            type="button"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 py-3 px-4 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] shadow-sm disabled:opacity-70"
+          >
             <GoogleIcon className="w-5 h-5" />
             <span className="text-sm">المتابعة باستخدام Google</span>
           </button>
 
-          <div className="mt-8 text-center text-sm text-slate-500">
+          <div className="mt-8 text-center text-sm text-slate-500 font-medium">
             ليس لديك حساب؟{" "}
-            <Link to="/register" className="font-bold text-[#1a2b42] hover:text-blue-600">قم بإنشاء حساب جديد</Link>
+            <Link to="/register" className="font-bold text-[#1a2b42] hover:text-blue-600 transition-colors underline decoration-transparent hover:decoration-blue-600 underline-offset-4">
+              قم بإنشاء حساب جديد
+            </Link>
           </div>
+
         </div>
       </div>
     </div>

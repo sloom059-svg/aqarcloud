@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { supabase } from '@/api/base44Client';
+import { base44 } from '@/api/base44Client';
 import PropertyForm from '@/components/property/PropertyForm';
 import { ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,7 @@ export default function AddProperty() {
   const navigate = useNavigate();
 
   const createMutation = useMutation({
-    mutationFn: async (data) => {
-  const { error } = await supabase.from('property').insert(data);
-  if (error) throw error;
-},
+    mutationFn: (data) => base44.entities.Property.create(data),
     onSuccess: () => {
       toast.success('تم إضافة العقار بنجاح');
       navigate('/dashboard');
