@@ -33,8 +33,9 @@ export default function Profile() {
   const updateMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
     onSuccess: () => {
-      refreshUser();
       toast.success('تم تحديث الملف الشخصي');
+      const bt = user?.business_type;
+      navigate(bt && bt !== 'وسيط' ? '/venue' : '/');
     },
   });
 
