@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, X, Loader2, MapPin } from "lucide-react";
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 
 const PROPERTY_TYPES = ["شقة", "فيلا", "أرض", "مكتب", "محل تجاري", "عمارة", "استراحة", "مستودع"];
@@ -147,8 +147,13 @@ export default function PropertyForm({ initialData, onSubmit, isLoading }) {
     setUploading(true);
     const newImages = [...form.images];
     for (const file of files.slice(0, remaining)) {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      newImages.push(file_url);
+      const fileExt = file.name.split('.').pop();
+const fileName = `${Date.now()}.${fileExt}`;
+const { data, error } = await supabase.storage.from('images').upload(fileName, file);
+if (!error) {
+  const { data: urlData } = supabase.storage.from('images').getPublicUrl(fileName);
+  newImages.push(urlData.publicUrl);
+}
     }
     setForm(prev => ({ ...prev, images: newImages }));
     setUploading(false);
@@ -168,16 +173,8 @@ export default function PropertyForm({ initialData, onSubmit, isLoading }) {
   };
 
   const fetchNearbyPlaces = async () => {
-    if (!form.maps_url) return;
-    setFetchingPlaces(true);
-    setPlacesError('');
-    const res = await base44.functions.invoke('getNearbyPlaces', { maps_url: form.maps_url });
-    if (res.data?.places) {
-      setForm(prev => ({ ...prev, nearby_places: res.data.places }));
-    } else {
-      setPlacesError(res.data?.error || 'تعذر جلب الأماكن القريبة');
-    }
-    setFetchingPlaces(false);
+    setPlacesError('الميزة غير متاحة حالياً');
+
   };
 
   const handleSubmit = (e) => {
