@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
@@ -6,15 +6,164 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Loader2, ArrowRight, Building2, Upload } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Camera, Loader2, ArrowRight, Building2, Upload, Check, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const CITIES = ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الطائف", "تبوك", "بريدة", "حائل", "أبها", "خميس مشيط", "جازان", "نجران", "ينبع", "الجبيل", "الأحساء", "القطيف", "الرس", "عنيزة", "الزلفي", "المجمعة", "شقراء", "الدوادمي", "الأفلاج", "وادي الدواسر", "سكاكا", "القريات", "عرعر", "رفحاء", "طريف", "الوجه", "أملج", "ضباء", "البدع", "بيشة", "محايل عسير", "صبيا", "أبو عريش", "صامطة", "الليث", "رابغ", "القنفذة", "الباحة", "بلجرشي", "المندق", "مدينة الملك عبدالله الاقتصادية"];
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+const CITIES = ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الطائف", "تبوك", "بريدة", "حائل", "أبها", "خميس مشيط", "جازان", "نجران", "ينبع", "الجبيل", "الأحساء", "القطيف", "الرس", "عنيزة", "الزلفي", "المجمعة", "شقراء", "الدوادمي", "الأفلاج", "وادي الدواسر", "سكاكا", "القريات", "عرعر", "رفحاء", "طريف", "الوجه", "أملج", "ضباء", "البدع", "بيشة", "محايل عسير", "صبيا", "أبو عريش", "صامطة", "الليث", "رابغ", "القنفذة", "الباحة", "بلجرشي", "المندق", "مدينة الملك عبدالله الاقتصادية"];
+
+// ════════════════════════════════════════════
+// نافذة قص الصورة الدائرية (زي واتساب وتويتر)
+// ════════════════════════════════════════════
+function ImageCropper({ imageSrc, onConfirm, onCancel, uploading }) {
+  const [scale, setScale] = useState(1);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const dragging = useRef(false);
+  const lastPos = useRef({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const imgRef = useRef(null);
+
+  const BOX = 260; // حجم منطقة القص
+
+  const startDrag = (clientX, clientY) => {
+    dragging.current = true;
+    lastPos.current = { x: clientX, y: clientY };
+  };
+  const moveDrag = (clientX, clientY) => {
+    if (!dragging.current) return;
+    const dx = clientX - lastPos.current.x;
+    const dy = clientY - lastPos.current.y;
+    lastPos.current = { x: clientX, y: clientY };
+    setPos(p => ({ x: p.x + dx, y: p.y + dy }));
+  };
+  const endDrag = () => { dragging.current = false; };
+
+  // قص الصورة على canvas دائري
+  const handleConfirm = () => {
+    const canvas = document.createElement('canvas');
+    const size = 400;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    const img = imgRef.current;
+    if (!img) return;
+
+    // نسبة العرض للصورة المعروضة
+    const displayedW = img.naturalWidth * (BOX / Math.min(img.naturalWidth, img.naturalHeight)) * scale;
+    const displayedH = img.naturalHeight * (BOX / Math.min(img.naturalWidth, img.naturalHeight)) * scale;
+
+    const ratio = size / BOX;
+
+    // خلفية بيضاء
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, size, size);
+
+    // رسم الصورة بنفس الإزاحة والتكبير
+    const drawW = displayedW * ratio;
+    const drawH = displayedH * ratio;
+    const drawX = (size - drawW) / 2 + pos.x * ratio;
+    const drawY = (size - drawH) / 2 + pos.y * ratio;
+
+    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+    canvas.toBlob((blob) => {
+      const file = new File([blob], 'logo.png', { type: 'image/png' });
+      onConfirm(file);
+    }, 'image/png', 0.92);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm" dir="rtl">
+      <div className="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl">
+        <h3 className="text-lg font-bold text-center text-slate-800 mb-1">ضبط الشعار</h3>
+        <p className="text-xs text-slate-400 text-center mb-5">اسحب الصورة وكبّرها لتناسب الدائرة</p>
+
+        {/* منطقة القص */}
+        <div
+          ref={containerRef}
+          className="relative mx-auto overflow-hidden bg-slate-100 select-none touch-none"
+          style={{ width: BOX, height: BOX, borderRadius: '1rem' }}
+          onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
+          onMouseMove={(e) => moveDrag(e.clientX, e.clientY)}
+          onMouseUp={endDrag}
+          onMouseLeave={endDrag}
+          onTouchStart={(e) => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
+          onTouchMove={(e) => moveDrag(e.touches[0].clientX, e.touches[0].clientY)}
+          onTouchEnd={endDrag}
+        >
+          <img
+            ref={imgRef}
+            src={imageSrc}
+            alt="قص"
+            draggable={false}
+            className="absolute top-1/2 left-1/2 pointer-events-none"
+            style={{
+              height: BOX,
+              width: 'auto',
+              minWidth: BOX,
+              objectFit: 'cover',
+              transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px)) scale(${scale})`,
+              transformOrigin: 'center',
+            }}
+          />
+          {/* قناع دائري مظلل */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              boxShadow: `0 0 0 9999px rgba(0,0,0,0.45)`,
+              borderRadius: '50%',
+              margin: 'auto',
+              width: BOX - 20,
+              height: BOX - 20,
+              top: 10, left: 10, right: 10, bottom: 10,
+            }}
+          />
+          <div className="absolute inset-0 m-[10px] rounded-full border-2 border-white/80 pointer-events-none" />
+        </div>
+
+        {/* شريط التكبير */}
+        <div className="flex items-center gap-3 mt-5">
+          <span className="text-xs text-slate-400">−</span>
+          <input
+            type="range"
+            min={1}
+            max={3}
+            step={0.05}
+            value={scale}
+            onChange={(e) => setScale(Number(e.target.value))}
+            className="flex-1 accent-[#15317E]"
+          />
+          <span className="text-xs text-slate-400">+</span>
+        </div>
+
+        {/* الأزرار */}
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={onCancel}
+            disabled={uploading}
+            className="flex-1 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition text-sm flex items-center justify-center gap-2"
+          >
+            <X className="w-4 h-4" /> إلغاء
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={uploading}
+            className="flex-1 py-3 rounded-xl font-bold text-white bg-[#15317E] hover:bg-[#0d1e4c] transition text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4" /> حفظ</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════
+// صفحة الملف الشخصي
+// ════════════════════════════════════════════
 export default function Profile() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
@@ -28,12 +177,11 @@ export default function Profile() {
     bio: user?.bio || '',
     license_number: user?.license_number || '',
     city: user?.city || '',
-    avatar_url: user?.avatar_url || '',
     office_logo_url: user?.office_logo_url || '',
-    logo_size: user?.logo_size || 48,
   });
-  const [uploading, setUploading] = useState(false);
-  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const [cropSrc, setCropSrc] = useState(null);   // الصورة المراد قصها
+  const [uploadingCrop, setUploadingCrop] = useState(false);
 
   const updateMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
@@ -44,13 +192,33 @@ export default function Profile() {
     },
   });
 
-  const handleAvatarUpload = async (e) => {
+  // عند اختيار ملف → افتح نافذة القص
+  const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setForm(prev => ({ ...prev, avatar_url: file_url }));
-    setUploading(false);
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result);
+    reader.readAsDataURL(file);
+    e.target.value = ''; // إعادة تعيين الإدخال
+  };
+
+  // بعد القص → رفع الصورة
+  const handleCropConfirm = async (croppedFile) => {
+    setUploadingCrop(true);
+    try {
+      // حذف الشعار القديم لو موجود
+      if (form.office_logo_url) {
+        await base44.integrations.Core.DeleteFile(form.office_logo_url);
+      }
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: croppedFile });
+      setForm(prev => ({ ...prev, office_logo_url: file_url }));
+      setCropSrc(null);
+      toast.success('تم ضبط الشعار');
+    } catch (err) {
+      toast.error('تعذّر رفع الصورة');
+    } finally {
+      setUploadingCrop(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -61,7 +229,18 @@ export default function Profile() {
   const initials = (form.full_name || user?.full_name || '؟').split(' ').map(n => n[0]).join('').slice(0, 2);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8" dir="rtl">
+
+      {/* نافذة قص الصورة */}
+      {cropSrc && (
+        <ImageCropper
+          imageSrc={cropSrc}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropSrc(null)}
+          uploading={uploadingCrop}
+        />
+      )}
+
       <div className="flex items-center gap-3 mb-8">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowRight className="w-5 h-5" />
@@ -72,24 +251,29 @@ export default function Profile() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardContent className="p-6">
-            {/* الصورة الشخصية */}
+
+            {/* ── الشعار الدائري (وحدة فقط فوق الاسم) ── */}
             <div className="flex flex-col items-center mb-6">
               <div className="relative">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={form.avatar_url} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">{initials}</AvatarFallback>
-                </Avatar>
-                <label className="absolute bottom-0 left-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:bg-primary/90 transition">
-                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploading} />
+                <div className="w-24 h-24 rounded-full border-2 border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center shadow-sm">
+                  {form.office_logo_url ? (
+                    <img src={form.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-3xl font-bold text-[#15317E]/30">{initials}</span>
+                  )}
+                </div>
+                <label className="absolute bottom-0 left-0 w-8 h-8 rounded-full bg-[#15317E] text-white flex items-center justify-center cursor-pointer hover:bg-[#0d1e4c] transition shadow-md">
+                  <Camera className="w-4 h-4" />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
                 </label>
               </div>
-              <p className="text-sm text-muted-foreground mt-2">{user?.email}</p>
+              <p className="text-sm font-bold text-slate-700 mt-3">{form.full_name || 'بدون اسم'}</p>
+              <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
 
             <div className="space-y-4">
 
-              {/* الاسم الشخصي - للجميع */}
+              {/* الاسم الشخصي */}
               <div className="space-y-2">
                 <Label>الاسم الشخصي</Label>
                 <Input
@@ -99,107 +283,19 @@ export default function Profile() {
                 />
               </div>
 
-              {/* اسم المكتب والشعار - للوسطاء فقط */}
+              {/* اسم المكتب - للوسطاء فقط */}
               {isAgent && (
-                <>
-                  <div className="space-y-2">
-                    <Label>اسم المكتب العقاري</Label>
-                    <div className="relative">
-                      <Building2 className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        value={form.office_name}
-                        onChange={(e) => setForm(prev => ({ ...prev, office_name: e.target.value }))}
-                        placeholder="مثال: مكتب النخبة العقاري"
-                        className="pr-9"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <Label>اسم المكتب العقاري</Label>
+                  <div className="relative">
+                    <Building2 className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={form.office_name}
+                      onChange={(e) => setForm(prev => ({ ...prev, office_name: e.target.value }))}
+                      placeholder="مثال: مكتب النخبة العقاري"
+                      className="pr-9"
+                    />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label>شعار المكتب</Label>
-                    <div className="flex items-center gap-3">
-                      {form.office_logo_url && (
-                        <img src={form.office_logo_url} alt="شعار" className="h-12 w-12 object-contain rounded-lg border border-border" />
-                      )}
-                      <label className="flex items-center gap-2 px-4 py-2 border border-input rounded-md cursor-pointer hover:bg-muted/30 transition text-sm text-muted-foreground">
-                        <Upload className="w-4 h-4" />
-                        {form.office_logo_url ? 'تغيير الشعار' : 'رفع شعار المكتب'}
-                        <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                          setForm(prev => ({ ...prev, office_logo_url: file_url }));
-                        }} />
-                      </label>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* الشعار للشاليهات/مخيم/مزرعة/استراحة */}
-              {!isAgent && (
-                <div className="space-y-3">
-                  <Label>الشعار</Label>
-                  <div className="flex items-center gap-4">
-
-                    {/* معاينة دائرية ثابتة زي واتساب */}
-                    <div className="flex-shrink-0 w-20 h-20 rounded-full border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shadow-sm">
-                      {form.office_logo_url ? (
-                        <img
-                          src={form.office_logo_url}
-                          alt="شعار"
-                          className="w-full h-full object-cover"
-                          style={{
-                            objectPosition: 'center',
-                            transform: `scale(${(form.logo_size / 48).toFixed(2)})`,
-                            transformOrigin: 'center',
-                          }}
-                        />
-                      ) : (
-                        <span className="text-slate-300 text-3xl">🏡</span>
-                      )}
-                    </div>
-
-                    <div className="flex-1 space-y-3">
-                      {/* زر رفع الشعار */}
-                      <label className="flex items-center gap-2 px-4 py-2.5 border border-input rounded-xl cursor-pointer hover:bg-muted/30 transition text-sm text-muted-foreground w-full">
-                        {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                        {form.office_logo_url ? 'تغيير الشعار' : 'رفع الشعار'}
-                        <input type="file" accept="image/*" className="hidden" disabled={uploadingLogo} onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          setUploadingLogo(true);
-                          const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                          setForm(prev => ({ ...prev, office_logo_url: file_url }));
-                          setUploadingLogo(false);
-                        }} />
-                      </label>
-
-                      {/* slider التكبير/التصغير */}
-                      {form.office_logo_url && (
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-slate-400">تكبير الشعار</span>
-                            <span className="text-xs font-bold text-[#15317E]">{Math.round((form.logo_size / 48) * 100)}%</span>
-                          </div>
-                          <input
-                            type="range"
-                            min={24}
-                            max={96}
-                            step={4}
-                            value={form.logo_size}
-                            onChange={(e) => setForm(prev => ({ ...prev, logo_size: Number(e.target.value) }))}
-                            className="w-full accent-[#15317E]"
-                          />
-                          <div className="flex justify-between text-[10px] text-slate-300">
-                            <span>🔍 أصغر</span>
-                            <span>أكبر 🔍</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-400">📍 الشعار يظهر دائرياً في لوحة التحكم جنب اسمك</p>
                 </div>
               )}
 
