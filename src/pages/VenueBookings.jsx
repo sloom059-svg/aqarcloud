@@ -5,64 +5,54 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Plus, X } from 'lucide-react';
+import {
+  Loader2, Plus, X, CheckCircle,
+  ChevronRight, Phone, ChevronDown,
+  MessageCircle, Edit3, Trash2,
+  Inbox, Clock, CheckCircle2, XCircle, Calendar as CalendarIcon
+} from 'lucide-react';
 import VenueCalendar from '@/components/venue/VenueCalendar';
 
 // ── أيقونات SVG ──
 const EditIcon = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 20h9" />
-    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+    <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
   </svg>
 );
-
 const DeleteIcon = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M3 6h18" />
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    <path d="M10 11v6" />
-    <path d="M14 11v6" />
+    <path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M10 11v6" /><path d="M14 11v6" />
   </svg>
 );
-
 const PinIcon = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-    <circle cx="12" cy="10" r="3" />
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
   </svg>
 );
-
-const IconArrow = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>;
-const IconCheck = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polyline points="20 6 9 17 4 12"/></svg>;
-const IconXSm = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
-const IconWa = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>;
-const IconLock = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className || "w-4 h-4"}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>;
-
-const IconNewBadge = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>;
-const IconWaitBadge = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>;
-const IconConfirmBadge = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg>;
-const IconCancelBadge = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></svg>;
-
-const STATUS_CONFIG = {
-  'جديد':      { bg: 'bg-blue-50',    text: 'text-blue-600',    border: 'border-blue-200',    Icon: IconNewBadge },
-  'بالانتظار': { bg: 'bg-amber-50',   text: 'text-amber-500',   border: 'border-amber-200',   Icon: IconWaitBadge },
-  'مؤكد':      { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', Icon: IconConfirmBadge },
-  'ملغي':      { bg: 'bg-red-50',     text: 'text-red-500',     border: 'border-red-200',     Icon: IconCancelBadge },
-};
+const IconWa = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>;
+const IconLock = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className || "w-4 h-4"}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>;
+const IconCheck = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polyline points="20 6 9 17 4 12" /></svg>;
+const IconXSm = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>;
 
 const ARABIC_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-
 const formatDateAr = (dateStr) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   return `${d.getDate()} ${ARABIC_MONTHS[d.getMonth()]}`;
 };
-
 const formatWhatsApp = (phone) => {
   if (!phone) return '';
   let p = phone.replace(/\D/g, '');
   if (p.startsWith('05')) return '966' + p.substring(1);
   return p;
+};
+
+const STATUS_MAP = {
+  'جديد':      { border: 'bg-blue-500',    select: 'bg-blue-50 text-blue-700 border-blue-200',       statBg: 'bg-blue-50',    statText: 'text-blue-600',    statIcon: Inbox },
+  'بالانتظار': { border: 'bg-amber-500',   select: 'bg-amber-50 text-amber-700 border-amber-200',     statBg: 'bg-amber-50',   statText: 'text-amber-500',   statIcon: Clock },
+  'مؤكد':      { border: 'bg-emerald-500', select: 'bg-emerald-50 text-emerald-700 border-emerald-200', statBg: 'bg-emerald-50', statText: 'text-emerald-600', statIcon: CheckCircle2 },
+  'ملغي':      { border: 'bg-rose-500',    select: 'bg-rose-50 text-rose-700 border-rose-200',        statBg: 'bg-rose-50',    statText: 'text-rose-500',    statIcon: XCircle },
 };
 
 const EMPTY_MANUAL = { client_name: '', client_phone: '', check_in: '', check_out: '', notes: '' };
@@ -71,12 +61,19 @@ export default function VenueBookings() {
   const { id } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+
+  const [toastMessage, setToastMessage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [showManual, setShowManual] = useState(false);
   const [manualForm, setManualForm] = useState(EMPTY_MANUAL);
   const [editBooking, setEditBooking] = useState(null);
   const [editForm, setEditForm] = useState({ client_name: '', client_phone: '', check_in: '', check_out: '' });
   const [editConflict, setEditConflict] = useState(false);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
 
   const { data: venue } = useQuery({
     queryKey: ['venue-single', id],
@@ -100,12 +97,19 @@ export default function VenueBookings() {
 
   const updateMutation = useMutation({
     mutationFn: ({ bookingId, data }) => base44.entities.Booking.update(bookingId, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['venue-bookings', id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['venue-bookings', id] });
+      showToast('تم تحديث حالة الحجز بنجاح!');
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (bookingId) => base44.entities.Booking.delete(bookingId),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['venue-bookings', id] }); setConfirmDelete(null); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['venue-bookings', id] });
+      setConfirmDelete(null);
+      showToast('تم حذف الحجز بنجاح!');
+    },
   });
 
   const addBookingMutation = useMutation({
@@ -114,10 +118,9 @@ export default function VenueBookings() {
       qc.invalidateQueries({ queryKey: ['venue-bookings', id] });
       setShowManual(false);
       setManualForm(EMPTY_MANUAL);
+      showToast('تم إضافة الحجز اليدوي بنجاح!');
     },
   });
-
-  const statusOrder = ['جديد', 'بالانتظار', 'مؤكد', 'ملغي'];
 
   const bookedDates = bookings
     .filter(b => b.status === 'مؤكد' || b.status === 'بالانتظار')
@@ -181,141 +184,163 @@ export default function VenueBookings() {
     if (editConflict) return;
     updateMutation.mutate({ bookingId: editBooking, data: editForm });
     setEditBooking(null);
+    showToast('تم تعديل تفاصيل الحجز بنجاح!');
   };
 
+  const statusOrder = ['جديد', 'بالانتظار', 'مؤكد', 'ملغي'];
+
   return (
-    <div className="min-h-screen bg-slate-50 pb-20" dir="rtl">
+    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-20 relative">
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
-        body { font-family: 'Cairo', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
       `}} />
+
+      {/* Toast */}
+      {toastMessage && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[150] bg-[#15317E] text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[#0d1e4c]">
+          <CheckCircle className="w-5 h-5 text-emerald-400" />
+          <span className="text-sm font-bold tracking-wide">{toastMessage}</span>
+        </div>
+      )}
 
       {/* Modal تعديل */}
       {editBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={() => setEditBooking(null)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-base text-[#1E2F45]">تعديل بيانات الحجز</h3>
-              <button onClick={() => setEditBooking(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setEditBooking(null)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="font-bold text-[#15317E] flex items-center gap-2">
+                <Edit3 className="w-4 h-4" /> تعديل تفاصيل الحجز
+              </h3>
+              <button onClick={() => setEditBooking(null)} className="p-1.5 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300">
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <div className="space-y-3">
+            <div className="p-5 space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-slate-600">اسم العميل</Label>
-                <Input value={editForm.client_name} onChange={e => handleEditFormChange('client_name', e.target.value)} className="h-11 rounded-xl text-sm" placeholder="مثال: محمد عبدالله" />
+                <Label className="text-xs font-bold text-slate-500">اسم العميل</Label>
+                <Input value={editForm.client_name} onChange={e => handleEditFormChange('client_name', e.target.value)} className="h-11 rounded-xl text-sm" placeholder="محمد عبدالله" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-slate-600">رقم الجوال</Label>
+                <Label className="text-xs font-bold text-slate-500">رقم الجوال</Label>
                 <Input value={editForm.client_phone} onChange={e => handleEditFormChange('client_phone', e.target.value)} className="h-11 rounded-xl text-sm" placeholder="05xxxxxxxx" dir="ltr" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-slate-600">تاريخ الدخول</Label>
+                  <Label className="text-xs font-bold text-slate-500">تاريخ الدخول</Label>
                   <Input type="date" value={editForm.check_in} onChange={e => handleEditFormChange('check_in', e.target.value)} className="h-11 rounded-xl text-sm" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-slate-600">تاريخ الخروج</Label>
+                  <Label className="text-xs font-bold text-slate-500">تاريخ الخروج</Label>
                   <Input type="date" value={editForm.check_out} onChange={e => handleEditFormChange('check_out', e.target.value)} className="h-11 rounded-xl text-sm" />
                 </div>
               </div>
               {editConflict && (
                 <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-500 shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   <span className="text-xs text-red-700 font-bold">الفترة المختارة تتعارض مع حجز موجود، يرجى اختيار تواريخ أخرى.</span>
                 </div>
               )}
             </div>
-            <div className="flex gap-2 mt-5">
-              <Button onClick={handleEditSave} disabled={updateMutation.isPending} className="flex-1 h-10 text-sm font-bold bg-[#1E2F45] hover:bg-[#1E2F45]/90 text-white rounded-xl">
+            <div className="flex gap-2 px-5 pb-5">
+              <Button onClick={handleEditSave} disabled={updateMutation.isPending || editConflict} className="flex-1 h-11 text-sm font-bold bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-xl">
                 {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ التعديلات'}
               </Button>
-              <button onClick={() => setEditBooking(null)} className="px-4 h-10 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">إلغاء</button>
+              <button onClick={() => setEditBooking(null)} className="px-4 h-11 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">إلغاء</button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="w-full bg-[#1E2F45] text-white py-5 px-4 shadow-md z-10 sticky top-0">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+      {/* Modal حجز يدوي */}
+      {showManual && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowManual(false)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="font-bold text-[#15317E] flex items-center gap-2">
+                <div className="bg-[#15317E]/10 p-1.5 rounded-lg"><Plus className="w-4 h-4 text-[#15317E]" /></div>
+                إضافة حجز يدوي
+              </h3>
+              <button onClick={() => { setShowManual(false); setManualForm(EMPTY_MANUAL); }} className="p-1.5 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form onSubmit={handleManualSubmit} className="p-5 space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-slate-500">اسم العميل *</Label>
+                <Input value={manualForm.client_name} onChange={e => setManualForm(p => ({ ...p, client_name: e.target.value }))} placeholder="محمد عبدالله" required className="h-11 rounded-xl text-sm" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-slate-500">رقم الجوال *</Label>
+                <Input value={manualForm.client_phone} dir="ltr" onChange={e => setManualForm(p => ({ ...p, client_phone: e.target.value }))} placeholder="05xxxxxxxx" required className="h-11 rounded-xl text-sm" />
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1 space-y-1.5">
+                  <Label className="text-xs font-bold text-slate-500">تاريخ الدخول *</Label>
+                  <Input type="date" value={manualForm.check_in} onChange={e => setManualForm(p => ({ ...p, check_in: e.target.value }))} required className="h-11 rounded-xl text-sm" />
+                </div>
+                <div className="flex-1 space-y-1.5">
+                  <Label className="text-xs font-bold text-slate-500">تاريخ الخروج *</Label>
+                  <Input type="date" value={manualForm.check_out} onChange={e => setManualForm(p => ({ ...p, check_out: e.target.value }))} required className="h-11 rounded-xl text-sm" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-slate-500">ملاحظات (اختياري)</Label>
+                <Input value={manualForm.notes} onChange={e => setManualForm(p => ({ ...p, notes: e.target.value }))} placeholder="أي تفاصيل إضافية..." className="h-11 rounded-xl text-sm" />
+              </div>
+              <Button type="submit" disabled={addBookingMutation.isPending} className="w-full h-11 rounded-xl font-bold bg-[#15317E] hover:bg-[#0d1e4c] text-white text-sm">
+                {addBookingMutation.isPending ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : 'تأكيد الحجز'}
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* الخلفية الزرقاء العلوية */}
+      <div className="absolute top-0 left-0 right-0 h-[220px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
+
+      <div className="relative z-10 max-w-md mx-auto px-4 pt-6">
+
+        {/* الهيدر - نفس لوحة التحكم */}
+        <header className="flex items-center justify-between text-white mb-6">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/venue')} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
-              <IconArrow />
+            <button onClick={() => navigate('/venue')} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all">
+              <ChevronRight className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-lg font-bold tracking-wide">إدارة الحجوزات</h1>
-              {venue && <p className="text-xs text-blue-100 opacity-80">{venue.name}</p>}
+              <h1 className="text-lg font-bold">إدارة الحجوزات</h1>
+              {venue && <p className="text-xs text-white/70">{venue.name}</p>}
             </div>
           </div>
           <button
-            onClick={() => setShowManual(v => !v)}
-            className="flex items-center gap-1.5 bg-white text-[#1E2F45] hover:bg-slate-100 transition-colors rounded-xl px-4 py-2 text-xs font-bold shadow-sm"
+            onClick={() => setShowManual(true)}
+            className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
           >
-            <Plus className="w-4 h-4" /> حجز يدوي
+            <Plus className="w-3.5 h-3.5" /> حجز يدوي
           </button>
-        </div>
-      </div>
+        </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-
-        {/* الكروت الإحصائية */}
-        <div className="grid grid-cols-4 gap-3 mb-8">
+        {/* كروت الإحصائيات */}
+        <div className="flex gap-2 mb-6">
           {statusOrder.map(s => {
             const count = bookings.filter(b => b.status === s).length;
-            const cfg = STATUS_CONFIG[s];
-            const StatusIcon = cfg.Icon;
+            const cfg = STATUS_MAP[s];
+            const Icon = cfg.statIcon;
             return (
-              <div key={s} className="bg-white rounded-2xl p-3 text-center border border-slate-100 shadow-sm flex flex-col justify-center items-center">
-                <StatusIcon className={`w-5 h-5 mb-1.5 ${cfg.text} opacity-80`} />
-                <div className={`text-xl font-black leading-none ${cfg.text}`}>{count}</div>
-                <div className="text-[9px] md:text-[11px] mt-1 font-bold text-slate-500">{s}</div>
+              <div key={s} className="flex-1 bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-1">
+                <div className={`p-1.5 ${cfg.statBg} rounded-lg`}><Icon className={`w-4 h-4 ${cfg.statText}`} /></div>
+                <p className={`text-lg font-black leading-none mt-1 ${cfg.statText}`}>{count}</p>
+                <p className="text-[10px] font-bold text-slate-500">{s}</p>
               </div>
             );
           })}
         </div>
 
-        {/* فورم الحجز اليدوي */}
-        {showManual && (
-          <div className="bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.04)] mb-8 overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="font-bold text-base text-[#1E2F45]">إضافة حجز يدوي</h2>
-              <button onClick={() => { setShowManual(false); setManualForm(EMPTY_MANUAL); }} className="text-slate-400 hover:text-red-500 transition">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleManualSubmit} className="p-5 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-slate-600">اسم العميل *</Label>
-                  <Input value={manualForm.client_name} onChange={e => setManualForm(p => ({ ...p, client_name: e.target.value }))} placeholder="مثال: محمد عبدالله" required className="h-11 rounded-xl text-sm" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-slate-600">رقم الجوال *</Label>
-                  <Input value={manualForm.client_phone} dir="ltr" onChange={e => setManualForm(p => ({ ...p, client_phone: e.target.value }))} placeholder="05xxxxxxxx" required className="h-11 rounded-xl text-sm" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-slate-600">تاريخ الدخول *</Label>
-                  <Input type="date" value={manualForm.check_in} onChange={e => setManualForm(p => ({ ...p, check_in: e.target.value }))} required className="h-11 rounded-xl text-sm" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-slate-600">تاريخ الخروج *</Label>
-                  <Input type="date" value={manualForm.check_out} onChange={e => setManualForm(p => ({ ...p, check_out: e.target.value }))} required className="h-11 rounded-xl text-sm" />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-slate-600">ملاحظات (اختياري)</Label>
-                <Input value={manualForm.notes} onChange={e => setManualForm(p => ({ ...p, notes: e.target.value }))} placeholder="أي تفاصيل إضافية..." className="h-11 rounded-xl text-sm" />
-              </div>
-              <Button type="submit" className="w-full h-11 rounded-xl font-bold bg-[#1E2F45] hover:bg-[#1E2F45]/90 text-white text-sm" disabled={addBookingMutation.isPending}>
-                {addBookingMutation.isPending ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : 'إضافة الحجز'}
-              </Button>
-            </form>
-          </div>
-        )}
-
         {/* التقويم */}
-        <div className="bg-white border border-slate-100 rounded-[1.5rem] p-5 shadow-[0_4px_20px_rgb(0,0,0,0.04)] mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-base text-[#1E2F45]">التقويم والإتاحة</h2>
-          </div>
+        <div className="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-100 mb-6">
+          <h3 className="text-sm font-bold text-[#15317E] flex items-center gap-2 mb-4">
+            <CalendarIcon className="w-4 h-4 text-[#15317E]/70" />
+            التقويم والإتاحة
+          </h3>
           <VenueCalendar
             bookedDates={bookedDates}
             onRangeSelect={null}
@@ -324,10 +349,14 @@ export default function VenueBookings() {
           />
         </div>
 
-        <h2 className="font-bold text-lg text-[#1E2F45] text-center mb-5">الحجوزات القادمة</h2>
+        {/* عنوان القائمة */}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-bold text-[#15317E]">الحجوزات</h3>
+        </div>
 
+        {/* قائمة الحجوزات */}
         {isLoading ? (
-          <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-[#1E2F45]" /></div>
+          <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
         ) : bookings.length === 0 ? (
           <div className="text-center py-16 text-slate-400 bg-white rounded-[1.5rem] border border-slate-100 shadow-sm">
             <p className="font-bold text-base">لا توجد حجوزات حالياً</p>
@@ -335,92 +364,101 @@ export default function VenueBookings() {
         ) : (
           <div className="space-y-3">
             {bookings.map((booking) => {
-              const cfg = STATUS_CONFIG[booking.status] || STATUS_CONFIG['جديد'];
+              const cfg = STATUS_MAP[booking.status] || STATUS_MAP['جديد'];
               const isDeleting = confirmDelete === booking.id;
               const isManualBlock = booking.client_phone === '000';
 
               return (
-                <div key={booking.id} className="bg-white border-2 border-slate-100 rounded-[1.5rem] p-4 hover:border-[#1E2F45]/20 transition-all shadow-sm">
+                <div key={booking.id} className="bg-white rounded-[1.2rem] p-3 shadow-sm border border-slate-100 relative overflow-hidden">
+                  {/* شريط اللون الجانبي */}
+                  <div className={`absolute top-0 right-0 w-1 h-full ${cfg.border}`} />
 
-                  <div className="flex items-start justify-between">
-                    <div className="flex flex-col gap-1.5">
-                      <div className="text-[#1E2F45] text-base font-bold tracking-tight">
-                        {formatDateAr(booking.check_in)} - {formatDateAr(booking.check_out)}
+                  <div className="flex justify-between items-start mb-3 pl-1 pr-2">
+                    {/* معلومات العميل */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        {!isManualBlock ? (
+                          <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1">
+                            <PinIcon className="w-3.5 h-3.5 text-slate-400" />
+                            {booking.client_name}
+                          </h4>
+                        ) : (
+                          <h4 className="text-sm font-bold text-slate-600 flex items-center gap-1">
+                            <IconLock className="w-3.5 h-3.5" /> إغلاق يدوي
+                          </h4>
+                        )}
                       </div>
-
-                      {!isManualBlock ? (
-                        <div className="flex flex-col mt-0.5">
-                          <div className="flex items-center flex-wrap gap-2 text-slate-600 font-semibold text-sm">
-                            <div className="flex items-center gap-1">
-                              <PinIcon className="w-3.5 h-3.5 text-slate-400" />
-                              {booking.client_name}
-                            </div>
-                            {booking.client_phone && booking.client_phone !== '000' && (
-                              <a
-                                href={`https://wa.me/${formatWhatsApp(booking.client_phone)}?text=${encodeURIComponent(`مرحباً ${booking.client_name}، نتواصل معك بخصوص حجزك...`)}`}
-                                target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-xs font-bold text-[#1E2F45] bg-slate-100 hover:bg-slate-200 transition-colors px-2 py-1 rounded-lg border border-slate-200"
-                              >
-                                <IconWa className="w-3.5 h-3.5" /> مراسلة
-                              </a>
-                            )}
-                          </div>
-                          {booking.client_phone && booking.client_phone !== '000' && (
-                            <div className="text-xs text-slate-400 font-medium mr-[20px] mt-0.5">
-                              {booking.client_phone}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm mt-0.5">
-                          <IconLock className="w-3.5 h-3.5" /> إغلاق يدوي
+                      {!isManualBlock && booking.client_phone && booking.client_phone !== '000' && (
+                        <div className="flex items-center gap-2">
+                          <p className="text-[11px] text-slate-500 flex items-center gap-1 font-medium">
+                            <Phone className="w-3 h-3 text-slate-400" />
+                            <span dir="ltr">{booking.client_phone}</span>
+                          </p>
+                          <a
+                            href={`https://wa.me/${formatWhatsApp(booking.client_phone)}?text=${encodeURIComponent(`مرحباً ${booking.client_name}، نتواصل معك بخصوص حجزك...`)}`}
+                            target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium transition-colors"
+                          >
+                            <IconWa className="w-3 h-3" /> مراسلة
+                          </a>
                         </div>
                       )}
-
                       {booking.notes && !isManualBlock && (
-                        <div className="text-xs text-slate-500 bg-slate-50 rounded-lg px-2.5 py-1.5 mt-0.5 border border-slate-100 inline-block">
+                        <div className="text-xs text-slate-500 bg-slate-50 rounded-lg px-2.5 py-1 mt-1 border border-slate-100 inline-block">
                           {booking.notes}
                         </div>
                       )}
                     </div>
 
-                    {/* الجهة اليسرى */}
+                    {/* الأزرار */}
                     <div className="flex flex-col items-end gap-2">
-                      <span className={`font-bold text-sm flex items-center gap-1 ${cfg.text}`}>
-                        <cfg.Icon className="w-4 h-4" />
-                        {booking.status}
-                      </span>
+                      {/* حالة الحجز */}
+                      <div className="relative">
+                        <select
+                          value={booking.status}
+                          onChange={(e) => updateMutation.mutate({ bookingId: booking.id, data: { status: e.target.value } })}
+                          className={`appearance-none pl-6 pr-2 py-1 rounded-lg text-[11px] font-bold border outline-none cursor-pointer transition-colors ${cfg.select}`}
+                        >
+                          <option value="جديد">جديد</option>
+                          <option value="بالانتظار">بالانتظار</option>
+                          <option value="مؤكد">مؤكد</option>
+                          <option value="ملغي">ملغي</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 absolute left-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
+                      </div>
 
+                      {/* أزرار التعديل والحذف */}
                       <div className="flex items-center gap-1">
                         {!isManualBlock && (
-                          <button onClick={() => openEdit(booking)}
-                            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors" title="تعديل البيانات">
-                            <EditIcon className="w-4 h-4" />
+                          <button onClick={() => openEdit(booking)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="تعديل">
+                            <Edit3 className="w-4 h-4" />
                           </button>
                         )}
-                        {!isManualBlock && booking.status !== 'مؤكد' && booking.status !== 'ملغي' && (
-                          <button onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'مؤكد' } })}
-                            className="p-1.5 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="تأكيد الحجز">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polyline points="20 6 9 17 4 12"/></svg>
-                          </button>
-                        )}
-                        <button
-                          onClick={() => setConfirmDelete(booking.id)}
-                          className="p-1.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                          title="حذف الحجز"
-                        >
+                        <button onClick={() => setConfirmDelete(booking.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="حذف">
                           <DeleteIcon className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  {(!isManualBlock || isDeleting) && (
-                    <div className="flex gap-2 flex-wrap mt-3 pt-3 border-t border-slate-50">
+                  {/* تفاصيل التواريخ */}
+                  <div className="flex items-center justify-between bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 mx-1">
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+                      <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{formatDateAr(booking.check_in)} ← {formatDateAr(booking.check_out)}</span>
+                    </div>
+                    <div className="w-px h-3 bg-slate-200" />
+                    <div className="text-[11px] text-[#15317E] font-bold">
+                      {booking.price ? `${booking.price} ر.س` : '—'}
+                    </div>
+                  </div>
 
-                      {isDeleting && (
+                  {/* أزرار تأكيد / إلغاء / حذف */}
+                  {!isManualBlock && (
+                    <div className="flex gap-2 flex-wrap mt-3 pt-3 border-t border-slate-50">
+                      {isDeleting ? (
                         <div className="flex items-center gap-2 w-full bg-red-50 p-2.5 rounded-xl border border-red-100">
-                          <span className="text-xs text-red-800 font-bold ml-auto">هل أنت متأكد من الحذف؟</span>
+                          <span className="text-xs text-red-800 font-bold ml-auto">تأكيد الحذف؟</span>
                           <button
                             onClick={() => deleteMutation.mutate(booking.id)}
                             disabled={deleteMutation.isPending}
@@ -428,27 +466,25 @@ export default function VenueBookings() {
                           >
                             {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'نعم، احذف'}
                           </button>
-                          <button
-                            onClick={() => setConfirmDelete(null)}
-                            className="text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition"
-                          >
+                          <button onClick={() => setConfirmDelete(null)} className="text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition">
                             تراجع
                           </button>
                         </div>
-                      )}
-
-                      {!isDeleting && !isManualBlock && (
+                      ) : (
                         <>
                           {booking.status !== 'مؤكد' && booking.status !== 'ملغي' && (
-                            <button onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'مؤكد' } })}
-                              className="flex items-center gap-1 text-xs font-bold text-white bg-[#1E2F45] border border-[#1E2F45] rounded-xl px-4 py-1.5 hover:bg-[#1E2F45]/90 transition shadow-sm">
+                            <button
+                              onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'مؤكد' } })}
+                              className="flex items-center gap-1 text-xs font-bold text-white bg-[#15317E] border border-[#15317E] rounded-xl px-4 py-1.5 hover:bg-[#0d1e4c] transition shadow-sm"
+                            >
                               <IconCheck /> تأكيد الحجز
                             </button>
                           )}
-
                           {booking.status !== 'ملغي' && (
-                            <button onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'ملغي' } })}
-                              className="flex items-center gap-1 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-1.5 hover:bg-slate-50 transition shadow-sm">
+                            <button
+                              onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'ملغي' } })}
+                              className="flex items-center gap-1 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-1.5 hover:bg-slate-50 transition shadow-sm"
+                            >
                               <IconXSm /> إلغاء الحجز
                             </button>
                           )}
@@ -457,6 +493,16 @@ export default function VenueBookings() {
                     </div>
                   )}
 
+                  {/* حذف للحجز اليدوي */}
+                  {isManualBlock && isDeleting && (
+                    <div className="flex items-center gap-2 w-full bg-red-50 p-2.5 rounded-xl border border-red-100 mt-3">
+                      <span className="text-xs text-red-800 font-bold ml-auto">تأكيد الحذف؟</span>
+                      <button onClick={() => deleteMutation.mutate(booking.id)} disabled={deleteMutation.isPending} className="flex items-center gap-1 text-xs font-bold text-white bg-red-600 rounded-lg px-3 py-1.5 hover:bg-red-700 transition">
+                        {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'نعم، احذف'}
+                      </button>
+                      <button onClick={() => setConfirmDelete(null)} className="text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition">تراجع</button>
+                    </div>
+                  )}
                 </div>
               );
             })}
