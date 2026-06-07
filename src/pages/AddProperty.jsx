@@ -9,8 +9,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const DRAFT_KEY = 'add-property-draft';
-
 // ── Dropdown الملف الشخصي / الخروج ──
 function ProfileMenu({ onLogout }) {
   const [open, setOpen] = useState(false);
@@ -70,23 +68,9 @@ export default function AddProperty() {
   });
   const activeProperties = properties.filter(p => p.status === 'نشط');
 
-  // ── المسودة المحفوظة ──
-  const [draft, setDraft] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem(DRAFT_KEY);
-      return saved ? JSON.parse(saved) : null;
-    } catch (_) { return null; }
-  });
-
-  const handleDraftChange = (formData) => {
-    setDraft(formData);
-    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(formData)); } catch (_) {}
-  };
-
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Property.create(data),
     onSuccess: () => {
-      try { sessionStorage.removeItem(DRAFT_KEY); } catch (_) {}
       toast.success('تم إضافة العقار بنجاح');
       navigate('/dashboard');
     },
@@ -163,10 +147,8 @@ export default function AddProperty() {
         {/* ══════════════ النموذج ══════════════ */}
         <div className="bg-white rounded-[1.5rem] shadow-sm border border-slate-100 p-4 sm:p-6">
           <PropertyForm
-            initialData={draft}
             onSubmit={createMutation.mutate}
             isLoading={createMutation.isPending}
-            onChange={handleDraftChange}
           />
         </div>
       </div>
