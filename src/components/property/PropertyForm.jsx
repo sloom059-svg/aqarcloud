@@ -42,8 +42,8 @@ const FEATURES_BY_TYPE = {
   'مستودع': ["رافعة شوكية","تبريد","حارس أمن","بوابة كبيرة","كهرباء صناعية","حوش واسع","منطقة تحميل","أرضية مقواة"],
   'مكتب': ["مصعد","موقف سيارات","تكييف مركزي","قاعة اجتماعات","استقبال","مدخل خاص","مفروش","انترنت"],
   'استراحة': ["حوش واسع","مسبح","مجلس كبير","مطبخ خارجي","مواقف متعددة","أشجار ونخيل","ملعب"],
-  'فيلا': ["مطبخ راكب","مدخل سيارة","عداد مستقل","دور علوي","دور أرضي","ملحق علوي","ملحق خارجي","حديقة خاصة","مسبح","مجلس","غرفة خادمة","مصعد"],
-  'شقة': ["مطبخ راكب","مدخل خاص","عداد مستقل","دور أرضي","دور علوي","مصعد","موقف سيارات","تكييف مركزي","شرفة"],
+  'فيلا': ["مطبخ راكب","مدخل سيارة","عداد مستقل","دور أول","دور ثاني","دور علوي","دور أرضي","ملحق علوي مع السطح","ملحق خارجي","حديقة خاصة","مسبح","مجلس","غرفة خادمة","مصعد","درج داخلي"],
+  'شقة': ["مطبخ راكب","مدخل خاص","عداد مستقل","دور أول","دور ثاني","دور أرضي","دور علوي","ملحق علوي مع السطح","مصعد","موقف سيارات","تكييف مركزي","شرفة"],
   'محل تجاري': ["واجهة زجاجية","موقف عملاء","تكييف","إضاءة جيدة","مستودع ملحق","دورة مياه","تأسيس مطعم"],
   'عمارة': ["مصعد","موقف سيارات","حراسة","صيانة دورية","عدادات مستقلة","شقق مفروشة"],
 };
@@ -139,11 +139,21 @@ const Style = () => (
 // ───────────────────────────────────────────
 // المكوّن الرئيسي
 // ───────────────────────────────────────────
+const DRAFT_KEY = 'add-property-draft';
+
 export default function PropertyForm({ initialData, onSubmit, isLoading, successData, onReset }) {
   const { user } = useAuth();
   const isEdit = !!initialData;
 
-  const [step, setStep] = useState(isEdit ? 1 : 0);
+  // تحميل المسودة من sessionStorage (فقط لصفحة إضافة جديدة)
+  const savedDraft = !isEdit ? (() => {
+    try { const s = sessionStorage.getItem(DRAFT_KEY); return s ? JSON.parse(s) : null; } catch { return null; }
+  })() : null;
+
+  const [step, setStep] = useState(() => {
+    if (isEdit) return 1;
+    return savedDraft?.step || 0;
+  });
   const [uploading, setUploading] = useState(false);
   const [fetchingPlaces, setFetchingPlaces] = useState(false);
   const [placesError, setPlacesError] = useState('');
@@ -158,7 +168,15 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
     city: '', neighborhood: '', maps_url: '', nearby_places: [],
     images: [], features: [], status: 'نشط',
     ...initialData,
+    ...(savedDraft?.form || {}),
   });
+
+  // حفظ المسودة تلقائياً عند كل تغيير (للتنقّل)
+  useEffect(() => {
+    if (!isEdit) {
+      try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ form, step })); } catch {}
+    }
+  }, [form, step]);
 
   useEffect(() => {
     if (!form.city && user?.city) setForm(prev => ({ ...prev, city: user.city }));
@@ -233,6 +251,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
   };
 
   const submit = () => {
+    try { sessionStorage.removeItem(DRAFT_KEY); } catch {}
     const data = {
       ...form,
       price: form.price_negotiable ? undefined : (form.price ? Number(form.price) : undefined),
@@ -289,7 +308,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
             </button>
           )}
           {onReset && (
-            <button onClick={onReset}
+            <button onClick={() => { try { sessionStorage.removeItem(DRAFT_KEY); } catch {} onReset(); }}
               className="w-full py-3 text-slate-400 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all">
               إضافة عقار آخر
             </button>
