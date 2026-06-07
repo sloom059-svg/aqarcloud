@@ -60,6 +60,8 @@ export default function AddProperty() {
 
   const handleLogout = async () => { await logout(false); navigate('/login'); };
 
+  const [successData, setSuccessData] = useState(null);
+
   // ── بيانات الإحصائيات والإشعارات (نفس لوحة التحكم) ──
   const { data: properties = [] } = useQuery({
     queryKey: ['my-properties'],
@@ -70,9 +72,10 @@ export default function AddProperty() {
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Property.create(data),
-    onSuccess: () => {
-      toast.success('تم إضافة العقار بنجاح');
-      navigate('/dashboard');
+    onSuccess: (created, vars) => {
+      const id = created?.id || created?.[0]?.id;
+      const url = id ? `${window.location.origin}/property/${id}` : '';
+      setSuccessData({ title: vars?.title, url });
     },
   });
 
@@ -149,6 +152,8 @@ export default function AddProperty() {
           <PropertyForm
             onSubmit={createMutation.mutate}
             isLoading={createMutation.isPending}
+            successData={successData}
+            onReset={() => { setSuccessData(null); window.location.reload(); }}
           />
         </div>
       </div>
