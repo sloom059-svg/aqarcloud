@@ -479,6 +479,7 @@ export default function VenueBookings() {
               التقويم والإتاحة
             </h3>
             <VenueCalendar bookedDates={bookedDates} onRangeSelect={null} readOnly={true} venueName={venue?.name || ''} />
+            <p className="text-xs text-gray-400 mt-2">سوف تظهر التواريخ المحجوزة في صفحة الشاليه</p>
           </div>
 
           {/* عنوان القائمة + زر حجز يدوي */}
