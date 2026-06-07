@@ -61,7 +61,7 @@ export default function AgentProfile() {
     );
   }
 
-  const initials = agent.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '؟';
+  const initials = (agent.office_name || agent.full_name)?.split(' ').map(n => n[0]).join('').slice(0, 2) || '؟';
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-20 relative">
@@ -92,20 +92,17 @@ export default function AgentProfile() {
             {/* الشعار / الأحرف */}
             <div className="relative -mt-16 mb-3">
               <div className="w-24 h-24 rounded-full border-4 border-white bg-[#15317E] overflow-hidden flex items-center justify-center shadow-lg">
-                {agent.avatar_url || agent.office_logo_url ? (
-                  <img src={agent.avatar_url || agent.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                {agent.office_logo_url || agent.avatar_url ? (
+                  <img src={agent.office_logo_url || agent.avatar_url} alt="شعار" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-3xl font-black text-white">{initials}</span>
                 )}
               </div>
             </div>
 
-            <h1 className="text-2xl font-black text-[#15317E]">{agent.full_name}</h1>
-            {agent.office_name && (
-              <div className="flex items-center gap-1.5 mt-1.5 text-slate-500">
-                <Building2 className="w-4 h-4" />
-                <span className="font-bold text-sm">{agent.office_name}</span>
-              </div>
+            <h1 className="text-2xl font-black text-[#15317E]">{agent.office_name || agent.full_name}</h1>
+            {agent.office_name && agent.full_name && (
+              <p className="text-sm font-bold text-slate-400 mt-1">{agent.full_name}</p>
             )}
 
             {/* الشارات */}
@@ -126,20 +123,18 @@ export default function AgentProfile() {
               <p className="text-slate-500 text-sm mt-4 max-w-md leading-relaxed">{agent.bio}</p>
             )}
 
-            {/* أيقونات التواصل */}
-            <div className="flex items-center justify-center gap-3 mt-5">
+            {/* أزرار التواصل */}
+            <div className="flex items-center gap-2.5 mt-5 w-full max-w-sm">
               {agent.whatsapp && (
                 <a href={`https://wa.me/${agent.whatsapp}`} target="_blank" rel="noopener noreferrer"
-                  className="w-12 h-12 flex items-center justify-center bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl transition-all shadow-md shadow-[#15317E]/20 hover:-translate-y-0.5"
-                  title="مراسلة واتساب">
-                  <WhatsAppIcon className="w-5 h-5" />
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#15317E] hover:bg-[#0d1e4c] text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#15317E]/20 hover:-translate-y-0.5">
+                  <WhatsAppIcon className="w-4 h-4" /> مراسلة واتساب
                 </a>
               )}
               {agent.phone && (
                 <a href={`tel:${agent.phone}`}
-                  className="w-12 h-12 flex items-center justify-center bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl transition-all shadow-md shadow-[#15317E]/20 hover:-translate-y-0.5"
-                  title="اتصال">
-                  <PhoneIcon className="w-5 h-5" />
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#15317E] hover:bg-[#0d1e4c] text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#15317E]/20 hover:-translate-y-0.5">
+                  <PhoneIcon className="w-4 h-4" /> اتصال
                 </a>
               )}
             </div>
@@ -147,7 +142,7 @@ export default function AgentProfile() {
         </div>
 
         {/* العقارات */}
-        <h2 className="text-lg font-bold text-[#15317E] mb-4 mt-8">عقارات {agent.full_name}</h2>
+        <h2 className="text-lg font-bold text-[#15317E] mb-4 mt-8">عقارات {agent.office_name || agent.full_name}</h2>
 
         {propertiesLoading ? (
           <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
