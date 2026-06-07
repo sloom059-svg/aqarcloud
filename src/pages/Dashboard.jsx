@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
@@ -96,10 +96,28 @@ export default function Dashboard() {
 
   const activeProperties = properties.filter(p => p.status === 'نشط');
 
-  const copyProfileLink = () => {
+  const copyProfileLink = async () => {
     const url = `${window.location.origin}/agent/${user.id}`;
-    navigator.clipboard.writeText(url);
-    showToast('تم نسخ رابط البروفايل');
+    const shareData = {
+      title: user?.office_name || user?.full_name || 'صفحتي العقارية',
+      text: `تصفّح عقارات ${user?.office_name || user?.full_name || ''}`,
+      url,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (_) {
+        return; // المستخدم ألغى المشاركة
+      }
+    }
+    // احتياطي: نسخ الرابط
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('تم نسخ رابط البروفايل');
+    } catch (_) {
+      showToast('تعذّرت المشاركة');
+    }
   };
 
   // إيرادات وهمية (الوسيط ما عنده bookings — نعرض عدد العقارات النشطة كمؤشر)
@@ -303,11 +321,8 @@ export default function Dashboard() {
 
       {/* Export Dialog */}
       <Dialog open={!!exportProperty} onOpenChange={() => setExportProperty(null)}>
-        <DialogContent className="max-w-2xl p-4 max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-heading text-right">بطاقة النشر</DialogTitle>
-          </DialogHeader>
-          {exportProperty && <PropertyCardExport property={exportProperty} agent={user} />}
+        <DialogContent className="max-w-md p-5 max-h-[92vh] overflow-y-auto bg-transparent border-0 shadow-none">
+          {exportProperty && <PropertyCardExport property={exportProperty} agent={user} onClose={() => setExportProperty(null)} />}
         </DialogContent>
       </Dialog>
     </div>
