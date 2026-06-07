@@ -49,6 +49,14 @@ const formatWhatsApp = (phone) => {
   return p;
 };
 
+// يولّد رقم مرجعي ثابت من الـ UUID (4 أرقام)
+const getBookingRef = (id) => {
+  if (!id) return '#0000';
+  const hex = id.replace(/-/g, '').slice(-6);
+  const num = (parseInt(hex, 16) % 9000) + 1000;
+  return `#${num}`;
+};
+
 const STATUS_MAP = {
   'جديد':      { border: 'bg-blue-500',    select: 'bg-blue-50 text-blue-700 border-blue-200',         statBg: 'bg-blue-50',    statText: 'text-blue-600',    statIcon: Inbox },
   'بالانتظار': { border: 'bg-amber-500',   select: 'bg-amber-50 text-amber-700 border-amber-200',       statBg: 'bg-amber-50',   statText: 'text-amber-500',   statIcon: Clock },
@@ -506,6 +514,7 @@ export default function VenueBookings() {
                 const cfg = STATUS_MAP[booking.status] || STATUS_MAP['جديد'];
                 const isDeleting    = confirmDelete === booking.id;
                 const isManualBlock = booking.client_phone === '000';
+                const bookingRef    = getBookingRef(booking.id);
 
                 return (
                   <div key={booking.id} className="bg-white rounded-[1.2rem] p-3 shadow-sm border border-slate-100 relative overflow-hidden">
@@ -524,6 +533,7 @@ export default function VenueBookings() {
                               <IconLock className="w-3.5 h-3.5" /> إغلاق يدوي
                             </h4>
                           )}
+                          <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md" dir="ltr">{bookingRef}</span>
                         </div>
                         {!isManualBlock && booking.client_phone && booking.client_phone !== '000' && (
                           <div className="flex items-center gap-2">
