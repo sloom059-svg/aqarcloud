@@ -66,7 +66,7 @@ function NumberPicker({ label, value, onChange, max = 10 }) {
   );
 }
 
-export default function PropertyForm({ initialData, onSubmit, isLoading }) {
+export default function PropertyForm({ initialData, onSubmit, isLoading, onChange }) {
   const { user } = useAuth();
   const [form, setForm] = useState({
     title: '',
@@ -115,6 +115,11 @@ export default function PropertyForm({ initialData, onSubmit, isLoading }) {
       setForm(prev => ({ ...prev, city: user.city }));
     }
   }, [user?.city]);
+
+  // حفظ المسودة عند أي تغيير (للأب)
+  useEffect(() => {
+    if (onChange) onChange(form);
+  }, [form]);
 
   const [uploading, setUploading] = useState(false);
   const [fetchingPlaces, setFetchingPlaces] = useState(false);
