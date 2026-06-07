@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -229,13 +230,19 @@ export default function VenueForm() {
       social: cleanSocial,
     };
 
-    if (isEdit) {
-      await base44.entities.Venue.update(id, data);
-    } else {
-      await base44.entities.Venue.create(data);
+    try {
+      if (isEdit) {
+        await base44.entities.Venue.update(id, data);
+      } else {
+        await base44.entities.Venue.create(data);
+      }
+      toast.success(isEdit ? 'تم تحديث الشاليه بنجاح ✅' : 'تم إضافة الشاليه بنجاح ✅');
+      navigate('/venue');
+    } catch (err) {
+      toast.error('حدث خطأ: ' + (err?.message || 'تعذّر الحفظ'));
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    navigate('/venue');
   };
 
   const isClassic = form.page_theme === 'classic';
