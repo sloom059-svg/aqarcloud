@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Loader2, Plus, X, CheckCircle,
-  ChevronRight, Phone, ChevronDown,
-  MessageCircle, Edit3, Trash2,
-  Inbox, Clock, CheckCircle2, XCircle, Calendar as CalendarIcon
+  Bell, Wallet, LogOut, User, Calendar,
+  ChevronDown, ChevronRight, Phone,
+  Edit3, Inbox, Clock, CheckCircle2, XCircle, Calendar as CalendarIcon
 } from 'lucide-react';
 import VenueCalendar from '@/components/venue/VenueCalendar';
 
@@ -49,32 +50,81 @@ const formatWhatsApp = (phone) => {
 };
 
 const STATUS_MAP = {
-  'جديد':      { border: 'bg-blue-500',    select: 'bg-blue-50 text-blue-700 border-blue-200',       statBg: 'bg-blue-50',    statText: 'text-blue-600',    statIcon: Inbox },
-  'بالانتظار': { border: 'bg-amber-500',   select: 'bg-amber-50 text-amber-700 border-amber-200',     statBg: 'bg-amber-50',   statText: 'text-amber-500',   statIcon: Clock },
+  'جديد':      { border: 'bg-blue-500',    select: 'bg-blue-50 text-blue-700 border-blue-200',         statBg: 'bg-blue-50',    statText: 'text-blue-600',    statIcon: Inbox },
+  'بالانتظار': { border: 'bg-amber-500',   select: 'bg-amber-50 text-amber-700 border-amber-200',       statBg: 'bg-amber-50',   statText: 'text-amber-500',   statIcon: Clock },
   'مؤكد':      { border: 'bg-emerald-500', select: 'bg-emerald-50 text-emerald-700 border-emerald-200', statBg: 'bg-emerald-50', statText: 'text-emerald-600', statIcon: CheckCircle2 },
-  'ملغي':      { border: 'bg-rose-500',    select: 'bg-rose-50 text-rose-700 border-rose-200',        statBg: 'bg-rose-50',    statText: 'text-rose-500',    statIcon: XCircle },
+  'ملغي':      { border: 'bg-rose-500',    select: 'bg-rose-50 text-rose-700 border-rose-200',          statBg: 'bg-rose-50',    statText: 'text-rose-500',    statIcon: XCircle },
 };
 
 const EMPTY_MANUAL = { client_name: '', client_phone: '', check_in: '', check_out: '', notes: '' };
+
+// ── Dropdown الملف الشخصي / الخروج ──
+function ProfileMenu({ onLogout }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white flex items-center gap-1"
+        title="القائمة"
+      >
+        <LogOut className="w-4 h-4" />
+        <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+          <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium">
+            <User className="w-4 h-4 text-[#15317E]" /> الملف الشخصي
+          </Link>
+          <div className="h-px bg-slate-100" />
+          <button onClick={() => { setOpen(false); onLogout(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-medium">
+            <LogOut className="w-4 h-4" /> تسجيل الخروج
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function VenueBookings() {
   const { id } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { user, logout } = useAuth();
 
   const [toastMessage, setToastMessage] = useState('');
+  const [showRevenue, setShowRevenue]   = useState(false);
+  const [showNotifs, setShowNotifs]     = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const [showManual, setShowManual] = useState(false);
-  const [manualForm, setManualForm] = useState(EMPTY_MANUAL);
-  const [editBooking, setEditBooking] = useState(null);
-  const [editForm, setEditForm] = useState({ client_name: '', client_phone: '', check_in: '', check_out: '' });
+  const [showManual, setShowManual]     = useState(false);
+  const [manualForm, setManualForm]     = useState(EMPTY_MANUAL);
+  const [editBooking, setEditBooking]   = useState(null);
+  const [editForm, setEditForm]         = useState({ client_name: '', client_phone: '', check_in: '', check_out: '' });
   const [editConflict, setEditConflict] = useState(false);
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
-  };
+  const revenueRef = useRef(null);
+  const notifsRef  = useRef(null);
 
+  // إغلاق الـ dropdowns عند الضغط خارجها
+  useEffect(() => {
+    const handler = (e) => {
+      if (revenueRef.current && !revenueRef.current.contains(e.target)) setShowRevenue(false);
+      if (notifsRef.current  && !notifsRef.current.contains(e.target))  setShowNotifs(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const showToast = (msg) => { setToastMessage(msg); setTimeout(() => setToastMessage(''), 3000); };
+  const handleLogout = async () => { await logout(false); navigate('/login'); };
+
+  // ── Queries ──
   const { data: venue } = useQuery({
     queryKey: ['venue-single', id],
     queryFn: () => base44.entities.Venue.filter({ id }).then(r => r[0]),
@@ -85,6 +135,20 @@ export default function VenueBookings() {
     queryFn: () => base44.entities.Booking.filter({ venue_id: id }, '-created_date'),
   });
 
+  // كل حجوزات المالك للإشعارات والإيرادات
+  const { data: ownerBookings = [] } = useQuery({
+    queryKey: ['bookings-all', user?.id],
+    queryFn: () => base44.entities.Booking.filter({ owner_id: user?.id }),
+    enabled: !!user?.id,
+  });
+
+  const { data: venues = [] } = useQuery({
+    queryKey: ['venues', user?.id],
+    queryFn: () => base44.entities.Venue.filter({ owner_id: user?.id }, '-created_date'),
+    enabled: !!user?.id,
+  });
+
+  // فلتر الحجوزات (آخر 30 يوم)
   const bookings = allBookings.filter(b => {
     if (!b.check_out) return true;
     const checkout = new Date(b.check_out);
@@ -95,39 +159,43 @@ export default function VenueBookings() {
     return checkout >= cutoff;
   });
 
+  // إيرادات الشهر
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear  = now.getFullYear();
+  const isThisMonth = (b) => {
+    const d = b.check_in ? new Date(b.check_in) : (b.created_date ? new Date(b.created_date) : null);
+    return d && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  };
+  const venuePrice = (venueId) => { const v = venues.find(x => x.id === venueId); return v?.price_weekend || 0; };
+  const monthlyRevenue = ownerBookings
+    .filter(b => b.status === 'مؤكد' && isThisMonth(b))
+    .reduce((sum, b) => sum + (b.total_price ? Number(b.total_price) : venuePrice(b.venue_id)), 0);
+
+  // الإشعارات
+  const newBookings = ownerBookings.filter(b => b.status === 'جديد');
+  const hasNotifications = newBookings.length > 0;
+
+  // ── Mutations ──
   const updateMutation = useMutation({
     mutationFn: ({ bookingId, data }) => base44.entities.Booking.update(bookingId, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['venue-bookings', id] });
-      showToast('تم تحديث حالة الحجز بنجاح!');
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['venue-bookings', id] }); showToast('تم تحديث حالة الحجز بنجاح!'); },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (bookingId) => base44.entities.Booking.delete(bookingId),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['venue-bookings', id] });
-      setConfirmDelete(null);
-      showToast('تم حذف الحجز بنجاح!');
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['venue-bookings', id] }); setConfirmDelete(null); showToast('تم حذف الحجز بنجاح!'); },
   });
 
   const addBookingMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['venue-bookings', id] });
-      setShowManual(false);
-      setManualForm(EMPTY_MANUAL);
-      showToast('تم إضافة الحجز اليدوي بنجاح!');
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['venue-bookings', id] }); setShowManual(false); setManualForm(EMPTY_MANUAL); showToast('تم إضافة الحجز اليدوي بنجاح!'); },
   });
 
   const bookedDates = bookings
     .filter(b => b.status === 'مؤكد' || b.status === 'بالانتظار')
     .flatMap(b => {
-      const dates = [];
-      let cur = new Date(b.check_in);
-      const end = new Date(b.check_out);
+      const dates = []; let cur = new Date(b.check_in); const end = new Date(b.check_out);
       while (cur <= end) { dates.push(cur.toISOString().split('T')[0]); cur.setDate(cur.getDate() + 1); }
       return dates;
     });
@@ -135,14 +203,7 @@ export default function VenueBookings() {
   const handleManualSubmit = (e) => {
     e.preventDefault();
     if (!manualForm.client_name || !manualForm.client_phone || !manualForm.check_in || !manualForm.check_out) return;
-    addBookingMutation.mutate({
-      ...manualForm,
-      venue_id: id,
-      venue_name: venue?.name || '',
-      status: 'مؤكد',
-      owner_id: venue?.owner_id,
-      is_manual: true,
-    });
+    addBookingMutation.mutate({ ...manualForm, venue_id: id, venue_name: venue?.name || '', status: 'مؤكد', owner_id: venue?.owner_id, is_manual: true });
   };
 
   const openEdit = (booking) => {
@@ -153,31 +214,18 @@ export default function VenueBookings() {
 
   const checkConflict = (check_in, check_out, currentId) => {
     if (!check_in || !check_out) return false;
-    const otherBooked = bookings
-      .filter(b => b.id !== currentId && (b.status === 'مؤكد' || b.status === 'بالانتظار'))
-      .flatMap(b => {
-        const dates = [];
-        let cur = new Date(b.check_in);
-        const end = new Date(b.check_out);
-        while (cur <= end) { dates.push(cur.toISOString().split('T')[0]); cur.setDate(cur.getDate() + 1); }
-        return dates;
-      });
+    const otherBooked = bookings.filter(b => b.id !== currentId && (b.status === 'مؤكد' || b.status === 'بالانتظار'))
+      .flatMap(b => { const dates = []; let cur = new Date(b.check_in); const end = new Date(b.check_out); while (cur <= end) { dates.push(cur.toISOString().split('T')[0]); cur.setDate(cur.getDate() + 1); } return dates; });
     const otherSet = new Set(otherBooked);
-    let cur = new Date(check_in);
-    const end = new Date(check_out);
-    while (cur <= end) {
-      if (otherSet.has(cur.toISOString().split('T')[0])) return true;
-      cur.setDate(cur.getDate() + 1);
-    }
+    let cur = new Date(check_in); const end = new Date(check_out);
+    while (cur <= end) { if (otherSet.has(cur.toISOString().split('T')[0])) return true; cur.setDate(cur.getDate() + 1); }
     return false;
   };
 
   const handleEditFormChange = (field, value) => {
     const updated = { ...editForm, [field]: value };
     setEditForm(updated);
-    if (updated.check_in && updated.check_out) {
-      setEditConflict(checkConflict(updated.check_in, updated.check_out, editBooking));
-    }
+    if (updated.check_in && updated.check_out) setEditConflict(checkConflict(updated.check_in, updated.check_out, editBooking));
   };
 
   const handleEditSave = () => {
@@ -212,18 +260,16 @@ export default function VenueBookings() {
               <h3 className="font-bold text-[#15317E] flex items-center gap-2">
                 <Edit3 className="w-4 h-4" /> تعديل تفاصيل الحجز
               </h3>
-              <button onClick={() => setEditBooking(null)} className="p-1.5 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300">
-                <X className="w-4 h-4" />
-              </button>
+              <button onClick={() => setEditBooking(null)} className="p-1.5 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300"><X className="w-4 h-4" /></button>
             </div>
             <div className="p-5 space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-slate-500">اسم العميل</Label>
-                <Input value={editForm.client_name} onChange={e => handleEditFormChange('client_name', e.target.value)} className="h-11 rounded-xl text-sm" placeholder="محمد عبدالله" />
+                <Input value={editForm.client_name} onChange={e => handleEditFormChange('client_name', e.target.value)} className="h-11 rounded-xl text-sm" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-slate-500">رقم الجوال</Label>
-                <Input value={editForm.client_phone} onChange={e => handleEditFormChange('client_phone', e.target.value)} className="h-11 rounded-xl text-sm" placeholder="05xxxxxxxx" dir="ltr" />
+                <Input value={editForm.client_phone} onChange={e => handleEditFormChange('client_phone', e.target.value)} className="h-11 rounded-xl text-sm" dir="ltr" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
@@ -236,8 +282,8 @@ export default function VenueBookings() {
                 </div>
               </div>
               {editConflict && (
-                <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-                  <span className="text-xs text-red-700 font-bold">الفترة المختارة تتعارض مع حجز موجود، يرجى اختيار تواريخ أخرى.</span>
+                <div className="bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
+                  <span className="text-xs text-red-700 font-bold">الفترة المختارة تتعارض مع حجز موجود.</span>
                 </div>
               )}
             </div>
@@ -260,9 +306,7 @@ export default function VenueBookings() {
                 <div className="bg-[#15317E]/10 p-1.5 rounded-lg"><Plus className="w-4 h-4 text-[#15317E]" /></div>
                 إضافة حجز يدوي
               </h3>
-              <button onClick={() => { setShowManual(false); setManualForm(EMPTY_MANUAL); }} className="p-1.5 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300">
-                <X className="w-4 h-4" />
-              </button>
+              <button onClick={() => { setShowManual(false); setManualForm(EMPTY_MANUAL); }} className="p-1.5 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300"><X className="w-4 h-4" /></button>
             </div>
             <form onSubmit={handleManualSubmit} className="p-5 space-y-4">
               <div className="space-y-1.5">
@@ -298,216 +342,280 @@ export default function VenueBookings() {
       {/* الخلفية الزرقاء العلوية */}
       <div className="absolute top-0 left-0 right-0 h-[220px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
 
-      <div className="relative z-10 max-w-md mx-auto px-4 pt-6">
+      <div className="relative z-10 max-w-md mx-auto">
 
-        {/* الهيدر - نفس لوحة التحكم */}
-        <header className="flex items-center justify-between text-white mb-6">
+        {/* ═══════════════════════════════════════
+            الهيدر — نفس لوحة التحكم بالضبط
+        ═══════════════════════════════════════ */}
+        <header className="px-5 pt-8 pb-6 flex items-center justify-between text-white">
+
+          {/* يسار: صورة المالك + رجوع + اسم الصفحة */}
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/venue')} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all">
+            {/* زر رجوع */}
+            <button
+              onClick={() => navigate('/venue')}
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all"
+              title="رجوع"
+            >
               <ChevronRight className="w-5 h-5" />
             </button>
+
+            {/* الشعار / الحرف الأول */}
+            <div className="relative flex-shrink-0">
+              <div className="w-11 h-11 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
+                {user?.office_logo_url ? (
+                  <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-lg font-bold text-white">
+                    {(user?.full_name || user?.office_name || 'م')[0]}
+                  </span>
+                )}
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
+            </div>
+
+            {/* العنوان */}
             <div>
-              <h1 className="text-lg font-bold">إدارة الحجوزات</h1>
-              {venue && <p className="text-xs text-white/70">{venue.name}</p>}
+              <h1 className="text-base font-bold leading-tight">إدارة الحجوزات</h1>
+              {venue && <p className="text-[11px] text-white/70 mt-0.5">{venue.name}</p>}
             </div>
           </div>
-          <button
-            onClick={() => setShowManual(true)}
-            className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
-          >
-            <Plus className="w-3.5 h-3.5" /> حجز يدوي
-          </button>
+
+          {/* يمين: الإشعارات + المحفظة + الخروج */}
+          <div className="flex items-center gap-2">
+
+            {/* الإشعارات */}
+            <div className="relative" ref={notifsRef}>
+              <button
+                onClick={() => setShowNotifs(!showNotifs)}
+                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white'}`}
+                title="الإشعارات"
+              >
+                <Bell className="w-4 h-4" />
+                {hasNotifications && (
+                  <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                )}
+              </button>
+              {showNotifs && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                  <div className="px-4 py-3 bg-[#15317E] text-white flex items-center justify-between">
+                    <span className="text-sm font-bold">الإشعارات</span>
+                    {hasNotifications && <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">{newBookings.length}</span>}
+                  </div>
+                  {newBookings.length === 0 ? (
+                    <div className="px-4 py-6 text-center"><p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p></div>
+                  ) : (
+                    <div className="max-h-64 overflow-y-auto">
+                      {newBookings.map(b => {
+                        const v = venues.find(x => x.id === b.venue_id);
+                        return (
+                          <Link key={b.id} to={`/venue/bookings/${b.venue_id}`} onClick={() => setShowNotifs(false)}
+                            className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
+                            <div className="w-9 h-9 rounded-xl bg-[#15317E]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Calendar className="w-4 h-4 text-[#15317E]" />
+                            </div>
+                            <div className="flex-1 min-w-0 text-right">
+                              <p className="text-sm font-bold text-slate-700">حجز جديد</p>
+                              <p className="text-xs text-slate-500 truncate">{b.client_name || 'عميل'} — {v?.name || 'شاليه'}</p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* المحفظة / الإيرادات */}
+            <div className="relative" ref={revenueRef}>
+              <button
+                onClick={() => setShowRevenue(!showRevenue)}
+                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}
+                title="إيرادات الشهر"
+              >
+                <Wallet className="w-4 h-4" />
+              </button>
+              {showRevenue && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
+                  <p className="text-[11px] text-slate-500 font-medium mb-1">إيرادات الشهر (الحجوزات المؤكدة)</p>
+                  <p className="text-xl font-bold text-[#15317E]" dir="ltr">
+                    {monthlyRevenue.toLocaleString('en-US')} <span className="text-[10px] font-normal text-slate-400">ر.س</span>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* زر الخروج */}
+            <ProfileMenu onLogout={handleLogout} />
+          </div>
         </header>
 
-        {/* كروت الإحصائيات */}
-        <div className="flex gap-2 mb-6">
-          {statusOrder.map(s => {
-            const count = bookings.filter(b => b.status === s).length;
-            const cfg = STATUS_MAP[s];
-            const Icon = cfg.statIcon;
-            return (
-              <div key={s} className="flex-1 bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-1">
-                <div className={`p-1.5 ${cfg.statBg} rounded-lg`}><Icon className={`w-4 h-4 ${cfg.statText}`} /></div>
-                <p className={`text-lg font-black leading-none mt-1 ${cfg.statText}`}>{count}</p>
-                <p className="text-[10px] font-bold text-slate-500">{s}</p>
-              </div>
-            );
-          })}
-        </div>
+        {/* ═══════════════════════════════════════
+            المحتوى
+        ═══════════════════════════════════════ */}
+        <div className="px-4 space-y-6">
 
-        {/* التقويم */}
-        <div className="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-100 mb-6">
-          <h3 className="text-sm font-bold text-[#15317E] flex items-center gap-2 mb-4">
-            <CalendarIcon className="w-4 h-4 text-[#15317E]/70" />
-            التقويم والإتاحة
-          </h3>
-          <VenueCalendar
-            bookedDates={bookedDates}
-            onRangeSelect={null}
-            readOnly={true}
-            venueName={venue?.name || ''}
-          />
-        </div>
-
-        {/* عنوان القائمة */}
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-[#15317E]">الحجوزات</h3>
-        </div>
-
-        {/* قائمة الحجوزات */}
-        {isLoading ? (
-          <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
-        ) : bookings.length === 0 ? (
-          <div className="text-center py-16 text-slate-400 bg-white rounded-[1.5rem] border border-slate-100 shadow-sm">
-            <p className="font-bold text-base">لا توجد حجوزات حالياً</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {bookings.map((booking) => {
-              const cfg = STATUS_MAP[booking.status] || STATUS_MAP['جديد'];
-              const isDeleting = confirmDelete === booking.id;
-              const isManualBlock = booking.client_phone === '000';
-
+          {/* كروت الإحصائيات */}
+          <div className="flex gap-2">
+            {statusOrder.map(s => {
+              const count = bookings.filter(b => b.status === s).length;
+              const cfg = STATUS_MAP[s];
+              const Icon = cfg.statIcon;
               return (
-                <div key={booking.id} className="bg-white rounded-[1.2rem] p-3 shadow-sm border border-slate-100 relative overflow-hidden">
-                  {/* شريط اللون الجانبي */}
-                  <div className={`absolute top-0 right-0 w-1 h-full ${cfg.border}`} />
-
-                  <div className="flex justify-between items-start mb-3 pl-1 pr-2">
-                    {/* معلومات العميل */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        {!isManualBlock ? (
-                          <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1">
-                            <PinIcon className="w-3.5 h-3.5 text-slate-400" />
-                            {booking.client_name}
-                          </h4>
-                        ) : (
-                          <h4 className="text-sm font-bold text-slate-600 flex items-center gap-1">
-                            <IconLock className="w-3.5 h-3.5" /> إغلاق يدوي
-                          </h4>
-                        )}
-                      </div>
-                      {!isManualBlock && booking.client_phone && booking.client_phone !== '000' && (
-                        <div className="flex items-center gap-2">
-                          <p className="text-[11px] text-slate-500 flex items-center gap-1 font-medium">
-                            <Phone className="w-3 h-3 text-slate-400" />
-                            <span dir="ltr">{booking.client_phone}</span>
-                          </p>
-                          <a
-                            href={`https://wa.me/${formatWhatsApp(booking.client_phone)}?text=${encodeURIComponent(`مرحباً ${booking.client_name}، نتواصل معك بخصوص حجزك...`)}`}
-                            target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium transition-colors"
-                          >
-                            <IconWa className="w-3 h-3" /> مراسلة
-                          </a>
-                        </div>
-                      )}
-                      {booking.notes && !isManualBlock && (
-                        <div className="text-xs text-slate-500 bg-slate-50 rounded-lg px-2.5 py-1 mt-1 border border-slate-100 inline-block">
-                          {booking.notes}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* الأزرار */}
-                    <div className="flex flex-col items-end gap-2">
-                      {/* حالة الحجز */}
-                      <div className="relative">
-                        <select
-                          value={booking.status}
-                          onChange={(e) => updateMutation.mutate({ bookingId: booking.id, data: { status: e.target.value } })}
-                          className={`appearance-none pl-6 pr-2 py-1 rounded-lg text-[11px] font-bold border outline-none cursor-pointer transition-colors ${cfg.select}`}
-                        >
-                          <option value="جديد">جديد</option>
-                          <option value="بالانتظار">بالانتظار</option>
-                          <option value="مؤكد">مؤكد</option>
-                          <option value="ملغي">ملغي</option>
-                        </select>
-                        <ChevronDown className="w-3.5 h-3.5 absolute left-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
-                      </div>
-
-                      {/* أزرار التعديل والحذف */}
-                      <div className="flex items-center gap-1">
-                        {!isManualBlock && (
-                          <button onClick={() => openEdit(booking)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="تعديل">
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button onClick={() => setConfirmDelete(booking.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="حذف">
-                          <DeleteIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* تفاصيل التواريخ */}
-                  <div className="flex items-center justify-between bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 mx-1">
-                    <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
-                      <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{formatDateAr(booking.check_in)} ← {formatDateAr(booking.check_out)}</span>
-                    </div>
-                    <div className="w-px h-3 bg-slate-200" />
-                    <div className="text-[11px] text-[#15317E] font-bold">
-                      {booking.price ? `${booking.price} ر.س` : '—'}
-                    </div>
-                  </div>
-
-                  {/* أزرار تأكيد / إلغاء / حذف */}
-                  {!isManualBlock && (
-                    <div className="flex gap-2 flex-wrap mt-3 pt-3 border-t border-slate-50">
-                      {isDeleting ? (
-                        <div className="flex items-center gap-2 w-full bg-red-50 p-2.5 rounded-xl border border-red-100">
-                          <span className="text-xs text-red-800 font-bold ml-auto">تأكيد الحذف؟</span>
-                          <button
-                            onClick={() => deleteMutation.mutate(booking.id)}
-                            disabled={deleteMutation.isPending}
-                            className="flex items-center gap-1 text-xs font-bold text-white bg-red-600 rounded-lg px-3 py-1.5 hover:bg-red-700 transition"
-                          >
-                            {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'نعم، احذف'}
-                          </button>
-                          <button onClick={() => setConfirmDelete(null)} className="text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition">
-                            تراجع
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          {booking.status !== 'مؤكد' && booking.status !== 'ملغي' && (
-                            <button
-                              onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'مؤكد' } })}
-                              className="flex items-center gap-1 text-xs font-bold text-white bg-[#15317E] border border-[#15317E] rounded-xl px-4 py-1.5 hover:bg-[#0d1e4c] transition shadow-sm"
-                            >
-                              <IconCheck /> تأكيد الحجز
-                            </button>
-                          )}
-                          {booking.status !== 'ملغي' && (
-                            <button
-                              onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'ملغي' } })}
-                              className="flex items-center gap-1 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-1.5 hover:bg-slate-50 transition shadow-sm"
-                            >
-                              <IconXSm /> إلغاء الحجز
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* حذف للحجز اليدوي */}
-                  {isManualBlock && isDeleting && (
-                    <div className="flex items-center gap-2 w-full bg-red-50 p-2.5 rounded-xl border border-red-100 mt-3">
-                      <span className="text-xs text-red-800 font-bold ml-auto">تأكيد الحذف؟</span>
-                      <button onClick={() => deleteMutation.mutate(booking.id)} disabled={deleteMutation.isPending} className="flex items-center gap-1 text-xs font-bold text-white bg-red-600 rounded-lg px-3 py-1.5 hover:bg-red-700 transition">
-                        {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'نعم، احذف'}
-                      </button>
-                      <button onClick={() => setConfirmDelete(null)} className="text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition">تراجع</button>
-                    </div>
-                  )}
+                <div key={s} className="flex-1 bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-1">
+                  <div className={`p-1.5 ${cfg.statBg} rounded-lg`}><Icon className={`w-4 h-4 ${cfg.statText}`} /></div>
+                  <p className={`text-lg font-black leading-none mt-1 ${cfg.statText}`}>{count}</p>
+                  <p className="text-[10px] font-bold text-slate-500">{s}</p>
                 </div>
               );
             })}
           </div>
-        )}
+
+          {/* التقويم */}
+          <div className="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-100">
+            <h3 className="text-sm font-bold text-[#15317E] flex items-center gap-2 mb-4">
+              <CalendarIcon className="w-4 h-4 text-[#15317E]/70" />
+              التقويم والإتاحة
+            </h3>
+            <VenueCalendar bookedDates={bookedDates} onRangeSelect={null} readOnly={true} venueName={venue?.name || ''} />
+          </div>
+
+          {/* عنوان القائمة + زر حجز يدوي */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-[#15317E]">الحجوزات</h3>
+            <button
+              onClick={() => setShowManual(true)}
+              className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" /> حجز يدوي
+            </button>
+          </div>
+
+          {/* قائمة الحجوزات */}
+          {isLoading ? (
+            <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-16 text-slate-400 bg-white rounded-[1.5rem] border border-slate-100 shadow-sm">
+              <p className="font-bold text-base">لا توجد حجوزات حالياً</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {bookings.map((booking) => {
+                const cfg = STATUS_MAP[booking.status] || STATUS_MAP['جديد'];
+                const isDeleting    = confirmDelete === booking.id;
+                const isManualBlock = booking.client_phone === '000';
+
+                return (
+                  <div key={booking.id} className="bg-white rounded-[1.2rem] p-3 shadow-sm border border-slate-100 relative overflow-hidden">
+                    <div className={`absolute top-0 right-0 w-1 h-full ${cfg.border}`} />
+
+                    <div className="flex justify-between items-start mb-3 pl-1 pr-2">
+                      {/* معلومات العميل */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          {!isManualBlock ? (
+                            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1">
+                              <PinIcon className="w-3.5 h-3.5 text-slate-400" />{booking.client_name}
+                            </h4>
+                          ) : (
+                            <h4 className="text-sm font-bold text-slate-600 flex items-center gap-1">
+                              <IconLock className="w-3.5 h-3.5" /> إغلاق يدوي
+                            </h4>
+                          )}
+                        </div>
+                        {!isManualBlock && booking.client_phone && booking.client_phone !== '000' && (
+                          <div className="flex items-center gap-2">
+                            <p className="text-[11px] text-slate-500 flex items-center gap-1 font-medium">
+                              <Phone className="w-3 h-3 text-slate-400" />
+                              <span dir="ltr">{booking.client_phone}</span>
+                            </p>
+                            <a href={`https://wa.me/${formatWhatsApp(booking.client_phone)}?text=${encodeURIComponent(`مرحباً ${booking.client_name}، نتواصل معك بخصوص حجزك...`)}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium transition-colors">
+                              <IconWa className="w-3 h-3" /> مراسلة
+                            </a>
+                          </div>
+                        )}
+                        {booking.notes && !isManualBlock && (
+                          <div className="text-xs text-slate-500 bg-slate-50 rounded-lg px-2.5 py-1 mt-1 border border-slate-100 inline-block">{booking.notes}</div>
+                        )}
+                      </div>
+
+                      {/* الأزرار اليمين */}
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="relative">
+                          <select
+                            value={booking.status}
+                            onChange={(e) => updateMutation.mutate({ bookingId: booking.id, data: { status: e.target.value } })}
+                            className={`appearance-none pl-6 pr-2 py-1 rounded-lg text-[11px] font-bold border outline-none cursor-pointer transition-colors ${cfg.select}`}
+                          >
+                            <option value="جديد">جديد</option>
+                            <option value="بالانتظار">بالانتظار</option>
+                            <option value="مؤكد">مؤكد</option>
+                            <option value="ملغي">ملغي</option>
+                          </select>
+                          <ChevronDown className="w-3.5 h-3.5 absolute left-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {!isManualBlock && (
+                            <button onClick={() => openEdit(booking)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="تعديل">
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button onClick={() => setConfirmDelete(booking.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="حذف">
+                            <DeleteIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* شريط التواريخ */}
+                    <div className="flex items-center justify-between bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 mx-1">
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+                        <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{formatDateAr(booking.check_in)} ← {formatDateAr(booking.check_out)}</span>
+                      </div>
+                      <div className="w-px h-3 bg-slate-200" />
+                      <div className="text-[11px] text-[#15317E] font-bold">
+                        {booking.price ? `${booking.price} ر.س` : '—'}
+                      </div>
+                    </div>
+
+                    {/* أزرار تأكيد / إلغاء / حذف */}
+                    <div className="flex gap-2 flex-wrap mt-3 pt-3 border-t border-slate-50">
+                      {isDeleting ? (
+                        <div className="flex items-center gap-2 w-full bg-red-50 p-2.5 rounded-xl border border-red-100">
+                          <span className="text-xs text-red-800 font-bold ml-auto">تأكيد الحذف؟</span>
+                          <button onClick={() => deleteMutation.mutate(booking.id)} disabled={deleteMutation.isPending}
+                            className="flex items-center gap-1 text-xs font-bold text-white bg-red-600 rounded-lg px-3 py-1.5 hover:bg-red-700 transition">
+                            {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'نعم، احذف'}
+                          </button>
+                          <button onClick={() => setConfirmDelete(null)} className="text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition">تراجع</button>
+                        </div>
+                      ) : !isManualBlock ? (
+                        <>
+                          {booking.status !== 'مؤكد' && booking.status !== 'ملغي' && (
+                            <button onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'مؤكد' } })}
+                              className="flex items-center gap-1 text-xs font-bold text-white bg-[#15317E] border border-[#15317E] rounded-xl px-4 py-1.5 hover:bg-[#0d1e4c] transition shadow-sm">
+                              <IconCheck /> تأكيد الحجز
+                            </button>
+                          )}
+                          {booking.status !== 'ملغي' && (
+                            <button onClick={() => updateMutation.mutate({ bookingId: booking.id, data: { status: 'ملغي' } })}
+                              className="flex items-center gap-1 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-1.5 hover:bg-slate-50 transition shadow-sm">
+                              <IconXSm /> إلغاء الحجز
+                            </button>
+                          )}
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
