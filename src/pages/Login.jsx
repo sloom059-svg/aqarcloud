@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Eye, EyeOff, Lock, Mail, MapPin, Cloud } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Lock, Mail, MapPin, Cloud, CalendarCheck, Building2, Share2 } from 'lucide-react';
 
 const GoogleIcon = ({ className }) => (
   <svg viewBox="0 0 24 24" className={className}>
@@ -148,18 +148,40 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#15317E]/90 to-[#0a1840]/90" />
         <div className="relative z-10 text-white p-12 max-w-lg text-right animate-fade-in">
           <div className="w-16 h-1 bg-white/30 rounded-full mb-8" />
-          <h2 className="text-4xl font-black mb-4 leading-tight">الوجهة الأولى<br/>لإدارة شاليهك باحترافية</h2>
+          <h2 className="text-4xl font-black mb-4 leading-tight">منصتك الأولى<br/>لإدارة عقاراتك وشاليهاتك</h2>
           <p className="text-white/70 text-lg leading-relaxed">
-            منصة متكاملة تمنحك تحكماً كاملاً في حجوزاتك، وتساعدك على الوصول لعملاء أكثر بكل سهولة وأمان.
+            حلٌّ متكامل للوسطاء العقاريين وملاك الشاليهات — أدِر عقاراتك وحجوزاتك، وشارك صفحتك مع عملائك بكل سهولة واحترافية.
           </p>
-          <div className="grid grid-cols-2 gap-6 mt-12 pt-12 border-t border-white/10">
-            <div>
-              <div className="text-3xl font-black mb-1">+5,000</div>
-              <div className="text-white/60 text-sm">شاليه نشط</div>
+
+          <div className="space-y-4 mt-12 pt-10 border-t border-white/10">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0">
+                <Building2 className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-base">إدارة العقارات والشاليهات</div>
+                <div className="text-white/60 text-sm">كل وحداتك في مكان واحد منظّم</div>
+              </div>
             </div>
-            <div>
-              <div className="text-3xl font-black mb-1">+100k</div>
-              <div className="text-white/60 text-sm">حجز ناجح</div>
+
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0">
+                <CalendarCheck className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-base">حجوزات بلا تعقيد</div>
+                <div className="text-white/60 text-sm">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0">
+                <Share2 className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-base">صفحة عرض احترافية</div>
+                <div className="text-white/60 text-sm">شارك عقاراتك مع عملائك برابط واحد</div>
+              </div>
             </div>
           </div>
         </div>
