@@ -68,7 +68,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
           <div className="flex items-center justify-center gap-4 sm:gap-6 mb-5">
             <div className="flex flex-col items-center gap-1.5">
               <Maximize className="w-5 h-5 text-[#15317E]" />
-              <span className="text-[11px] font-bold text-slate-700">{property.area || '—'} م²</span>
+              <span className="text-[11px] font-bold text-slate-700">{property.area ? property.area + ' م²' : '—'}</span>
             </div>
             <div className="w-px h-6 bg-slate-200" />
             {isLand ? (
