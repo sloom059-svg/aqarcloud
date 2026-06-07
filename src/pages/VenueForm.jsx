@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { toast } from 'sonner';
+import { PartyPopper, Eye, Share2, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -144,6 +145,7 @@ export default function VenueForm() {
   });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [successVenue, setSuccessVenue] = useState(null);
 
   const { data: existing } = useQuery({
     queryKey: ['venue', id],
@@ -233,11 +235,14 @@ export default function VenueForm() {
     try {
       if (isEdit) {
         await base44.entities.Venue.update(id, data);
+        toast.success('تم تحديث الشاليه بنجاح');
+        navigate('/venue');
       } else {
-        await base44.entities.Venue.create(data);
+        const created = await base44.entities.Venue.create(data);
+        const slug = created?.slug || data.slug;
+        const url = `${window.location.origin}/place/${slug}`;
+        setSuccessVenue({ name: form.name, url, type: user?.business_type || 'الشاليه' });
       }
-      toast.success(isEdit ? 'تم تحديث الشاليه بنجاح ✅' : 'تم إضافة الشاليه بنجاح ✅');
-      navigate('/venue');
     } catch (err) {
       toast.error('حدث خطأ: ' + (err?.message || 'تعذّر الحفظ'));
     } finally {
@@ -248,6 +253,43 @@ export default function VenueForm() {
   const isClassic = form.page_theme === 'classic';
   const [showSocial, setShowSocial] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+
+  // ══ شاشة النجاح ══
+  if (successVenue) return (
+    <div dir="rtl" className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center font-sans">
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+      `}} />
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-[#15317E] rounded-full blur-2xl opacity-20 animate-pulse" />
+        <div className="w-28 h-28 bg-[#15317E] rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white">
+          <PartyPopper className="w-12 h-12 text-white" />
+        </div>
+      </div>
+      <h1 className="text-3xl font-black text-[#15317E] mb-3">تم الإضافة بنجاح</h1>
+      <p className="text-slate-500 text-sm mb-10 max-w-[280px] leading-relaxed">
+        تم إعداد صفحة <span className="font-bold text-[#15317E]">{successVenue.name}</span> بنجاح. يمكنك الآن البدء في استقبال الحجوزات.
+      </p>
+      <div className="w-full space-y-3 max-w-sm">
+        <button onClick={() => navigate('/venue')}
+          className="w-full py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#15317E]/30 transition-all flex items-center justify-center gap-2">
+          <LayoutDashboard className="w-5 h-5" /> انتقل إلى لوحة التحكم
+        </button>
+        <button onClick={() => {
+          if (navigator.share) { navigator.share({ title: successVenue.name, url: successVenue.url }).catch(() => {}); }
+          else { navigator.clipboard.writeText(successVenue.url); toast.success('تم نسخ الرابط'); }
+        }}
+          className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+          <Share2 className="w-5 h-5" /> مشاركة الصفحة
+        </button>
+        <button onClick={() => window.open(successVenue.url, '_blank')}
+          className="w-full py-4 bg-transparent text-slate-500 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+          <Eye className="w-4 h-4" /> شاهد صفحة الشاليه
+        </button>
+      </div>
+    </div>
+  );
 
   // افتح القسم تلقائياً عند تحميل البيانات لو فيها محتوى
   useEffect(() => {
