@@ -463,10 +463,12 @@ export default function VenueBookings() {
               const cfg = STATUS_MAP[s];
               const Icon = cfg.statIcon;
               return (
-                <div key={s} className="flex-1 bg-white rounded-2xl py-2 px-1 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-0.5">
-                  <div className={`p-1 ${cfg.statBg} rounded-lg`}><Icon className={`w-3.5 h-3.5 ${cfg.statText}`} /></div>
-                  <p className={`text-base font-black leading-none mt-0.5 ${cfg.statText}`}>{count}</p>
-                  <p className="text-[10px] font-bold text-slate-500">{s}</p>
+                <div key={s} className="flex-1 bg-white rounded-xl py-1.5 px-2 shadow-sm border border-slate-100 flex items-center justify-center gap-1.5">
+                  <div className={`p-1 ${cfg.statBg} rounded-md flex-shrink-0`}><Icon className={`w-3 h-3 ${cfg.statText}`} /></div>
+                  <div className="flex flex-col items-start">
+                    <p className={`text-lg font-black leading-none ${cfg.statText}`}>{count}</p>
+                    <p className="text-[9px] font-bold text-slate-500 leading-tight">{s}</p>
+                  </div>
                 </div>
               );
             })}
