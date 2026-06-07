@@ -69,7 +69,39 @@ export default function AgentProfile() {
   const isLand = (p) => p.type === 'أرض';
   const priceText = (p) => p.price_negotiable ? 'على السوم' : (p.price ? formatPrice(p.price) : '—');
   const priceDetail = (p) => p.price_negotiable ? '' : (p.listing_type === 'إيجار' ? periodLabel(p.rental_period) : 'ريال');
-  const dims = (p) => (p.length_street && p.length_depth) ? `${p.length_street} × ${p.length_depth}` : (p.street_width ? `شارع ${p.street_width}م` : '—');
+  const dims = (p) => (p.length_street && p.length_depth) ? `${p.length_street} × ${p.length_depth}` : (p.street_width ? `شارع ${p.street_width}م` : null);
+
+  // المواصفات اللي تطلع بأسفل البطاقة — فقط الموجود
+  const cardStats = (p) => {
+    const s = [];
+    if (p.area) s.push({ icon: Maximize, value: `${p.area} م²` });
+    if (isLand(p)) {
+      const d = dims(p);
+      if (d) s.push({ icon: Map, value: d });
+      if (p.facade) s.push({ icon: Compass, value: p.facade });
+    } else {
+      if (p.bedrooms) s.push({ icon: BedDouble, value: `${p.bedrooms} غرف` });
+      if (p.bathrooms) s.push({ icon: Bath, value: `${p.bathrooms} حمامات` });
+    }
+    return s;
+  };
+
+  // مواصفات النافذة التفصيلية — فقط الموجود
+  const modalStats = (p) => {
+    const s = [];
+    if (p.area) s.push({ icon: Maximize, label: 'المساحة', value: `${p.area} م²` });
+    if (isLand(p)) {
+      const d = dims(p);
+      if (d) s.push({ icon: Map, label: 'الأبعاد', value: d });
+      if (p.street_width) s.push({ icon: Maximize, label: 'عرض الشارع', value: `${p.street_width}م` });
+      if (p.facade) s.push({ icon: Compass, label: 'الواجهة', value: p.facade });
+    } else {
+      if (p.bedrooms) s.push({ icon: BedDouble, label: 'غرف النوم', value: p.bedrooms });
+      if (p.bathrooms) s.push({ icon: Bath, label: 'دورات مياه', value: p.bathrooms });
+      if (p.halls) s.push({ icon: Sofa, label: 'الصالات', value: p.halls });
+    }
+    return s;
+  };
 
   if (agentLoading) return (
     <div dir="rtl" className="min-h-screen flex justify-center items-center bg-[#F8FAFC]"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
@@ -180,38 +212,19 @@ export default function AgentProfile() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between px-4 py-3.5 bg-slate-50 mt-2.5 rounded-[1rem]">
-                <div className="flex items-center gap-1.5 text-slate-700">
-                  <Maximize className="w-4 h-4 text-[#15317E]" />
-                  <span className="text-xs font-bold">{property.area || '—'} م²</span>
+              {cardStats(property).length > 0 && (
+                <div className="flex items-center justify-around px-4 py-3.5 bg-slate-50 mt-2.5 rounded-[1rem]">
+                  {cardStats(property).map((s, idx) => (
+                    <React.Fragment key={idx}>
+                      {idx > 0 && <div className="w-px h-6 bg-slate-200" />}
+                      <div className="flex items-center gap-1.5 text-slate-700">
+                        <s.icon className="w-4 h-4 text-[#15317E]" />
+                        <span className="text-xs font-bold">{s.value}</span>
+                      </div>
+                    </React.Fragment>
+                  ))}
                 </div>
-                <div className="w-px h-6 bg-slate-200" />
-                {isLand(property) ? (
-                  <>
-                    <div className="flex items-center gap-1.5 text-slate-700">
-                      <Map className="w-4 h-4 text-[#15317E]" />
-                      <span className="text-xs font-bold">{dims(property)}</span>
-                    </div>
-                    <div className="w-px h-6 bg-slate-200" />
-                    <div className="flex items-center gap-1.5 text-slate-700">
-                      <Compass className="w-4 h-4 text-[#15317E]" />
-                      <span className="text-xs font-bold">{property.facade || '—'}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-1.5 text-slate-700">
-                      <BedDouble className="w-4 h-4 text-[#15317E]" />
-                      <span className="text-xs font-bold">{property.bedrooms || 0} غرف</span>
-                    </div>
-                    <div className="w-px h-6 bg-slate-200" />
-                    <div className="flex items-center gap-1.5 text-slate-700">
-                      <Bath className="w-4 h-4 text-[#15317E]" />
-                      <span className="text-xs font-bold">{property.bathrooms || 0} حمامات</span>
-                    </div>
-                  </>
-                )}
-              </div>
+              )}
             </div>
           ))}
         </main>
@@ -252,44 +265,14 @@ export default function AgentProfile() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-8">
-                <div className="bg-slate-50 p-2 sm:p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100">
-                  <Maximize className="w-5 h-5 text-[#15317E] mb-2" />
-                  <span className="text-[10px] text-slate-500 font-bold mb-0.5">المساحة</span>
-                  <span className="text-xs sm:text-sm font-black text-slate-900">{selected.area || '—'} م²</span>
-                </div>
-                {isLand(selected) ? (
-                  <>
-                    <div className="bg-slate-50 p-2 sm:p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100">
-                      <Map className="w-5 h-5 text-[#15317E] mb-2" />
-                      <span className="text-[10px] text-slate-500 font-bold mb-0.5">الأبعاد</span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900">{dims(selected)}</span>
-                    </div>
-                    <div className="bg-slate-50 p-2 sm:p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100 col-span-2">
-                      <Compass className="w-5 h-5 text-[#15317E] mb-2" />
-                      <span className="text-[10px] text-slate-500 font-bold mb-0.5">الواجهة</span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900">{selected.facade || '—'}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="bg-slate-50 p-2 sm:p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100">
-                      <BedDouble className="w-5 h-5 text-[#15317E] mb-2" />
-                      <span className="text-[10px] text-slate-500 font-bold mb-0.5">غرف النوم</span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900">{selected.bedrooms || 0}</span>
-                    </div>
-                    <div className="bg-slate-50 p-2 sm:p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100">
-                      <Bath className="w-5 h-5 text-[#15317E] mb-2" />
-                      <span className="text-[10px] text-slate-500 font-bold mb-0.5">دورات مياه</span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900">{selected.bathrooms || 0}</span>
-                    </div>
-                    <div className="bg-slate-50 p-2 sm:p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100">
-                      <Sofa className="w-5 h-5 text-[#15317E] mb-2" />
-                      <span className="text-[10px] text-slate-500 font-bold mb-0.5">الصالات</span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900">{selected.halls || 0}</span>
-                    </div>
-                  </>
-                )}
+              <div className={`grid gap-2 sm:gap-3 mb-8 ${modalStats(selected).length >= 4 ? 'grid-cols-4' : modalStats(selected).length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                {modalStats(selected).map((s, i) => (
+                  <div key={i} className="bg-slate-50 p-2 sm:p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100">
+                    <s.icon className="w-5 h-5 text-[#15317E] mb-2" />
+                    <span className="text-[10px] text-slate-500 font-bold mb-0.5">{s.label}</span>
+                    <span className="text-xs sm:text-sm font-black text-slate-900">{s.value}</span>
+                  </div>
+                ))}
               </div>
 
               {selected.features?.length > 0 && (
@@ -375,7 +358,7 @@ export default function AgentProfile() {
                 <div className="flex items-center justify-center gap-4 sm:gap-6 mb-5">
                   <div className="flex flex-col items-center gap-1.5">
                     <Maximize className="w-5 h-5 text-[#15317E]" />
-                    <span className="text-[11px] font-bold text-slate-700">{promoCard.area || '—'} م²</span>
+                    <span className="text-[11px] font-bold text-slate-700">{promoCard.area ? promoCard.area + ' م²' : ''}</span>
                   </div>
                   <div className="w-px h-6 bg-slate-200" />
                   {isLand(promoCard) ? (
@@ -387,7 +370,7 @@ export default function AgentProfile() {
                       <div className="w-px h-6 bg-slate-200" />
                       <div className="flex flex-col items-center gap-1.5">
                         <Compass className="w-5 h-5 text-[#15317E]" />
-                        <span className="text-[11px] font-bold text-slate-700">{promoCard.facade || '—'}</span>
+                        <span className="text-[11px] font-bold text-slate-700">{promoCard.facade || ''}</span>
                       </div>
                     </>
                   ) : (
