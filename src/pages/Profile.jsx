@@ -202,7 +202,7 @@ export default function Profile() {
     e.target.value = ''; // إعادة تعيين الإدخال
   };
 
-  // بعد القص → رفع الصورة
+  // بعد القص → رفع الصورة وحفظها فوراً
   const handleCropConfirm = async (croppedFile) => {
     setUploadingCrop(true);
     try {
@@ -212,8 +212,13 @@ export default function Profile() {
       }
       const { file_url } = await base44.integrations.Core.UploadFile({ file: croppedFile });
       setForm(prev => ({ ...prev, office_logo_url: file_url }));
+
+      // حفظ الشعار مباشرة في قاعدة البيانات
+      await base44.auth.updateMe({ office_logo_url: file_url });
+      await refreshUser();
+
       setCropSrc(null);
-      toast.success('تم ضبط الشعار');
+      toast.success('تم حفظ الشعار ✅');
     } catch (err) {
       toast.error('تعذّر رفع الصورة');
     } finally {
