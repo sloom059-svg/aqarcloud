@@ -601,22 +601,22 @@ export default function CompleteProfile() {
           <PartyPopper className="w-12 h-12 text-white"/>
         </div>
       </div>
-      <h1 className="text-3xl font-black text-[#15317E] mb-3">مبروك! {roleLabel} جاهز 🎉</h1>
+      <h1 className="text-3xl font-black text-[#15317E] mb-3">مبروك! {roleLabel} جاهز</h1>
       <p className="text-slate-500 text-sm mb-10 max-w-[260px] leading-relaxed">
         تم إعداد صفحة <span className="font-bold text-[#15317E]">{form.name}</span> بنجاح. يمكنك الآن البدء في استقبال الحجوزات.
       </p>
       <div className="w-full space-y-3 max-w-sm">
-        <button onClick={()=>window.location.href='/venue'}
+        <button onClick={() => window.location.href = '/venue'}
           className="w-full py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#15317E]/30 transition-all flex items-center justify-center gap-2">
           <Rocket className="w-5 h-5"/> انتقل إلى لوحة التحكم
         </button>
-        <button onClick={()=>window.open(venuePublicUrl,'_blank')}
+        <button onClick={() => { if (navigator.share) { navigator.share({ title: form.name, url: venuePublicUrl }).catch(() => {}); } else { navigator.clipboard.writeText(venuePublicUrl); }}}
           className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
-          <Eye className="w-5 h-5"/> شاهد صفحة {roleLabel}
+          <Share2 className="w-5 h-5"/> مشاركة الصفحة
         </button>
-        <button onClick={()=>navigator.clipboard.writeText(venuePublicUrl)}
+        <button onClick={() => window.open(venuePublicUrl, '_blank')}
           className="w-full py-4 bg-transparent text-slate-500 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2">
-          <Share2 className="w-4 h-4"/> نسخ الرابط للمشاركة
+          <Eye className="w-4 h-4"/> شاهد صفحة {roleLabel}
         </button>
       </div>
       <Style />
