@@ -57,27 +57,27 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
   return (
     <div className="select-none">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <button onClick={prevMonth}
-          className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition">
+          className="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center transition">
           <ChevronRight className="w-4 h-4 text-gray-600" />
         </button>
         <span className="font-black text-gray-900 text-sm">{MONTHS[month]} {year}</span>
         <button onClick={nextMonth}
-          className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition">
+          className="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center transition">
           <ChevronLeft className="w-4 h-4 text-gray-600" />
         </button>
       </div>
 
       {/* Day names */}
-      <div className="grid grid-cols-7 mb-1">
+      <div className="grid grid-cols-7 mb-0.5">
         {DAYS.map(d => (
-          <div key={d} className="text-center text-[10px] font-bold text-gray-400 py-1">{d}</div>
+          <div key={d} className="text-center text-[10px] font-bold text-gray-400 py-0.5">{d}</div>
         ))}
       </div>
 
       {/* Days */}
-      <div className="grid grid-cols-7 gap-y-1">
+      <div className="grid grid-cols-7 gap-y-0.5">
         {cells.map((d, i) => {
           if (!d) return <div key={i} />;
 
@@ -88,7 +88,7 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
           const inRange = isInRange(d);
           const isStart = rangeStart && sameDay(d, rangeStart);
 
-          let cellClass = 'w-full aspect-square flex items-center justify-center rounded-xl text-xs font-bold transition-all ';
+          let cellClass = 'w-full aspect-square flex items-center justify-center rounded-lg text-[11px] font-bold transition-all ';
 
           if (isBooked) {
             cellClass += 'bg-red-100 text-red-400 cursor-default line-through';
@@ -126,7 +126,7 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-4 pt-3 border-t border-gray-100 flex-wrap">
+      <div className="flex items-center gap-4 mt-2 pt-2 border-t border-gray-100 flex-wrap">
         <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
           <div className="w-3 h-3 rounded bg-red-100 border border-red-200" />
           محجوز
@@ -139,8 +139,6 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
           <div className="text-xs text-gray-400">اضغط يومين لتحديد فترة</div>
         )}
       </div>
-
-      <p className="text-xs text-gray-400 mt-3">سوف تظهر التواريخ المحجوزة في صفحة الشاليه</p>
     </div>
   );
 }
