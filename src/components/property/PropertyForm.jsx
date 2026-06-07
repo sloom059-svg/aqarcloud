@@ -184,7 +184,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading }) {
     e.preventDefault();
     const data = {
       ...form,
-      price: (form.price_negotiable && !form.price_on_call) ? undefined : (form.price ? Number(form.price) : undefined),
+      price: form.price_negotiable ? undefined : (form.price ? Number(form.price) : undefined),
       area: (form.listing_type === 'بيع' || isWarehouse) && form.area ? Number(form.area) : undefined,
       rental_period: form.listing_type === 'إيجار' ? (form.rental_period || undefined) : undefined,
       street_width: form.street_width ? Number(form.street_width) : undefined,
@@ -252,8 +252,8 @@ export default function PropertyForm({ initialData, onSubmit, isLoading }) {
           {/* السعر + مساحة */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              {!form.price_negotiable && !form.price_on_call && <Label>السعر (ر.س)</Label>}
-              {!form.price_negotiable && !form.price_on_call && (
+              {!form.price_negotiable && <Label>السعر (ر.س)</Label>}
+              {!form.price_negotiable && (
                 <Input
                   type="number"
                   value={form.price}
@@ -263,35 +263,13 @@ export default function PropertyForm({ initialData, onSubmit, isLoading }) {
               )}
 
               {form.listing_type !== 'إيجار' && (
-                <>
-                  <div className="flex gap-2">
-                    <CheckRow
-                      checked={form.price_negotiable}
-                      onChange={(v) => { handleChange('price_negotiable', v); if (v) { handleChange('price', ''); handleChange('price_on_call', false); } }}
-                      label="على السوم"
-                    />
-                    <CheckRow
-                      checked={form.price_on_call}
-                      onChange={(v) => { handleChange('price_on_call', v); if (v) { handleChange('price_negotiable', false); handleChange('price', ''); } }}
-                      label="مسيوم"
-                    />
-                  </div>
-                  {form.price_on_call && (
-                    <div className="space-y-1">
-                      <Input
-                        type="number"
-                        value={form.price}
-                        onChange={(e) => handleChange('price', e.target.value)}
-                        placeholder="مثال: 200000"
-                      />
-                      {form.price && (
-                        <p className="text-sm font-medium text-primary bg-primary/8 rounded-lg px-3 py-2">
-                          مسيوم بـ {Number(form.price).toLocaleString('ar-SA')} ريال
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </>
+                <div className="flex gap-2">
+                  <CheckRow
+                    checked={form.price_negotiable}
+                    onChange={(v) => { handleChange('price_negotiable', v); if (v) { handleChange('price', ''); } }}
+                    label="على السوم"
+                  />
+                </div>
               )}
             </div>
             <div className="space-y-2">
