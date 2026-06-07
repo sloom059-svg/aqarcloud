@@ -17,7 +17,6 @@ import EditProperty from '@/pages/EditProperty';
 import PropertyDetail from '@/pages/PropertyDetail';
 import Profile from '@/pages/Profile';
 import AgentProfile from '@/pages/AgentProfile';
-import AppLayout from '@/components/layout/AppLayout';
 import CompleteProfile from '@/pages/CompleteProfile';
 import CheckProfile from '@/pages/CheckProfile';
 import VenueDashboard from '@/pages/VenueDashboard';
@@ -57,16 +56,14 @@ const AuthenticatedApp = () => {
       <Route path="/property/:id" element={<PropertyDetail />} />
       <Route path="/place/:slug" element={<VenuePublicPage />} />
 
-      {/* Protected pages */}
+      {/* Protected pages — كلها بهيدر خاص، بدون شريط علوي */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/add-property" element={<AddProperty />} />
-          <Route path="/edit-property/:id" element={<EditProperty />} />
-          <Route path="/profile" element={<Profile />} />
-        </Route>
-        {/* Venue routes - no AppLayout */}
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/add-property" element={<AddProperty />} />
+        <Route path="/edit-property/:id" element={<EditProperty />} />
+        {/* Venue routes */}
         <Route path="/venue" element={<VenueDashboard />} />
         <Route path="/venue/add" element={<VenueForm />} />
         <Route path="/venue/edit/:id" element={<VenueForm />} />
