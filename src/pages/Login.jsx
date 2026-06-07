@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Loader2, ArrowLeft, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Lock, Mail, MapPin, Cloud } from 'lucide-react';
 
 const GoogleIcon = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+  <svg viewBox="0 0 24 24" className={className}>
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
   </svg>
 );
+
+const LOGO_URL = "https://media.base44.com/images/public/6a218975cdf06fe8cd10f742/4f84b960a_10000065611.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setMounted(true);
@@ -27,23 +29,11 @@ export default function Login() {
     document.documentElement.lang = 'ar';
   }, []);
 
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-        setError("يرجى إدخال جميع البيانات المطلوبة");
-        return;
-    }
+    if (!email || !password) { setError("يرجى إدخال جميع البيانات المطلوبة"); return; }
     setError("");
     setLoading(true);
-    
     try {
       await base44.auth.loginViaEmailPassword(email, password);
       window.location.href = "/";
@@ -61,144 +51,129 @@ export default function Login() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center font-sans relative overflow-hidden bg-[#f8fafc] px-4" 
-         style={{ fontFamily: "'Tajawal', 'Cairo', sans-serif" }}>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap');
-        
-        .dot-pattern {
-          background-image: radial-gradient(rgba(26, 43, 66, 0.06) 1px, transparent 1px);
-          background-size: 24px 24px;
-        }
-        
-        input[type="password"]::-ms-reveal,
-        input[type="password"]::-ms-clear {
-          display: none;
-        }
-      `}} />
+    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans flex overflow-hidden">
 
-      <div className="absolute inset-0 dot-pattern pointer-events-none"></div>
-      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[120px] pointer-events-none mix-blend-multiply"></div>
-      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-slate-200/50 rounded-full blur-[100px] pointer-events-none mix-blend-multiply"></div>
+      {/* القسم الأيمن: نموذج تسجيل الدخول */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
+        <div className="w-full max-w-[420px] animate-slide-up">
 
-      <div className="relative w-full max-w-[420px] z-10">
-        
-        <div className="relative bg-white/90 backdrop-blur-xl border border-slate-200/60 rounded-[2rem] p-8 sm:p-10 shadow-[0_30px_60px_-15px_rgba(26,43,66,0.12)] overflow-hidden z-10">
-          
-          <div className="text-center mb-8">
-            <div className="w-40 h-40 mx-auto mb-4 transform transition-transform hover:scale-105 duration-300">
-                <img src="https://media.base44.com/images/public/6a218975cdf06fe8cd10f742/4f84b960a_10000065611.png" alt="عقار كلاود" className="w-full h-full object-contain drop-shadow-sm" />
+          {/* الشعار والهوية */}
+          <div className="mb-10 text-center flex flex-col items-center">
+            <div className="w-24 h-24 bg-white rounded-full shadow-xl shadow-[#15317E]/10 flex items-center justify-center mb-6 border border-slate-100 relative group">
+              <div className="absolute inset-0 bg-[#15317E]/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300" />
+              {!imageError ? (
+                <img src={LOGO_URL} alt="Aqar Cloud" className="w-16 h-16 object-contain relative z-10" onError={() => setImageError(true)} />
+              ) : (
+                <div className="relative flex items-center justify-center z-10">
+                  <MapPin className="w-12 h-12 text-[#15317E]" strokeWidth={2} />
+                  <Cloud className="w-7 h-7 text-[#15317E] absolute top-1.5 fill-white" strokeWidth={2} />
+                </div>
+              )}
             </div>
+            <h1 className="text-4xl font-black text-[#15317E] mb-1">عقار كلاود</h1>
+            <h2 className="text-lg font-bold text-slate-400 tracking-widest uppercase">Aqar Cloud</h2>
           </div>
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm text-center font-medium animate-in fade-in slide-in-from-top-2">
+            <div className="mb-6 p-3.5 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm text-center font-medium animate-in fade-in slide-in-from-top-2">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            
-            <div className="space-y-1.5 text-right">
-              <label className="text-sm font-bold text-[#1a2b42] px-1">البريد الإلكتروني</label>
-              <div className="relative group/input">
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400 group-focus-within/input:text-[#1a2b42] transition-colors">
-                  <Mail className="w-4 h-4" />
-                </div>
+          {/* النموذج */}
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">البريد الإلكتروني</label>
+              <div className="relative">
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="block w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-4 pr-10 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1a2b42]/10 focus:border-[#1a2b42]/30 transition-all text-left shadow-sm"
-                  dir="ltr"
-                  required
+                  type="email" dir="ltr" placeholder="name@example.com"
+                  value={email} onChange={(e) => setEmail(e.target.value)} required
+                  className="w-full pr-12 pl-4 py-4 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-2 focus:ring-[#15317E]/20 outline-none transition-all text-sm font-medium text-left shadow-sm placeholder:text-slate-400"
                 />
+                <Mail className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
               </div>
             </div>
 
-            <div className="space-y-1.5 text-right">
-              <div className="flex items-center justify-between px-1">
-                <Link to="/forgot-password" className="text-xs text-[#1a2b42] hover:text-blue-600 transition-colors font-bold underline decoration-transparent hover:decoration-blue-600 underline-offset-4">
-                  نسيت كلمة المرور؟
-                </Link>
-                <label className="text-sm font-bold text-[#1a2b42]">كلمة المرور</label>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-bold text-slate-700">كلمة المرور</label>
+                <Link to="/forgot-password" className="text-xs font-bold text-[#15317E] hover:underline">نسيت كلمة المرور؟</Link>
               </div>
-              <div className="relative group/input">
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400 group-focus-within/input:text-[#1a2b42] transition-colors">
-                  <Lock className="w-4 h-4" />
-                </div>
+              <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="block w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-10 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1a2b42]/10 focus:border-[#1a2b42]/30 transition-all text-left shadow-sm"
-                  dir="ltr"
-                  required
+                  type={showPassword ? "text" : "password"} dir="ltr" placeholder="••••••••"
+                  value={password} onChange={(e) => setPassword(e.target.value)} required
+                  className="w-full pr-12 pl-12 py-4 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-2 focus:ring-[#15317E]/20 outline-none transition-all text-sm font-medium text-left shadow-sm placeholder:text-slate-400"
                 />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 hover:text-[#1a2b42] transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                <Lock className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#15317E] transition-colors">
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="relative w-full group/btn overflow-hidden rounded-xl mt-4 active:scale-[0.98] transition-all duration-200 shadow-md shadow-[#1a2b42]/20 hover:shadow-lg hover:shadow-[#1a2b42]/30 disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              <div className="absolute inset-0 bg-[#1a2b42] transition-colors duration-300 group-hover/btn:bg-[#121f30]"></div>
-              
-              <div className="relative flex items-center justify-center gap-2 py-3.5 px-4 text-white font-bold text-sm">
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>جاري التحقق...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>تسجيل الدخول</span>
-                    <ArrowLeft className="w-4 h-4 transform group-hover/btn:-translate-x-1 transition-transform" />
-                  </>
-                )}
-              </div>
+            <button type="submit" disabled={loading}
+              className="w-full mt-2 py-4 bg-[#15317E] text-white rounded-2xl font-bold text-base shadow-lg shadow-[#15317E]/20 hover:bg-[#0d1e4c] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+              {loading ? <><Loader2 className="w-5 h-5 animate-spin" />جاري التحقق...</> : 'تسجيل الدخول'}
             </button>
           </form>
 
-          <div className="relative my-7">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-white px-4 text-slate-400 font-medium">أو</span>
-            </div>
+          {/* الفاصل */}
+          <div className="flex items-center gap-4 mt-6 mb-6 opacity-60">
+            <div className="flex-1 h-px bg-slate-300" />
+            <span className="text-xs font-bold text-slate-500">أو الدخول بواسطة</span>
+            <div className="flex-1 h-px bg-slate-300" />
           </div>
 
-          <button
-            onClick={handleGoogle}
-            type="button"
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 py-3 px-4 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] shadow-sm disabled:opacity-70"
-          >
+          {/* زر Google */}
+          <button onClick={handleGoogle} type="button" disabled={loading}
+            className="w-full py-4 bg-white border-2 border-slate-100 hover:border-slate-200 hover:bg-slate-50 text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70">
             <GoogleIcon className="w-5 h-5" />
-            <span className="text-sm">المتابعة باستخدام Google</span>
+            <span dir="ltr">تسجيل الدخول بواسطة Google</span>
           </button>
 
-          <div className="mt-8 text-center text-sm text-slate-500 font-medium">
-            ليس لديك حساب؟{" "}
-            <Link to="/register" className="font-bold text-[#1a2b42] hover:text-blue-600 transition-colors underline decoration-transparent hover:decoration-blue-600 underline-offset-4">
-              قم بإنشاء حساب جديد
-            </Link>
-          </div>
-
+          {/* رابط التسجيل */}
+          <p className="text-center mt-8 text-sm text-slate-500 font-medium">
+            ليس لديك حساب بعد؟{' '}
+            <Link to="/register" className="font-bold text-[#15317E] hover:underline">سجل كمالك أو وسيط</Link>
+          </p>
         </div>
       </div>
+
+      {/* القسم الأيسر: الهوية البصرية */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#15317E] items-center justify-center overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
+          alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#15317E]/90 to-[#0a1840]/90" />
+        <div className="relative z-10 text-white p-12 max-w-lg text-right animate-fade-in">
+          <div className="w-16 h-1 bg-white/30 rounded-full mb-8" />
+          <h2 className="text-4xl font-black mb-4 leading-tight">الوجهة الأولى<br/>لإدارة شاليهك باحترافية</h2>
+          <p className="text-white/70 text-lg leading-relaxed">
+            منصة متكاملة تمنحك تحكماً كاملاً في حجوزاتك، وتساعدك على الوصول لعملاء أكثر بكل سهولة وأمان.
+          </p>
+          <div className="grid grid-cols-2 gap-6 mt-12 pt-12 border-t border-white/10">
+            <div>
+              <div className="text-3xl font-black mb-1">+5,000</div>
+              <div className="text-white/60 text-sm">شاليه نشط</div>
+            </div>
+            <div>
+              <div className="text-3xl font-black mb-1">+100k</div>
+              <div className="text-white/60 text-sm">حجز ناجح</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; margin: 0; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fade-in { animation: fadeIn 1s ease-out forwards; }
+        input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display: none; }
+      `}} />
     </div>
   );
 }
