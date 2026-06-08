@@ -35,6 +35,10 @@ const PinIcon = ({ className }) => (
 const IconWa = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>;
 const IconLock = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className || "w-4 h-4"}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>;
 
+const IconInstagram = ({ className }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 01-1.38-.9 3.7 3.7 0 01-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zm0 1.62c-3.15 0-3.5.01-4.74.07-1.14.05-1.76.24-2.17.4-.55.21-.94.47-1.35.88-.41.41-.67.8-.88 1.35-.16.41-.35 1.03-.4 2.17-.06 1.24-.07 1.59-.07 4.74s.01 3.5.07 4.74c.05 1.14.24 1.76.4 2.17.21.55.47.94.88 1.35.41.41.8.67 1.35.88.41.16 1.03.35 2.17.4 1.24.06 1.59.07 4.74.07s3.5-.01 4.74-.07c1.14-.05 1.76-.24 2.17-.4.55-.21.94-.47 1.35-.88.41-.41.67-.8.88-1.35.16-.41.35-1.03.4-2.17.06-1.24.07-1.59.07-4.74s-.01-3.5-.07-4.74c-.05-1.14-.24-1.76-.4-2.17a3.6 3.6 0 00-.88-1.35 3.6 3.6 0 00-1.35-.88c-.41-.16-1.03-.35-2.17-.4-1.24-.06-1.59-.07-4.74-.07zM12 6.87a5.13 5.13 0 100 10.26 5.13 5.13 0 000-10.26zm0 8.46a3.33 3.33 0 110-6.66 3.33 3.33 0 010 6.66zm6.54-8.66a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg>;
+const IconTiktok = ({ className }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.41-.02-.34-.02-.68-.02-1.02.13-1.6.82-3.08 1.94-4.21 1.52-1.52 3.8-2.26 5.86-1.92V14.3c-1.11-.27-2.31-.1-3.29.41-.85.45-1.46 1.25-1.63 2.21-.07.39-.07.79-.02 1.18.17 1.25 1.05 2.34 2.19 2.81 1.29.54 2.8.46 4.02-.2 1.19-.65 1.95-1.9 2.05-3.26.2-2.9.06-5.82.09-8.73z"/></svg>;
+const IconX = ({ className }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zM17.61 20.64h2.04L6.49 3.24H4.3z"/></svg>;
+
 const ARABIC_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 const formatDateAr = (dateStr) => {
   if (!dateStr) return '';
@@ -318,11 +322,15 @@ export default function VenueBookings() {
     setDownloadingReceipt(true);
     try {
       const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
       const canvas = await html2canvas(receiptRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-      const link = document.createElement('a');
-      link.download = `سند-${receiptBooking?.client_name || 'استلام'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgH = (canvas.height * pageW) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pageW, Math.min(imgH, pageH));
+      pdf.save(`سند-${receiptBooking?.client_name || 'استلام'}.pdf`);
       showToast('تم تنزيل السند بنجاح!');
     } catch (_) {
       showToast('تعذّر تنزيل السند');
@@ -863,6 +871,30 @@ export default function VenueBookings() {
                 <div className="p-1 bg-[#15317E] rounded-lg"><QrCode className="w-10 h-10 text-white" strokeWidth={1.5} /></div>
               </div>
             </div>
+
+            {/* حسابات التواصل بالوسط */}
+            {venue?.social && (venue.social.instagram || venue.social.tiktok || venue.social.x) && (
+              <div className="flex items-center justify-center gap-3 pb-6">
+                {venue.social.instagram && (
+                  <div className="flex items-center gap-1.5 text-[#15317E]">
+                    <IconInstagram className="w-5 h-5" />
+                    <span className="text-xs font-bold" dir="ltr">{venue.social.instagram}</span>
+                  </div>
+                )}
+                {venue.social.tiktok && (
+                  <div className="flex items-center gap-1.5 text-[#15317E]">
+                    <IconTiktok className="w-4 h-4" />
+                    <span className="text-xs font-bold" dir="ltr">{venue.social.tiktok}</span>
+                  </div>
+                )}
+                {venue.social.x && (
+                  <div className="flex items-center gap-1.5 text-[#15317E]">
+                    <IconX className="w-4 h-4" />
+                    <span className="text-xs font-bold" dir="ltr">{venue.social.x}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           </div>
         </div>
@@ -874,8 +906,14 @@ export default function VenueBookings() {
         }
         @media (max-width: 820px) {
           .receipt-scale-wrap {
-            transform: scale(calc((100vw - 24px) / 794));
-            height: calc(1123px * ((100vw - 24px) / 794));
+            transform: scale(0.42);
+            margin-bottom: -650px;
+          }
+        }
+        @media (max-width: 480px) {
+          .receipt-scale-wrap {
+            transform: scale(0.34);
+            margin-bottom: -780px;
           }
         }
       `}} />
