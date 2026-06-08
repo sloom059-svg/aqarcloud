@@ -322,80 +322,67 @@ export default function VenueBookings() {
     if (!receiptRef.current) return;
     setDownloadingReceipt(true);
     try {
-      // التأكد من تحميل خط Tajawal بالكامل (يمنع تداخل الحروف العربية)
-      if (document.fonts && document.fonts.ready) {
-        try {
-          await document.fonts.load("700 16px Tajawal");
-          await document.fonts.load("900 16px Tajawal");
-          await document.fonts.ready;
-        } catch (_) {}
-      }
-      await new Promise(r => setTimeout(r, 300));
+      // انتظار جاهزية الخطوط (بدون ما يوقف لو فشل)
+      try { if (document.fonts?.ready) await document.fonts.ready; } catch (_) {}
+      await new Promise(r => setTimeout(r, 200));
 
       const html2canvas = (await import('html2canvas')).default;
       const node = receiptRef.current;
       const canvas = await html2canvas(node, {
-        scale: 3,
+        scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
-        letterRendering: true,
-        windowWidth: node.scrollWidth,
-        windowHeight: node.scrollHeight,
+        width: node.offsetWidth,
+        height: node.offsetHeight,
+        windowWidth: node.offsetWidth,
+        windowHeight: node.offsetHeight,
         onclone: (doc) => {
-          // إجبار الخط على كامل السند في النسخة الملتقطة
-          doc.querySelectorAll('.receipt-page, .receipt-page *').forEach(el => {
-            el.style.fontFamily = "'Tajawal', sans-serif";
-          });
+          const wrap = doc.querySelector('.receipt-scale-wrap');
+          if (wrap) { wrap.style.transform = 'none'; wrap.style.margin = '0'; }
         },
       });
-      const fileName = `سند-${receiptBooking?.client_name || 'استلام'}.png`;
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
-      if (!blob) throw new Error('no blob');
 
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const fileName = `سند-${receiptBooking?.client_name || 'استلام'}.png`;
+      const dataUrl = canvas.toDataURL('image/png');
+
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-      if (isMobile && navigator.share && navigator.canShare) {
-        const file = new File([blob], fileName, { type: 'image/png' });
-        if (navigator.canShare({ files: [file] })) {
-          try {
+      // محاولة المشاركة على الجوال (لو متاحة)
+      if (navigator.share && navigator.canShare) {
+        try {
+          const blob = await (await fetch(dataUrl)).blob();
+          const file = new File([blob], fileName, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
             await navigator.share({ files: [file], title: 'سند استلام' });
             setDownloadingReceipt(false);
             return;
-          } catch (shareErr) {
-            // المستخدم ألغى أو فشلت — نكمل للطريقة البديلة
           }
-        }
+        } catch (_) { /* نكمل للطريقة البديلة */ }
       }
 
-      const blobUrl = URL.createObjectURL(blob);
-
-      // على آيفون: افتح الصورة في تبويب جديد (المستخدم يضغط مطوّل ويحفظ في الصور)
+      // آيفون: افتح الصورة بتبويب للحفظ اليدوي
       if (isIOS) {
         const win = window.open();
         if (win) {
-          win.document.write(`<img src="${blobUrl}" style="width:100%" alt="سند استلام" />`);
-          win.document.title = fileName;
+          win.document.write(`<img src="${dataUrl}" style="width:100%" alt="سند" />`);
         } else {
-          window.location.href = blobUrl;
+          window.location.href = dataUrl;
         }
         showToast('اضغط مطولاً على الصورة لحفظها');
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
         setDownloadingReceipt(false);
         return;
       }
 
-      // عام (أندرويد/كمبيوتر): تنزيل مباشر
+      // أندرويد/كمبيوتر: تنزيل مباشر
       const link = document.createElement('a');
-      link.href = blobUrl;
+      link.href = dataUrl;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
       showToast('تم تنزيل السند بنجاح!');
-    } catch (_) {
-      showToast('تعذّر تنزيل السند');
+    } catch (err) {
+      showToast('تعذّر التنزيل: ' + (err?.message || 'خطأ غير معروف'));
     }
     setDownloadingReceipt(false);
   };
