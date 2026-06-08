@@ -150,11 +150,11 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <div className="relative flex-shrink-0">
               <div className="w-12 h-12 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
-                {user?.profile_image_url ? (
-                  <img src={user.profile_image_url} alt="صورة" className="w-full h-full object-cover" />
+                {user?.office_logo_url || user?.profile_image_url ? (
+                  <img src={user.office_logo_url || user.profile_image_url} alt="شعار" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-xl font-bold text-white">
-                    {(user?.full_name || 'و')[0]}
+                    {(user?.office_name || user?.full_name || 'م')[0]}
                   </span>
                 )}
               </div>
@@ -162,7 +162,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[11px] text-white/70 mb-0.5 tracking-wider">مرحباً بك،</p>
-              <h1 className="text-base font-bold">{user?.full_name || 'الوسيط'}</h1>
+              <h1 className="text-base font-bold">{user?.office_name || user?.full_name || 'المكتب'}</h1>
             </div>
           </div>
 
