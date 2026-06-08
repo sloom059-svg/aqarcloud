@@ -283,7 +283,7 @@ export default function VenueForm() {
       price_weekday: form.price_weekday ? Number(form.price_weekday) : undefined,
       price_weekend: form.price_weekend ? Number(form.price_weekend) : undefined,
       owner_id: user?.id,
-      slug: form.slug || form.name.replace(/\s+/g, '-').toLowerCase(),
+      slug: form.slug || `venue-${Date.now()}`,
       custom_features: (form.custom_features || []).filter(cf => cf.label && cf.label.trim()),
       social: cleanSocial,
     };
@@ -429,9 +429,22 @@ export default function VenueForm() {
               <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="مثال: شاليه الريم" required />
             </div>
             <div className="space-y-2">
-              <Label>الرابط المختصر (اختياري)</Label>
-              <Input value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} placeholder="alreem" dir="ltr" />
-              <p className="text-xs text-muted-foreground">site.com/place/{form.slug || 'alreem'}</p>
+              <Label>الرابط المختصر <span className="text-xs text-slate-400 font-normal">(إنجليزي فقط)</span></Label>
+              <Input
+                value={form.slug}
+                onChange={e => {
+                  // يقبل فقط: حروف إنجليزية، أرقام، شرطة
+                  const val = e.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9-]/g, '')
+                    .replace(/--+/g, '-');
+                  setForm(p => ({ ...p, slug: val }));
+                }}
+                placeholder="my-chalet"
+                dir="ltr"
+                className="font-mono"
+              />
+              <p className="text-xs text-muted-foreground">site.com/place/{form.slug || 'my-chalet'}</p>
             </div>
             <div className="space-y-2">
               <Label>المدينة *</Label>
