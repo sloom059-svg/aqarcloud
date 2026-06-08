@@ -358,14 +358,14 @@ export default function VenueForm() {
                 {user?.office_logo_url ? (
                   <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-lg font-bold text-white">{(user?.office_name || user?.full_name || 'م')[0]}</span>
+                  <span className="text-lg font-bold text-white">{(form.name || 'ش')[0]}</span>
                 )}
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
             </div>
             <div>
               <h1 className="text-base font-bold leading-tight">{isEdit ? 'تعديل المكان' : 'إضافة مكان جديد'}</h1>
-              <p className="text-[11px] text-white/70 mt-0.5">{user?.office_name || user?.full_name || ''}</p>
+              <p className="text-[11px] text-white/70 mt-0.5">{form.name || 'منشأتي'}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
