@@ -184,6 +184,8 @@ export default function VenueForm() {
   const [successVenue, setSuccessVenue] = useState(null);
   const [showRevenue, setShowRevenue] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
+  const [showSocial, setShowSocial] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const { data: existing } = useQuery({
     queryKey: ['venue', id],
@@ -202,6 +204,16 @@ export default function VenueForm() {
       theme_color: existing.theme_color || '#c9a96e',
       social: { instagram: '', tiktok: '', x: '', ...(existing.social || {}) },
     }));
+  }, [existing]);
+
+  // افتح القسم تلقائياً عند تحميل البيانات لو فيها محتوى
+  useEffect(() => {
+    if (existing) {
+      const hasSocial = Object.values(existing.social || {}).some(v => v?.trim());
+      const hasTerms = !!(existing.booking_terms?.trim());
+      if (hasSocial) setShowSocial(true);
+      if (hasTerms) setShowTerms(true);
+    }
   }, [existing]);
 
   useEffect(() => {
@@ -292,8 +304,6 @@ export default function VenueForm() {
   };
 
   const isClassic = form.page_theme === 'classic';
-  const [showSocial, setShowSocial] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
 
   // ══ شاشة النجاح ══
   if (successVenue) return (
@@ -332,16 +342,7 @@ export default function VenueForm() {
     </div>
   );
 
-  // افتح القسم تلقائياً عند تحميل البيانات لو فيها محتوى
-  useEffect(() => {
-    if (existing) {
-      const hasSocial = Object.values(existing.social || {}).some(v => v?.trim());
-      const hasTerms = !!(existing.booking_terms?.trim());
-      if (hasSocial) setShowSocial(true);
-      if (hasTerms) setShowTerms(true);
-    }
-  }, [existing]);
-
+  // ══ الصفحة الرئيسية ══
   return (
     <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-10 relative">
       <style dangerouslySetInnerHTML={{__html: `
