@@ -11,7 +11,7 @@ import {
   Bell, Wallet, LogOut, User, Calendar,
   ChevronDown, ChevronRight, Phone,
   Edit3, Inbox, Clock, CheckCircle2, XCircle, Calendar as CalendarIcon,
-  FileText, Eye, Printer, MapPin, QrCode
+  FileText, Eye, Download, MapPin, QrCode
 } from 'lucide-react';
 import VenueCalendar from '@/components/venue/VenueCalendar';
 
@@ -151,6 +151,8 @@ export default function VenueBookings() {
   const [receiptBooking, setReceiptBooking] = useState(null);
   const [receiptForm, setReceiptForm]       = useState({ type: 'deposit', amount: '' });
   const [showReceiptPreview, setShowReceiptPreview] = useState(false);
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
+  const receiptRef = useRef(null);
 
   const revenueRef = useRef(null);
   const notifsRef  = useRef(null);
@@ -309,6 +311,23 @@ export default function VenueBookings() {
       `تاريخ الحجز: ${formatDateAr(receiptBooking.check_in)} إلى ${formatDateAr(receiptBooking.check_out)}${nights ? ` (${nights})` : ''}\n\n` +
       `نتمنى لك إقامة سعيدة!`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const downloadReceipt = async () => {
+    if (!receiptRef.current) return;
+    setDownloadingReceipt(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(receiptRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const link = document.createElement('a');
+      link.download = `سند-${receiptBooking?.client_name || 'استلام'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('تم تنزيل السند بنجاح!');
+    } catch (_) {
+      showToast('تعذّر تنزيل السند');
+    }
+    setDownloadingReceipt(false);
   };
 
   const statusOrder = ['جديد', 'بالانتظار', 'مؤكد', 'ملغي'];
@@ -750,19 +769,21 @@ export default function VenueBookings() {
 
       {/* ══════════ معاينة السند PDF ══════════ */}
       {showReceiptPreview && receiptBooking && (
-        <div className="fixed inset-0 z-[200] bg-slate-800/90 backdrop-blur-sm overflow-auto print:bg-white print:p-0 flex flex-col items-center py-10 print:py-0 print:block" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-          <div className="sticky top-4 z-50 flex items-center gap-3 bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-slate-200 print:hidden mb-6">
-            <button onClick={() => window.print()} className="flex items-center gap-2 bg-[#15317E] text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-[#0d1e4c] transition-all shadow-sm">
-              <Printer className="w-4 h-4" /> طباعة وحفظ كـ PDF
+        <div className="fixed inset-0 z-[200] bg-slate-800/90 backdrop-blur-sm overflow-auto flex flex-col items-center py-6 px-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+          <div className="sticky top-2 z-50 flex items-center gap-3 bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-slate-200 mb-4">
+            <button onClick={downloadReceipt} disabled={downloadingReceipt} className="flex items-center gap-2 bg-[#15317E] text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-[#0d1e4c] transition-all shadow-sm disabled:opacity-60">
+              {downloadingReceipt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} تنزيل السند
             </button>
             <button onClick={() => setShowReceiptPreview(false)} className="flex items-center gap-2 bg-slate-100 text-slate-600 px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-200 transition-all">
               <X className="w-4 h-4" /> إغلاق المعاينة
             </button>
           </div>
 
-          <div dir="rtl" className="receipt-page w-[210mm] min-h-[297mm] shrink-0 bg-white text-slate-900 relative shadow-2xl print:shadow-none flex flex-col print:w-full print:h-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-            <div className="absolute inset-3 border-2 border-[#15317E] rounded-2xl pointer-events-none" />
-            <div className="absolute inset-4 border border-[#15317E]/30 rounded-xl pointer-events-none" />
+          {/* غلاف للتصغير على الجوال */}
+          <div className="receipt-scale-wrap">
+            <div ref={receiptRef} dir="rtl" className="receipt-page w-[210mm] min-h-[297mm] shrink-0 bg-white text-slate-900 relative shadow-2xl flex flex-col" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+              <div className="absolute inset-3 border-2 border-[#15317E] rounded-2xl pointer-events-none" />
+              <div className="absolute inset-4 border border-[#15317E]/30 rounded-xl pointer-events-none" />
 
             <div className="px-12 pt-14 pb-8 flex flex-col flex-1">
               <div className="flex justify-between items-start mb-12">
@@ -843,16 +864,19 @@ export default function VenueBookings() {
               </div>
             </div>
           </div>
+          </div>
         </div>
       )}
 
       <style dangerouslySetInnerHTML={{__html: `
-        @media print {
-          @page { margin: 0; size: A4 portrait; }
-          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
-          body * { visibility: hidden !important; }
-          .receipt-page, .receipt-page * { visibility: visible !important; }
-          .receipt-page { position: absolute; top: 0; right: 0; box-shadow: none !important; }
+        .receipt-scale-wrap {
+          transform-origin: top center;
+        }
+        @media (max-width: 820px) {
+          .receipt-scale-wrap {
+            transform: scale(calc((100vw - 24px) / 794));
+            height: calc(1123px * ((100vw - 24px) / 794));
+          }
         }
       `}} />
     </div>
