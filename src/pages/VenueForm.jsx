@@ -49,9 +49,9 @@ const XIcon = (props) => (
 );
 
 const SOCIAL_FIELDS = [
-  { key: 'instagram', label: 'انستقرام', placeholder: 'https://instagram.com/...', Icon: Instagram },
-  { key: 'tiktok', label: 'تيك توك', placeholder: 'https://tiktok.com/@...', Icon: (p) => <TikTokIcon {...p} /> },
-  { key: 'x', label: 'إكس (تويتر)', placeholder: 'https://x.com/...', Icon: (p) => <XIcon {...p} /> },
+  { key: 'instagram', label: 'انستقرام', placeholder: '@yourname', Icon: Instagram },
+  { key: 'tiktok', label: 'تيك توك', placeholder: '@yourname', Icon: (p) => <TikTokIcon {...p} /> },
+  { key: 'x', label: 'إكس (تويتر)', placeholder: '@yourname', Icon: (p) => <XIcon {...p} /> },
 ];
 
 const THEME_COLORS = [
