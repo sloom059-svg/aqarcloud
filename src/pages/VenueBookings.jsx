@@ -13,6 +13,7 @@ import {
   Edit3, Inbox, Clock, CheckCircle2, XCircle, Calendar as CalendarIcon,
   FileText, Eye, Download, MapPin, QrCode
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import VenueCalendar from '@/components/venue/VenueCalendar';
 
 // ── أيقونات SVG ──
@@ -923,7 +924,15 @@ export default function VenueBookings() {
                     <span className="block text-xs font-black text-[#15317E]">امسح الرمز</span>
                     <span className="block text-[10px] font-bold text-slate-500">لزيارة صفحة المنشأة</span>
                   </div>
-                  <div className="p-1 bg-[#15317E] rounded-lg"><QrCode className="w-10 h-10 text-white" strokeWidth={1.5} /></div>
+                  <div className="bg-white p-1 rounded-lg border border-slate-100">
+                    <QRCodeSVG
+                      value={`${window.location.origin}/place/${venue?.slug || venue?.id || 'venue'}`}
+                      size={48}
+                      bgColor="#ffffff"
+                      fgColor="#15317E"
+                      level="M"
+                    />
+                  </div>
                 </div>
               </div>
 
