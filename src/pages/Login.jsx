@@ -58,7 +58,7 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <div className="w-full max-w-[420px] animate-slide-up">
 
-          {/* الشعار بحجم ملموس وأنيق */}
+          {/* الشعار */}
           <div className="mb-10 text-center flex justify-center">
             {!imageError ? (
               <img 
@@ -68,7 +68,7 @@ export default function Login() {
                 onError={() => setImageError(true)} 
               />
             ) : (
-              <Building2 className="w-16 h-16 text-[#15317E]" />
+              <Building2 className="w-16 h-16 text-[#FF5A5F]" />
             )}
           </div>
 
@@ -86,7 +86,7 @@ export default function Login() {
                 <input
                   type="email" dir="ltr" placeholder="name@example.com"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full pr-12 pl-4 py-4 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-2 focus:ring-[#15317E]/20 outline-none transition-all text-sm font-medium text-left shadow-sm placeholder:text-slate-400"
+                  className="w-full pr-12 pl-4 py-4 bg-white border border-slate-200 rounded-2xl focus:border-[#FF5A5F] focus:ring-2 focus:ring-[#FF5A5F]/20 outline-none transition-all text-sm font-medium text-left shadow-sm placeholder:text-slate-400"
                 />
                 <Mail className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
               </div>
@@ -95,24 +95,24 @@ export default function Login() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-bold text-slate-700">كلمة المرور</label>
-                <Link to="/forgot-password" className="text-xs font-bold text-[#15317E] hover:underline">نسيت كلمة المرور؟</Link>
+                <Link to="/forgot-password" className="text-xs font-bold text-[#FF5A5F] hover:underline">نسيت كلمة المرور؟</Link>
               </div>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"} dir="ltr" placeholder="••••••••"
                   value={password} onChange={(e) => setPassword(e.target.value)} required
-                  className="w-full pr-12 pl-12 py-4 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-2 focus:ring-[#15317E]/20 outline-none transition-all text-sm font-medium text-left shadow-sm placeholder:text-slate-400"
+                  className="w-full pr-12 pl-12 py-4 bg-white border border-slate-200 rounded-2xl focus:border-[#FF5A5F] focus:ring-2 focus:ring-[#FF5A5F]/20 outline-none transition-all text-sm font-medium text-left shadow-sm placeholder:text-slate-400"
                 />
                 <Lock className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#15317E] transition-colors">
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF5A5F] transition-colors">
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
             <button type="submit" disabled={loading}
-              className="w-full mt-2 py-4 bg-[#15317E] text-white rounded-2xl font-bold text-base shadow-lg shadow-[#15317E]/20 hover:bg-[#0d1e4c] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+              className="w-full mt-2 py-4 bg-[#FF5A5F] text-white rounded-2xl font-bold text-base shadow-lg shadow-[#FF5A5F]/20 hover:bg-[#E31C5F] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
               {loading ? <><Loader2 className="w-5 h-5 animate-spin" />جاري التحقق...</> : 'تسجيل الدخول'}
             </button>
           </form>
@@ -134,16 +134,16 @@ export default function Login() {
           {/* رابط التسجيل */}
           <p className="text-center mt-8 text-sm text-slate-500 font-medium">
             ليس لديك حساب بعد؟{' '}
-            <Link to="/register" className="font-bold text-[#15317E] hover:underline">سجل كمالك أو وسيط</Link>
+            <Link to="/register" className="font-bold text-[#FF5A5F] hover:underline">سجل كمالك أو وسيط</Link>
           </p>
         </div>
       </div>
 
       {/* القسم الأيسر: الهوية البصرية */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#15317E] items-center justify-center overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#FF5A5F] items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
           alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#15317E]/90 to-[#0a1840]/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A5F]/90 to-[#D93965]/90" />
         <div className="relative z-10 text-white p-12 max-w-lg text-right animate-fade-in">
           <div className="w-16 h-1 bg-white/30 rounded-full mb-8" />
           <h2 className="text-4xl font-black mb-4 leading-tight">منصتك الأولى<br/>لإدارة عقاراتك وشاليهاتك</h2>
