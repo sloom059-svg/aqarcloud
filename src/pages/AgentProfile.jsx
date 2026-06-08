@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import {
   MapPin, BedDouble, Bath, Maximize, Phone, MessageCircle, Share2,
   Building, CheckCircle2, X, Map, Sofa, Compass, Download, QrCode,
-  BadgeCheck, Loader2, Sparkles
+  BadgeCheck, Loader2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 const formatPrice = (p) => p ? new Intl.NumberFormat('en-US').format(p) : '';
@@ -24,6 +24,8 @@ export default function AgentProfile() {
   const agentId = window.location.pathname.split('/').pop();
   const [selected, setSelected] = useState(null);
   const [promoCard, setPromoCard] = useState(null);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [lightbox, setLightbox] = useState(false);
   const cardRef = useRef(null);
 
   const { data: agent, isLoading: agentLoading } = useQuery({
@@ -168,7 +170,7 @@ export default function AgentProfile() {
               <p className="text-slate-500 font-bold">لا توجد عقارات حالياً</p>
             </div>
           ) : properties.map((property) => (
-            <div key={property.id} onClick={() => setSelected(property)}
+            <div key={property.id} onClick={() => { setSelected(property); setGalleryIndex(0); }}
               className="bg-white rounded-[1.5rem] p-2.5 shadow-xl shadow-slate-200/50 border border-slate-100 cursor-pointer transform transition-transform hover:-translate-y-1">
               <div className="relative h-56 rounded-[1.2rem] overflow-hidden">
                 <img src={property.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'} alt={property.title} className="w-full h-full object-cover" />
@@ -234,13 +236,45 @@ export default function AgentProfile() {
       {selected && !promoCard && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-[#15317E]/80 backdrop-blur-md animate-in fade-in">
           <div className="bg-white w-full sm:w-[450px] h-[92vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10">
-            <div className="relative h-64 flex-shrink-0">
-              <img src={selected.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'} alt={selected.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#15317E] via-[#15317E]/40 to-transparent" />
-              <button onClick={() => setSelected(null)} className="absolute top-5 right-5 p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white rounded-full transition-colors">
+            {/* المعرض */}
+            <div className="relative h-64 flex-shrink-0 bg-black cursor-pointer" onClick={() => setLightbox(true)}>
+              <img
+                src={(selected.images?.[galleryIndex]) || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'}
+                alt={selected.title}
+                className="w-full h-full object-contain"
+              />
+              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#15317E]/90 to-transparent pointer-events-none" />
+
+              {/* أسهم التنقل */}
+              {selected.images?.length > 1 && (
+                <>
+                  <button onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i > 0 ? i - 1 : selected.images.length - 1); }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i < selected.images.length - 1 ? i + 1 : 0); }}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  {/* النقاط */}
+                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 pointer-events-none">
+                    {selected.images.map((_, i) => (
+                      <div key={i} className={`h-1.5 rounded-full transition-all ${i === galleryIndex ? 'bg-white w-5' : 'bg-white/50 w-1.5'}`} />
+                    ))}
+                  </div>
+                  {/* عداد */}
+                  <div className="absolute top-4 left-4 bg-black/40 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" dir="ltr">
+                    {galleryIndex + 1}/{selected.images.length}
+                  </div>
+                </>
+              )}
+
+              <button onClick={(e) => { e.stopPropagation(); setSelected(null); }}
+                className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white rounded-full transition-colors">
                 <X className="w-5 h-5" />
               </button>
-              <div className="absolute bottom-5 right-5 left-5 text-white">
+
+              <div className="absolute bottom-4 right-5 left-5 text-white pointer-events-none">
                 <span className="inline-block px-3 py-1 rounded-lg text-[11px] font-bold mb-2 shadow-sm bg-white/20 backdrop-blur-sm">{ARABIC[selected.listing_type] || selected.listing_type || 'للبيع'}</span>
                 <h2 className="text-2xl font-black leading-tight mb-1">{selected.title}</h2>
                 <p className="text-sm text-white/80 flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {selected.city}{selected.neighborhood ? `، ${selected.neighborhood}` : ''}</p>
@@ -448,6 +482,44 @@ export default function AgentProfile() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {/* Lightbox — عرض الصورة بالمقاس الحقيقي */}
+      {lightbox && selected && (
+        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center" onClick={() => setLightbox(false)}>
+          <button onClick={() => setLightbox(false)}
+            className="absolute top-5 left-5 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10">
+            <X className="w-6 h-6" />
+          </button>
+
+          <img
+            src={(selected.images?.[galleryIndex]) || ''}
+            alt={selected.title}
+            className="max-w-full max-h-full object-contain"
+            onClick={e => e.stopPropagation()}
+          />
+
+          {selected.images?.length > 1 && (
+            <>
+              <button onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i > 0 ? i - 1 : selected.images.length - 1); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+                <ChevronRight className="w-6 h-6" />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i < selected.images.length - 1 ? i + 1 : 0); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <div className="absolute top-5 right-5 text-white/80 text-sm font-bold bg-white/10 px-3 py-1 rounded-full" dir="ltr">
+                {galleryIndex + 1} / {selected.images.length}
+              </div>
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                {selected.images.map((_, i) => (
+                  <button key={i} onClick={(e) => { e.stopPropagation(); setGalleryIndex(i); }}
+                    className={`h-2 rounded-full transition-all ${i === galleryIndex ? 'bg-white w-8' : 'bg-white/40 w-2'}`} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
