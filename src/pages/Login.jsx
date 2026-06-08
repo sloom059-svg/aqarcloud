@@ -68,12 +68,12 @@ export default function Login() {
                 onError={() => setImageError(true)} 
               />
             ) : (
-              <Building2 className="w-16 h-16 text-[#e56d6d]" />
+              <Building2 className="w-16 h-16 text-[#15317E]" />
             )}
           </div>
 
           {error && (
-            <div className="mb-6 p-4 rounded-2xl bg-[#fff0f3] border border-[#ffd6de] text-[#cc5252] text-sm text-center font-bold animate-in fade-in slide-in-from-top-2">
+            <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm text-center font-bold animate-in fade-in slide-in-from-top-2">
               {error}
             </div>
           )}
@@ -86,24 +86,24 @@ export default function Login() {
                 <input
                   type="email" dir="ltr" placeholder="name@example.com"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full pr-12 pl-4 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#e56d6d] focus:ring-4 focus:ring-[#e56d6d]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
+                  className="w-full pr-12 pl-4 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#15317E] focus:ring-4 focus:ring-[#15317E]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
                 />
-                <Mail className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#e56d6d] transition-colors" />
+                <Mail className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#15317E] transition-colors" />
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-2.5">
                 <label className="block text-sm font-bold text-gray-800">كلمة المرور</label>
-                <Link to="/forgot-password" className="text-xs font-bold text-[#e56d6d] hover:text-[#cc5252] transition-colors">نسيت كلمة المرور؟</Link>
+                <Link to="/forgot-password" className="text-xs font-bold text-[#15317E] hover:text-[#0d1e4c] transition-colors">نسيت كلمة المرور؟</Link>
               </div>
               <div className="relative group">
                 <input
                   type={showPassword ? "text" : "password"} dir="ltr" placeholder="••••••••"
                   value={password} onChange={(e) => setPassword(e.target.value)} required
-                  className="w-full pr-12 pl-12 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#e56d6d] focus:ring-4 focus:ring-[#e56d6d]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
+                  className="w-full pr-12 pl-12 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#15317E] focus:ring-4 focus:ring-[#15317E]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
                 />
-                <Lock className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#e56d6d] transition-colors" />
+                <Lock className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#15317E] transition-colors" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors">
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -111,8 +111,9 @@ export default function Login() {
               </div>
             </div>
 
+            {/* الزر باللون الأزرق الفخم */}
             <button type="submit" disabled={loading}
-              className="w-full mt-2 py-4 bg-gradient-to-r from-[#e56d6d] to-[#d85c5c] text-white rounded-2xl font-bold text-base shadow-[0_8px_20px_rgba(229,109,109,0.25)] hover:shadow-[0_12px_25px_rgba(229,109,109,0.35)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+              className="w-full mt-2 py-4 bg-gradient-to-r from-[#15317E] to-[#0d1e4c] text-white rounded-2xl font-bold text-base shadow-[0_8px_20px_rgba(21,49,126,0.25)] hover:shadow-[0_12px_25px_rgba(21,49,126,0.35)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
               {loading ? <><Loader2 className="w-5 h-5 animate-spin" />جاري التحقق...</> : 'تسجيل الدخول'}
             </button>
           </form>
@@ -134,16 +135,16 @@ export default function Login() {
           {/* رابط التسجيل */}
           <p className="text-center mt-10 text-sm text-gray-500 font-medium">
             ليس لديك حساب بعد؟{' '}
-            <Link to="/register" className="font-bold text-[#e56d6d] hover:text-[#cc5252] transition-colors">سجل كمالك أو وسيط</Link>
+            <Link to="/register" className="font-bold text-[#15317E] hover:text-[#0d1e4c] transition-colors">سجل كمالك أو وسيط</Link>
           </p>
         </div>
       </div>
 
-      {/* القسم الأيسر: الهوية البصرية (الخلفية باللون المطلوب) */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#e56d6d] items-center justify-center overflow-hidden">
+      {/* القسم الأيسر: الهوية البصرية (الخلفية الزرقاء الأصلية) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#15317E] items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
           alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#e56d6d]/95 to-[#cc5252]/95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#15317E]/95 to-[#0a1840]/95" />
         <div className="relative z-10 text-white p-12 max-w-lg text-right animate-fade-in">
           <div className="w-16 h-1.5 bg-white/30 rounded-full mb-8" />
           <h2 className="text-4xl font-black mb-4 leading-tight">منصتك الأولى<br/>لإدارة عقاراتك وشاليهاتك</h2>
