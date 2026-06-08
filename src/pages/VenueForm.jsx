@@ -11,10 +11,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  ArrowRight, Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown,
+  Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown,
   Star, ShieldCheck, Waves, Wifi, UtensilsCrossed, Tv, Dumbbell, Bath,
-  Wind, Music, Camera, Heart, Gift, Mountain, Car, Bed, Flame, Trees, Instagram, ChevronDown
+  Wind, Music, Camera, Heart, Gift, Mountain, Car, Bed, Flame, Trees, Instagram, ChevronDown,
+  Bell, Wallet, LogOut, User, ChevronRight
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CityCombobox from '@/components/venue/CityCombobox';
 import { useQuery } from '@tanstack/react-query';
 
@@ -125,11 +127,44 @@ function CustomFeatureRow({ cf, onUpdate, onRemove }) {
   );
 }
 
+// ── Dropdown الملف الشخصي / الخروج ──
+function ProfileMenu({ onLogout }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(!open)}
+        className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white flex items-center gap-1">
+        <LogOut className="w-4 h-4" />
+        <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50">
+          <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium">
+            <User className="w-4 h-4 text-[#15317E]" /> الملف الشخصي
+          </Link>
+          <div className="h-px bg-slate-100" />
+          <button onClick={() => { setOpen(false); onLogout(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-medium">
+            <LogOut className="w-4 h-4" /> تسجيل الخروج
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function VenueForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const isEdit = !!id;
+
+  const handleLogout = async () => { await logout(false); navigate('/login'); };
 
   const [form, setForm] = useState({
     name: '', venue_type: '', description: '', city: '',
@@ -302,15 +337,67 @@ export default function VenueForm() {
   }, [existing]);
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      <div className="bg-primary text-primary-foreground px-4 py-4 flex items-center gap-3">
-        <button onClick={() => navigate('/venue')}>
-          <ArrowRight className="w-5 h-5" />
-        </button>
-        <h1 className="text-xl font-bold">{isEdit ? 'تعديل المكان' : 'إضافة مكان جديد'}</h1>
-      </div>
+    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-10 relative">
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+      `}} />
 
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+      {/* الخلفية الزرقاء */}
+      <div className="absolute top-0 left-0 right-0 h-[120px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
+
+      <div className="relative z-10 max-w-2xl mx-auto px-4">
+        {/* الهيدر الموحّد */}
+        <header className="pt-7 pb-5 flex items-center justify-between text-white">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/venue')} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div className="relative flex-shrink-0">
+              <div className="w-11 h-11 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
+                {user?.office_logo_url ? (
+                  <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-lg font-bold text-white">{(user?.office_name || user?.full_name || 'م')[0]}</span>
+                )}
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold leading-tight">{isEdit ? 'تعديل المكان' : 'إضافة مكان جديد'}</h1>
+              <p className="text-[11px] text-white/70 mt-0.5">{user?.office_name || user?.full_name || ''}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button onClick={() => setShowNotifs(!showNotifs)}
+                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
+                <Bell className="w-4 h-4" />
+              </button>
+              {showNotifs && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+                  <div className="px-4 py-3 bg-[#15317E] text-white"><span className="text-sm font-bold">الإشعارات</span></div>
+                  <div className="px-4 py-6 text-center"><p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p></div>
+                </div>
+              )}
+            </div>
+            <div className="relative">
+              <button onClick={() => setShowRevenue(!showRevenue)}
+                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
+                <Wallet className="w-4 h-4" />
+              </button>
+              {showRevenue && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center">
+                  <p className="text-[11px] text-slate-500 font-medium">المحفظة</p>
+                  <p className="text-sm font-bold text-[#15317E] mt-1">قريباً</p>
+                </div>
+              )}
+            </div>
+            <ProfileMenu onLogout={handleLogout} />
+          </div>
+        </header>
+
+      <form onSubmit={handleSubmit} className="space-y-5 pt-2">
         {/* Basic Info */}
         <Card>
           <CardHeader><CardTitle className="text-base">المعلومات الأساسية</CardTitle></CardHeader>
@@ -576,6 +663,7 @@ export default function VenueForm() {
           {saving ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : isEdit ? 'حفظ التعديلات' : 'إضافة المكان'}
         </Button>
       </form>
+      </div>
     </div>
   );
 }
