@@ -180,17 +180,6 @@ export default function VenueDashboard() {
     window.open(url, '_blank');
   };
 
-  const handleToggleStatus = async (venue) => {
-    const newStatus = venue.status === 'نشط' ? 'معطّل' : 'نشط';
-    try {
-      await base44.entities.Venue.update(venue.id, { status: newStatus });
-      qc.invalidateQueries({ queryKey: ['venues'] });
-      showToast(newStatus === 'نشط' ? 'تم تفعيل الشاليه' : 'تم تعطيل الشاليه مؤقتاً');
-    } catch (_) {
-      showToast('تعذّر تحديث الحالة');
-    }
-  };
-
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3000);
@@ -481,23 +470,6 @@ export default function VenueDashboard() {
                       <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                       <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="10.49" x2="8.59" y2="6.51"/>
                     </svg>
-                  </button>
-
-                  {/* تفعيل / تعطيل */}
-                  <button
-                    onClick={() => handleToggleStatus(venue)}
-                    className={`w-12 flex items-center justify-center border rounded-xl transition-all shadow-sm group ${venue.status === 'معطّل' ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100'}`}
-                    title={venue.status === 'معطّل' ? 'تفعيل الشاليه' : 'تعطيل مؤقت'}
-                  >
-                    {venue.status === 'معطّل' ? (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
-                        <circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/>
-                      </svg>
-                    ) : (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
-                        <circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/>
-                      </svg>
-                    )}
                   </button>
 
                   {/* حذف */}
