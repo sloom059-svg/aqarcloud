@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Eye, EyeOff, Lock, Mail, CalendarCheck, Building2, Share2 } from 'lucide-react';
 
-// استدعاء الشعار من المجلد الرئيسي src
 import logo from '../aqar-cloud-logo.png';
 
 const GoogleIcon = ({ className }) => (
@@ -58,15 +57,11 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <div className="w-full max-w-[420px] animate-slide-up">
 
-          {/* الشعار (الحجم والمسافة تم الحفاظ عليها) */}
           <div className="mb-8 text-center flex justify-center">
             {!imageError ? (
-              <img 
-                src={logo} 
-                alt="Aqar Cloud Logo" 
-                className="w-36 md:w-44 h-auto object-contain transition-all duration-300" 
-                onError={() => setImageError(true)} 
-              />
+              <img src={logo} alt="Aqar Cloud Logo"
+                className="w-36 md:w-44 h-auto object-contain transition-all duration-300"
+                onError={() => setImageError(true)} />
             ) : (
               <Building2 className="w-16 h-16 text-[#15317E]" />
             )}
@@ -78,16 +73,13 @@ export default function Login() {
             </div>
           )}
 
-          {/* النموذج */}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-bold text-gray-800 mb-2.5">البريد الإلكتروني</label>
               <div className="relative group">
-                <input
-                  type="email" dir="ltr" placeholder="name@example.com"
+                <input type="email" dir="ltr" placeholder="name@example.com"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full pr-12 pl-4 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#15317E] focus:ring-4 focus:ring-[#15317E]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
-                />
+                  className="w-full pr-12 pl-4 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#15317E] focus:ring-4 focus:ring-[#15317E]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400" />
                 <Mail className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#15317E] transition-colors" />
               </div>
             </div>
@@ -98,11 +90,9 @@ export default function Login() {
                 <Link to="/forgot-password" className="text-xs font-bold text-[#15317E] hover:text-[#0d1e4c] transition-colors">نسيت كلمة المرور؟</Link>
               </div>
               <div className="relative group">
-                <input
-                  type={showPassword ? "text" : "password"} dir="ltr" placeholder="••••••••"
+                <input type={showPassword ? "text" : "password"} dir="ltr" placeholder="••••••••"
                   value={password} onChange={(e) => setPassword(e.target.value)} required
-                  className="w-full pr-12 pl-12 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#15317E] focus:ring-4 focus:ring-[#15317E]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
-                />
+                  className="w-full pr-12 pl-12 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#15317E] focus:ring-4 focus:ring-[#15317E]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400" />
                 <Lock className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#15317E] transition-colors" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors">
@@ -111,28 +101,25 @@ export default function Login() {
               </div>
             </div>
 
-            {/* الزر باللون الأزرق الفخم */}
+            {/* زر الدخول — أزرق #15317E */}
             <button type="submit" disabled={loading}
-              className="w-full mt-2 py-4 bg-gradient-to-r from-[#15317E] to-[#0d1e4c] text-white rounded-2xl font-bold text-base shadow-[0_8px_20px_rgba(21,49,126,0.25)] hover:shadow-[0_12px_25px_rgba(21,49,126,0.35)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+              className="w-full mt-2 py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-base shadow-[0_8px_20px_rgba(21,49,126,0.25)] hover:shadow-[0_12px_25px_rgba(21,49,126,0.35)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
               {loading ? <><Loader2 className="w-5 h-5 animate-spin" />جاري التحقق...</> : 'تسجيل الدخول'}
             </button>
           </form>
 
-          {/* الفاصل */}
           <div className="flex items-center gap-4 mt-8 mb-8 opacity-60">
             <div className="flex-1 h-px bg-gray-200" />
             <span className="text-xs font-bold text-gray-500">أو الدخول بواسطة</span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {/* زر Google */}
           <button onClick={handleGoogle} type="button" disabled={loading}
             className="w-full py-4 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 rounded-2xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70">
             <GoogleIcon className="w-5 h-5" />
             <span dir="ltr">تسجيل الدخول بواسطة Google</span>
           </button>
 
-          {/* رابط التسجيل */}
           <p className="text-center mt-10 text-sm text-gray-500 font-medium">
             ليس لديك حساب بعد؟{' '}
             <Link to="/register" className="font-bold text-[#15317E] hover:text-[#0d1e4c] transition-colors">سجل كمالك أو وسيط</Link>
@@ -140,7 +127,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* القسم الأيسر: الهوية البصرية (الخلفية الزرقاء الأصلية) */}
+      {/* القسم الأيسر — خلفية #15317E الأزرق الأصلي */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#15317E] items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
           alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" />
