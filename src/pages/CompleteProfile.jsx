@@ -199,7 +199,7 @@ export default function CompleteProfile() {
       await base44.auth.updateMe({ business_type: role, office_name: form.name, phone: form.whatsapp });
       const cleanSocial = {};
       Object.entries(form.social||{}).forEach(([k,v]) => { if (v?.trim()) cleanSocial[k] = v.trim(); });
-      const slug = form.slug || form.name.trim().replace(/\s+/g,'-').toLowerCase() + '-' + Date.now();
+      const slug = form.slug || `venue-${Date.now()}`;
       await base44.entities.Venue.create({
         ...form,
         price_weekday: form.price_weekday ? Number(form.price_weekday) : undefined,
@@ -322,10 +322,14 @@ export default function CompleteProfile() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-600 mb-2">الرابط المختصر (اختياري)</label>
-            <input value={form.slug} onChange={e=>setForm(p=>({...p,slug:e.target.value}))} placeholder="alreem" dir="ltr"
-              className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E] outline-none text-sm font-medium shadow-sm transition-all" />
-            <p className="text-xs text-slate-400 mt-1 pr-1">site.com/place/{form.slug||'alreem'}</p>
+            <label className="block text-xs font-bold text-slate-600 mb-2">الرابط المختصر <span className="text-slate-400 font-normal">(إنجليزي فقط)</span></label>
+            <input
+              value={form.slug}
+              onChange={e => { const val=e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'').replace(/--+/g,'-'); setForm(p=>({...p,slug:val})); }}
+              placeholder="my-chalet"
+              dir="ltr"
+              className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E] outline-none text-sm font-mono shadow-sm transition-all" />
+            <p className="text-xs text-slate-400 mt-1 pr-1">site.com/place/{form.slug||'my-chalet'}</p>
           </div>
 
           <div>
