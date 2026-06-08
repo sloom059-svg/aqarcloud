@@ -52,133 +52,137 @@ export default function Login() {
   if (!mounted) return null;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans flex overflow-hidden">
+    // تغيير الخلفية إلى أبيض نقي لإزالة اللمسة الزرقاء المزعجة
+    <div dir="rtl" className="min-h-screen bg-white font-sans flex overflow-hidden">
 
       {/* القسم الأيمن: نموذج تسجيل الدخول */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <div className="w-full max-w-[420px] animate-slide-up">
 
           {/* الشعار */}
-          <div className="mb-10 text-center flex justify-center">
+          <div className="mb-12 text-center flex justify-center">
             {!imageError ? (
               <img 
                 src={logo} 
                 alt="Aqar Cloud Logo" 
-                className="w-32 md:w-40 h-auto object-contain drop-shadow-sm transition-all duration-300" 
+                className="w-32 md:w-40 h-auto object-contain transition-all duration-300" 
                 onError={() => setImageError(true)} 
               />
             ) : (
-              <Building2 className="w-16 h-16 text-[#FF5A5F]" />
+              <Building2 className="w-16 h-16 text-[#fa4b6a]" />
             )}
           </div>
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm text-center font-medium animate-in fade-in slide-in-from-top-2">
+            <div className="mb-6 p-4 rounded-2xl bg-[#fff0f3] border border-[#ffd6de] text-[#d82a48] text-sm text-center font-bold animate-in fade-in slide-in-from-top-2">
               {error}
             </div>
           )}
 
           {/* النموذج */}
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">البريد الإلكتروني</label>
-              <div className="relative">
+              <label className="block text-sm font-bold text-gray-800 mb-2.5">البريد الإلكتروني</label>
+              <div className="relative group">
                 <input
                   type="email" dir="ltr" placeholder="name@example.com"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full pr-12 pl-4 py-4 bg-white border border-slate-200 rounded-2xl focus:border-[#FF5A5F] focus:ring-2 focus:ring-[#FF5A5F]/20 outline-none transition-all text-sm font-medium text-left shadow-sm placeholder:text-slate-400"
+                  /* حقول إدخال عصرية مسطحة بدون ظلال مزعجة */
+                  className="w-full pr-12 pl-4 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#fa4b6a] focus:ring-4 focus:ring-[#fa4b6a]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
                 />
-                <Mail className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                <Mail className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#fa4b6a] transition-colors" />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-bold text-slate-700">كلمة المرور</label>
-                <Link to="/forgot-password" className="text-xs font-bold text-[#FF5A5F] hover:underline">نسيت كلمة المرور؟</Link>
+              <div className="flex items-center justify-between mb-2.5">
+                <label className="block text-sm font-bold text-gray-800">كلمة المرور</label>
+                <Link to="/forgot-password" className="text-xs font-bold text-[#fa4b6a] hover:text-[#d82a48] transition-colors">نسيت كلمة المرور؟</Link>
               </div>
-              <div className="relative">
+              <div className="relative group">
                 <input
                   type={showPassword ? "text" : "password"} dir="ltr" placeholder="••••••••"
                   value={password} onChange={(e) => setPassword(e.target.value)} required
-                  className="w-full pr-12 pl-12 py-4 bg-white border border-slate-200 rounded-2xl focus:border-[#FF5A5F] focus:ring-2 focus:ring-[#FF5A5F]/20 outline-none transition-all text-sm font-medium text-left shadow-sm placeholder:text-slate-400"
+                  /* حقول إدخال عصرية مسطحة بدون ظلال مزعجة */
+                  className="w-full pr-12 pl-12 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#fa4b6a] focus:ring-4 focus:ring-[#fa4b6a]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
                 />
-                <Lock className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                <Lock className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#fa4b6a] transition-colors" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF5A5F] transition-colors">
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors">
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
+            {/* زر الدخول بلون حيوي وظل مخصص ناعم */}
             <button type="submit" disabled={loading}
-              className="w-full mt-2 py-4 bg-[#FF5A5F] text-white rounded-2xl font-bold text-base shadow-lg shadow-[#FF5A5F]/20 hover:bg-[#E31C5F] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+              className="w-full mt-2 py-4 bg-gradient-to-r from-[#fa4b6a] to-[#f53859] text-white rounded-2xl font-bold text-base shadow-[0_8px_20px_rgba(250,75,106,0.25)] hover:shadow-[0_12px_25px_rgba(250,75,106,0.35)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
               {loading ? <><Loader2 className="w-5 h-5 animate-spin" />جاري التحقق...</> : 'تسجيل الدخول'}
             </button>
           </form>
 
           {/* الفاصل */}
-          <div className="flex items-center gap-4 mt-6 mb-6 opacity-60">
-            <div className="flex-1 h-px bg-slate-300" />
-            <span className="text-xs font-bold text-slate-500">أو الدخول بواسطة</span>
-            <div className="flex-1 h-px bg-slate-300" />
+          <div className="flex items-center gap-4 mt-8 mb-8 opacity-60">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs font-bold text-gray-500">أو الدخول بواسطة</span>
+            <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {/* زر Google */}
+          {/* زر Google بتصميم أنيق ومحايد */}
           <button onClick={handleGoogle} type="button" disabled={loading}
-            className="w-full py-4 bg-white border-2 border-slate-100 hover:border-slate-200 hover:bg-slate-50 text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70">
+            className="w-full py-4 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 rounded-2xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70">
             <GoogleIcon className="w-5 h-5" />
             <span dir="ltr">تسجيل الدخول بواسطة Google</span>
           </button>
 
           {/* رابط التسجيل */}
-          <p className="text-center mt-8 text-sm text-slate-500 font-medium">
+          <p className="text-center mt-10 text-sm text-gray-500 font-medium">
             ليس لديك حساب بعد؟{' '}
-            <Link to="/register" className="font-bold text-[#FF5A5F] hover:underline">سجل كمالك أو وسيط</Link>
+            <Link to="/register" className="font-bold text-[#fa4b6a] hover:text-[#d82a48] transition-colors">سجل كمالك أو وسيط</Link>
           </p>
         </div>
       </div>
 
       {/* القسم الأيسر: الهوية البصرية */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#FF5A5F] items-center justify-center overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#fa4b6a] items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
-          alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A5F]/90 to-[#D93965]/90" />
+          alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#fa4b6a]/95 to-[#d82a48]/95" />
         <div className="relative z-10 text-white p-12 max-w-lg text-right animate-fade-in">
-          <div className="w-16 h-1 bg-white/30 rounded-full mb-8" />
+          <div className="w-16 h-1.5 bg-white/30 rounded-full mb-8" />
           <h2 className="text-4xl font-black mb-4 leading-tight">منصتك الأولى<br/>لإدارة عقاراتك وشاليهاتك</h2>
-          <p className="text-white/70 text-lg leading-relaxed">
+          <p className="text-white/80 text-lg leading-relaxed font-medium">
             حلٌّ متكامل للوسطاء العقاريين وملاك الشاليهات — أدِر عقاراتك وحجوزاتك، وشارك صفحتك مع عملائك بكل سهولة واحترافية.
           </p>
 
-          <div className="space-y-4 mt-12 pt-10 border-t border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0">
+          <div className="space-y-5 mt-12 pt-10 border-t border-white/10">
+            <div className="flex items-center gap-4 group">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="font-bold text-base">إدارة العقارات والشاليهات</div>
-                <div className="text-white/60 text-sm">كل وحداتك في مكان واحد منظّم</div>
+                <div className="text-white/70 text-sm">كل وحداتك في مكان واحد منظّم</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-4 group">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
                 <CalendarCheck className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="font-bold text-base">حجوزات بلا تعقيد</div>
-                <div className="text-white/60 text-sm">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
+                <div className="text-white/70 text-sm">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-4 group">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
                 <Share2 className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="font-bold text-base">صفحة عرض احترافية</div>
-                <div className="text-white/60 text-sm">شارك عقاراتك مع عملائك برابط واحد</div>
+                <div className="text-white/70 text-sm">شارك عقاراتك مع عملائك برابط واحد</div>
               </div>
             </div>
           </div>
@@ -188,9 +192,9 @@ export default function Login() {
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body { font-family: 'Tajawal', sans-serif; margin: 0; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-up { animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-fade-in { animation: fadeIn 1s ease-out forwards; }
         input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display: none; }
       `}} />
