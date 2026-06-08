@@ -181,6 +181,8 @@ export default function VenueForm() {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [successVenue, setSuccessVenue] = useState(null);
+  const [showRevenue, setShowRevenue] = useState(false);
+  const [showNotifs, setShowNotifs] = useState(false);
 
   const { data: existing } = useQuery({
     queryKey: ['venue', id],
