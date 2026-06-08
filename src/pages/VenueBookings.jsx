@@ -11,12 +11,22 @@ import {
   Bell, Wallet, LogOut, User, Calendar,
   ChevronDown, ChevronRight, Phone,
   Edit3, Inbox, Clock, CheckCircle2, XCircle, Calendar as CalendarIcon,
-  MessageCircle, FileText, Trash2
+  FileText, Eye, Printer, MapPin, QrCode
 } from 'lucide-react';
 import VenueCalendar from '@/components/venue/VenueCalendar';
-import ReceiptPrintPreview from '../components/venue/ReceiptPrintPreview'; // استدعاء مكون الطباعة
 
 // ── أيقونات SVG ──
+const EditIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+  </svg>
+);
+const DeleteIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M10 11v6" /><path d="M14 11v6" />
+  </svg>
+);
 const PinIcon = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
@@ -39,18 +49,18 @@ const formatWhatsApp = (phone) => {
 };
 
 // حساب عدد الليالي
-const calculateNights = (checkIn, checkOut) => {
-  if (!checkIn || !checkOut) return 'غير محدد';
-  const diff = new Date(checkOut) - new Date(checkIn);
-  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-  if (days <= 0) return '0 ليلة';
-  if (days === 1) return '1 ليلة';
-  if (days === 2) return '2 ليلة';
-  if (days > 2 && days <= 10) return `${days} ليالي`;
-  return `${days} ليلة`;
+const getNights = (checkIn, checkOut) => {
+  if (!checkIn || !checkOut) return null;
+  const a = new Date(checkIn), b = new Date(checkOut);
+  const diff = Math.round((b - a) / (1000 * 60 * 60 * 24));
+  if (diff <= 0) return null;
+  if (diff === 1) return 'ليلة واحدة';
+  if (diff === 2) return 'ليلتان';
+  if (diff <= 10) return `${diff} ليالٍ`;
+  return `${diff} ليلة`;
 };
 
-// يولّد رقم مرجعي ثابت من الـ UUID
+// يولّد رقم مرجعي ثابت من الـ UUID (4 أرقام)
 const getBookingRef = (id) => {
   if (!id) return '#0000';
   const hex = id.replace(/-/g, '').slice(-6);
@@ -81,6 +91,7 @@ function ProfileMenu({ onLogout }) {
       <button
         onClick={() => setOpen(!open)}
         className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white flex items-center gap-1"
+        title="القائمة"
       >
         <LogOut className="w-4 h-4" />
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -110,20 +121,21 @@ export default function VenueBookings() {
   const [showRevenue, setShowRevenue]   = useState(false);
   const [showNotifs, setShowNotifs]     = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  
-  // حالات سند الاستلام
-  const [receiptModal, setReceiptModal] = useState({ show: false, preview: false, booking: null });
-  const [receiptForm, setReceiptForm]   = useState({ type: 'deposit', amount: '' });
-
   const [showManual, setShowManual]     = useState(false);
   const [manualForm, setManualForm]     = useState(EMPTY_MANUAL);
   const [editBooking, setEditBooking]   = useState(null);
   const [editForm, setEditForm]         = useState({ client_name: '', client_phone: '', check_in: '', check_out: '' });
   const [editConflict, setEditConflict] = useState(false);
 
+  // سند الاستلام
+  const [receiptBooking, setReceiptBooking] = useState(null);
+  const [receiptForm, setReceiptForm]       = useState({ type: 'deposit', amount: '' });
+  const [showReceiptPreview, setShowReceiptPreview] = useState(false);
+
   const revenueRef = useRef(null);
   const notifsRef  = useRef(null);
 
+  // إغلاق الـ dropdowns عند الضغط خارجها
   useEffect(() => {
     const handler = (e) => {
       if (revenueRef.current && !revenueRef.current.contains(e.target)) setShowRevenue(false);
@@ -147,6 +159,7 @@ export default function VenueBookings() {
     queryFn: () => base44.entities.Booking.filter({ venue_id: id }, '-created_date'),
   });
 
+  // كل حجوزات المالك للإشعارات والإيرادات
   const { data: ownerBookings = [] } = useQuery({
     queryKey: ['bookings-all', user?.id],
     queryFn: () => base44.entities.Booking.filter({ owner_id: user?.id }),
@@ -159,6 +172,7 @@ export default function VenueBookings() {
     enabled: !!user?.id,
   });
 
+  // فلتر الحجوزات (آخر 30 يوم)
   const bookings = allBookings.filter(b => {
     if (!b.check_out) return true;
     const checkout = new Date(b.check_out);
@@ -169,6 +183,7 @@ export default function VenueBookings() {
     return checkout >= cutoff;
   });
 
+  // إيرادات الشهر
   const now = new Date();
   const thisMonth = now.getMonth();
   const thisYear  = now.getFullYear();
@@ -181,6 +196,7 @@ export default function VenueBookings() {
     .filter(b => b.status === 'مؤكد' && isThisMonth(b))
     .reduce((sum, b) => sum + (b.total_price ? Number(b.total_price) : venuePrice(b.venue_id)), 0);
 
+  // الإشعارات
   const newBookings = ownerBookings.filter(b => b.status === 'جديد');
   const hasNotifications = newBookings.length > 0;
 
@@ -243,79 +259,49 @@ export default function VenueBookings() {
     showToast('تم تعديل تفاصيل الحجز بنجاح!');
   };
 
+  // ── سند الاستلام ──
+  const openReceipt = (booking) => {
+    setReceiptBooking(booking);
+    setReceiptForm({ type: 'deposit', amount: '' });
+  };
+
+  const handleReceiptTypeChange = (type) => {
+    let defaultAmount = '';
+    if (type === 'full' && receiptBooking?.price) defaultAmount = String(receiptBooking.price).replace(/,/g, '');
+    setReceiptForm({ type, amount: defaultAmount });
+  };
+
+  const receiptTypeLabel = (t) => t === 'deposit' ? 'عربون حجز' : t === 'partial' ? 'دفعة من حساب الحجز' : 'تسوية كامل قيمة الحجز';
+
+  const sendReceiptWhatsApp = () => {
+    if (!receiptBooking) return;
+    const phone = formatWhatsApp(receiptBooking.client_phone);
+    const typeLabel = receiptTypeLabel(receiptForm.type);
+    const nights = getNights(receiptBooking.check_in, receiptBooking.check_out) || '';
+    const message = `أهلاً بك\n\n` +
+      `تم إصدار سند استلام من ${venue?.name || 'المنشأة'}:\n\n` +
+      `الضيف: ${receiptBooking.client_name}\n` +
+      `المبلغ: ${receiptForm.amount || 0} ريال سعودي\n` +
+      `الدفعة عبارة عن: ${typeLabel}\n` +
+      `تاريخ الحجز: ${formatDateAr(receiptBooking.check_in)} إلى ${formatDateAr(receiptBooking.check_out)}${nights ? ` (${nights})` : ''}\n\n` +
+      `نتمنى لك إقامة سعيدة!`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
   const statusOrder = ['جديد', 'بالانتظار', 'مؤكد', 'ملغي'];
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-20 relative print:hidden">
-      
-      {/* Toast Notification */}
+    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-20 relative">
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+      `}} />
+
+      {/* Toast */}
       {toastMessage && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[150] bg-[#15317E] text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[#0d1e4c]">
           <CheckCircle className="w-5 h-5 text-emerald-400" />
           <span className="text-sm font-bold tracking-wide">{toastMessage}</span>
-        </div>
-      )}
-
-      {/* نافذة تحضير السند */}
-      {receiptModal.show && !receiptModal.preview && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in" onClick={() => setReceiptModal({ show: false, preview: false, booking: null })}>
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-bold text-[#15317E] flex items-center gap-2 text-sm">
-                <div className="bg-amber-100 p-1 rounded-lg"><FileText className="w-4 h-4 text-amber-600" /></div>
-                إصدار سند إستلام
-              </h3>
-              <button onClick={() => setReceiptModal({ show: false, preview: false, booking: null })} className="p-1 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300 transition-colors"><X className="w-4 h-4" /></button>
-            </div>
-            
-            <form onSubmit={(e) => { e.preventDefault(); setReceiptModal({ ...receiptModal, preview: true }); }} className="p-5 space-y-4">
-              <div className="bg-[#15317E]/5 border border-[#15317E]/10 rounded-xl p-3 flex justify-between items-center">
-                <div>
-                  <p className="text-[10px] text-slate-500 font-bold mb-0.5">سند لصالح</p>
-                  <p className="text-xs font-black text-[#15317E]">{receiptModal.booking?.client_name}</p>
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] text-slate-500 font-bold mb-0.5">إجمالي الحجز</p>
-                  <p className="text-xs font-bold text-slate-700">{receiptModal.booking?.price || 0} ر.س</p>
-                </div>
-              </div>
-
-              <div>
-                <Label className="block text-[11px] font-bold text-slate-500 mb-2">نوع الدفعة</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'deposit', label: 'عربون' },
-                    { id: 'partial', label: 'دفعة' },
-                    { id: 'full', label: 'كامل المبلغ' }
-                  ].map(type => (
-                    <button key={type.id} type="button"
-                      onClick={() => {
-                        let defaultAmount = '';
-                        if (type.id === 'full') defaultAmount = receiptModal.booking?.price || '';
-                        setReceiptForm({ type: type.id, amount: defaultAmount });
-                      }}
-                      className={`py-2 rounded-xl text-[10px] font-bold transition-all border ${
-                        receiptForm.type === type.id ? 'bg-[#15317E] text-white border-[#15317E]' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                      }`}
-                    >
-                      {type.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <Label className="block text-[11px] font-bold text-slate-500 mb-1.5">مبلغ السند (ريال)</Label>
-                <Input type="number" required value={receiptForm.amount} onChange={e => setReceiptForm({...receiptForm, amount: e.target.value})} className="h-11 rounded-xl text-sm font-black text-left" dir="ltr" placeholder="0.00" />
-              </div>
-              
-              <div className="pt-2">
-                <Button type="submit" className="w-full h-11 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-xl font-bold text-xs shadow-sm">
-                  معاينة السند للطباعة
-                </Button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
 
@@ -410,33 +396,58 @@ export default function VenueBookings() {
       <div className="absolute top-0 left-0 right-0 h-[220px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
 
       <div className="relative z-10 max-w-md mx-auto">
-        {/* الهيدر العُلوي */}
+
+        {/* ═══════════════════════════════════════
+            الهيدر — نفس لوحة التحكم بالضبط
+        ═══════════════════════════════════════ */}
         <header className="px-5 pt-8 pb-6 flex items-center justify-between text-white">
+
+          {/* يسار: صورة المالك + رجوع + اسم الصفحة */}
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/venue')} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all" title="رجوع">
+            {/* زر رجوع */}
+            <button
+              onClick={() => navigate('/venue')}
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all"
+              title="رجوع"
+            >
               <ChevronRight className="w-5 h-5" />
             </button>
+
+            {/* الشعار / الحرف الأول */}
             <div className="relative flex-shrink-0">
               <div className="w-11 h-11 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
                 {user?.office_logo_url ? (
                   <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-lg font-bold text-white">{(user?.full_name || user?.office_name || 'م')[0]}</span>
+                  <span className="text-lg font-bold text-white">
+                    {(user?.full_name || user?.office_name || 'م')[0]}
+                  </span>
                 )}
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
             </div>
+
+            {/* العنوان */}
             <div>
               <h1 className="text-base font-bold leading-tight">إدارة الحجوزات</h1>
               {venue && <p className="text-[11px] text-white/70 mt-0.5">{venue.name}</p>}
             </div>
           </div>
 
+          {/* يمين: الإشعارات + المحفظة + الخروج */}
           <div className="flex items-center gap-2">
+
+            {/* الإشعارات */}
             <div className="relative" ref={notifsRef}>
-              <button onClick={() => setShowNotifs(!showNotifs)} className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white'}`}>
+              <button
+                onClick={() => setShowNotifs(!showNotifs)}
+                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white'}`}
+                title="الإشعارات"
+              >
                 <Bell className="w-4 h-4" />
-                {hasNotifications && <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />}
+                {hasNotifications && (
+                  <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                )}
               </button>
               {showNotifs && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
@@ -451,8 +462,11 @@ export default function VenueBookings() {
                       {newBookings.map(b => {
                         const v = venues.find(x => x.id === b.venue_id);
                         return (
-                          <Link key={b.id} to={`/venue/bookings/${b.venue_id}`} onClick={() => setShowNotifs(false)} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
-                            <div className="w-9 h-9 rounded-xl bg-[#15317E]/10 flex items-center justify-center flex-shrink-0 mt-0.5"><Calendar className="w-4 h-4 text-[#15317E]" /></div>
+                          <Link key={b.id} to={`/venue/bookings/${b.venue_id}`} onClick={() => setShowNotifs(false)}
+                            className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
+                            <div className="w-9 h-9 rounded-xl bg-[#15317E]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Calendar className="w-4 h-4 text-[#15317E]" />
+                            </div>
                             <div className="flex-1 min-w-0 text-right">
                               <p className="text-sm font-bold text-slate-700">حجز جديد</p>
                               <p className="text-xs text-slate-500 truncate">{b.client_name || 'عميل'} — {v?.name || 'شاليه'}</p>
@@ -466,8 +480,13 @@ export default function VenueBookings() {
               )}
             </div>
 
+            {/* المحفظة / الإيرادات */}
             <div className="relative" ref={revenueRef}>
-              <button onClick={() => setShowRevenue(!showRevenue)} className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
+              <button
+                onClick={() => setShowRevenue(!showRevenue)}
+                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}
+                title="إيرادات الشهر"
+              >
                 <Wallet className="w-4 h-4" />
               </button>
               {showRevenue && (
@@ -480,12 +499,17 @@ export default function VenueBookings() {
               )}
             </div>
 
+            {/* زر الخروج */}
             <ProfileMenu onLogout={handleLogout} />
           </div>
         </header>
 
-        {/* ════ المحتوى الأساسي ════ */}
+        {/* ═══════════════════════════════════════
+            المحتوى
+        ═══════════════════════════════════════ */}
         <div className="px-4 space-y-6">
+
+          {/* كروت الإحصائيات */}
           <div className="flex gap-2">
             {statusOrder.map(s => {
               const count = bookings.filter(b => b.status === s).length;
@@ -501,21 +525,28 @@ export default function VenueBookings() {
             })}
           </div>
 
+          {/* التقويم */}
           <div className="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-100">
             <h3 className="text-sm font-bold text-[#15317E] flex items-center gap-2 mb-4">
               <CalendarIcon className="w-4 h-4 text-[#15317E]/70" />
               التقويم والإتاحة
             </h3>
             <VenueCalendar bookedDates={bookedDates} onRangeSelect={null} readOnly={true} venueName={venue?.name || ''} />
+            <p className="text-xs text-gray-400 mt-2">سوف تظهر التواريخ المحجوزة في صفحة الشاليه</p>
           </div>
 
+          {/* عنوان القائمة + زر حجز يدوي */}
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-[#15317E]">الحجوزات</h3>
-            <button onClick={() => setShowManual(true)} className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all">
+            <button
+              onClick={() => setShowManual(true)}
+              className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
+            >
               <Plus className="w-3.5 h-3.5" /> حجز يدوي
             </button>
           </div>
 
+          {/* قائمة الحجوزات */}
           {isLoading ? (
             <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
           ) : bookings.length === 0 ? (
@@ -529,8 +560,278 @@ export default function VenueBookings() {
                 const isDeleting    = confirmDelete === booking.id;
                 const isManualBlock = booking.client_phone === '000';
                 const bookingRef    = getBookingRef(booking.id);
-                const nightsCount   = calculateNights(booking.check_in, booking.check_out);
 
                 return (
-                  <div key={booking.id} className="bg-white rounded-[1.2rem] p-3 shadow-sm border border-slate-100 relative overflow-hidden flex flex-col gap-3">
-                    {/* الخط الجانبي */}
+                  <div key={booking.id} className="bg-white rounded-[1.2rem] p-3 shadow-sm border border-slate-100 relative overflow-hidden">
+                    <div className={`absolute top-0 right-0 w-1 h-full ${cfg.border}`} />
+
+                    <div className="flex justify-between items-start mb-3 pl-1 pr-2">
+                      {/* معلومات العميل */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          {!isManualBlock ? (
+                            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1">
+                              <PinIcon className="w-3.5 h-3.5 text-slate-400" />{booking.client_name}
+                            </h4>
+                          ) : (
+                            <h4 className="text-sm font-bold text-slate-600 flex items-center gap-1">
+                              <IconLock className="w-3.5 h-3.5" /> إغلاق يدوي
+                            </h4>
+                          )}
+                          <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md" dir="ltr">{bookingRef}</span>
+                        </div>
+                        {!isManualBlock && booking.client_phone && booking.client_phone !== '000' && (
+                          <div className="flex items-center gap-2">
+                            <p className="text-[11px] text-slate-500 flex items-center gap-1 font-medium">
+                              <Phone className="w-3 h-3 text-slate-400" />
+                              <span dir="ltr">{booking.client_phone}</span>
+                            </p>
+                            <a href={`https://wa.me/${formatWhatsApp(booking.client_phone)}?text=${encodeURIComponent(`مرحباً ${booking.client_name}، نتواصل معك بخصوص حجزك...`)}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium transition-colors">
+                              <IconWa className="w-3 h-3" /> مراسلة
+                            </a>
+                          </div>
+                        )}
+                        {booking.notes && !isManualBlock && (
+                          <div className="text-xs text-slate-500 bg-slate-50 rounded-lg px-2.5 py-1 mt-1 border border-slate-100 inline-block">{booking.notes}</div>
+                        )}
+                      </div>
+
+                      {/* الأزرار اليمين */}
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="relative">
+                          <select
+                            value={booking.status}
+                            onChange={(e) => updateMutation.mutate({ bookingId: booking.id, data: { status: e.target.value } })}
+                            className={`appearance-none pl-6 pr-2 py-1 rounded-lg text-[11px] font-bold border outline-none cursor-pointer transition-colors ${cfg.select}`}
+                          >
+                            <option value="جديد">جديد</option>
+                            <option value="بالانتظار">بالانتظار</option>
+                            <option value="مؤكد">مؤكد</option>
+                            <option value="ملغي">ملغي</option>
+                          </select>
+                          <ChevronDown className="w-3.5 h-3.5 absolute left-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {!isManualBlock && (
+                            <button onClick={() => openReceipt(booking)} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="إصدار سند استلام">
+                              <FileText className="w-4 h-4" />
+                            </button>
+                          )}
+                          {!isManualBlock && (
+                            <button onClick={() => openEdit(booking)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="تعديل">
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button onClick={() => setConfirmDelete(booking.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="حذف">
+                            <DeleteIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* شريط التواريخ + الليالي + السعر */}
+                    <div className="flex items-center justify-between bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 mx-1">
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+                        <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{formatDateAr(booking.check_in)} ← {formatDateAr(booking.check_out)}</span>
+                      </div>
+                      {getNights(booking.check_in, booking.check_out) && (
+                        <>
+                          <div className="w-px h-3 bg-slate-200" />
+                          <div className="text-[11px] text-slate-600 font-medium">{getNights(booking.check_in, booking.check_out)}</div>
+                        </>
+                      )}
+                      <div className="w-px h-3 bg-slate-200" />
+                      <div className="text-[11px] text-[#15317E] font-bold">
+                        {booking.price ? `${booking.price} ر.س` : '—'}
+                      </div>
+                    </div>
+
+                    {/* تأكيد الحذف فقط */}
+                    {isDeleting && (
+                      <div className="flex items-center gap-2 w-full bg-red-50 p-2.5 rounded-xl border border-red-100 mt-3">
+                        <span className="text-xs text-red-800 font-bold ml-auto">تأكيد الحذف؟</span>
+                        <button onClick={() => deleteMutation.mutate(booking.id)} disabled={deleteMutation.isPending}
+                          className="flex items-center gap-1 text-xs font-bold text-white bg-red-600 rounded-lg px-3 py-1.5 hover:bg-red-700 transition">
+                          {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'نعم، احذف'}
+                        </button>
+                        <button onClick={() => setConfirmDelete(null)} className="text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition">تراجع</button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ══════════ مودال إصدار السند ══════════ */}
+      {receiptBooking && !showReceiptPreview && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setReceiptBooking(null)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="font-bold text-[#15317E] flex items-center gap-2 text-sm">
+                <div className="bg-amber-100 p-1 rounded-lg"><FileText className="w-4 h-4 text-amber-600" /></div>
+                إصدار سند استلام
+              </h3>
+              <button onClick={() => setReceiptBooking(null)} className="p-1 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300 transition-colors"><X className="w-4 h-4" /></button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="bg-[#15317E]/5 border border-[#15317E]/10 rounded-xl p-3 flex justify-between items-center">
+                <div>
+                  <p className="text-[10px] text-slate-500 font-bold mb-0.5">سند لصالح</p>
+                  <p className="text-xs font-black text-[#15317E]">{receiptBooking.client_name}</p>
+                </div>
+                <div className="text-left">
+                  <p className="text-[10px] text-slate-500 font-bold mb-0.5">إجمالي الحجز</p>
+                  <p className="text-xs font-bold text-slate-700">{receiptBooking.price || '—'} ر.س</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 mb-2">نوع الدفعة</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[{ id: 'deposit', label: 'عربون' }, { id: 'partial', label: 'دفعة' }, { id: 'full', label: 'كامل المبلغ' }].map(t => (
+                    <button key={t.id} type="button" onClick={() => handleReceiptTypeChange(t.id)}
+                      className={`py-2 rounded-xl text-[10px] font-bold transition-all border ${receiptForm.type === t.id ? 'bg-[#15317E] text-white border-[#15317E]' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 mb-1.5">مبلغ السند (ريال)</label>
+                <input type="number" value={receiptForm.amount} onChange={e => setReceiptForm({ ...receiptForm, amount: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E] outline-none transition-all text-sm font-black text-left" dir="ltr" placeholder="0.00" />
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <button onClick={() => { if (!receiptForm.amount) { showToast('أدخل مبلغ السند'); return; } setShowReceiptPreview(true); }}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-xl font-bold text-xs transition-all shadow-sm">
+                  <Eye className="w-3.5 h-3.5" /> معاينة السند
+                </button>
+                <button onClick={sendReceiptWhatsApp}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#1DA851] text-white rounded-xl font-bold text-xs transition-all shadow-sm">
+                  <IconWa className="w-3.5 h-3.5" /> إرسال للعميل
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════ معاينة السند PDF ══════════ */}
+      {showReceiptPreview && receiptBooking && (
+        <div className="fixed inset-0 z-[200] bg-slate-800/90 backdrop-blur-sm overflow-auto print:bg-white print:p-0 flex flex-col items-center py-10 print:py-0 print:block" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+          <div className="sticky top-4 z-50 flex items-center gap-3 bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-slate-200 print:hidden mb-6">
+            <button onClick={() => window.print()} className="flex items-center gap-2 bg-[#15317E] text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-[#0d1e4c] transition-all shadow-sm">
+              <Printer className="w-4 h-4" /> طباعة وحفظ كـ PDF
+            </button>
+            <button onClick={() => setShowReceiptPreview(false)} className="flex items-center gap-2 bg-slate-100 text-slate-600 px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-200 transition-all">
+              <X className="w-4 h-4" /> إغلاق المعاينة
+            </button>
+          </div>
+
+          <div dir="rtl" className="receipt-page w-[210mm] min-h-[297mm] shrink-0 bg-white text-slate-900 relative shadow-2xl print:shadow-none flex flex-col print:w-full print:h-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+            <div className="absolute inset-3 border-2 border-[#15317E] rounded-2xl pointer-events-none" />
+            <div className="absolute inset-4 border border-[#15317E]/30 rounded-xl pointer-events-none" />
+
+            <div className="px-12 pt-14 pb-8 flex flex-col flex-1">
+              <div className="flex justify-between items-start mb-12">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-[#15317E] rounded-2xl flex items-center justify-center text-white shadow-md overflow-hidden">
+                    {user?.office_logo_url ? <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" /> : <FileText className="w-6 h-6" />}
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-black text-[#15317E] mb-1">{venue?.name || 'المنشأة'}</h1>
+                    <p className="text-xs font-bold tracking-widest text-slate-400">{user?.office_name || ''}</p>
+                  </div>
+                </div>
+                <div className="text-left border-r-4 border-[#15317E] pr-5">
+                  <h2 className="text-2xl font-black text-slate-800 tracking-tight">سند استلام</h2>
+                  <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Receipt Voucher</p>
+                  <div className="mt-3 space-y-1">
+                    <p className="text-xs font-bold text-slate-600 flex justify-end gap-1.5">
+                      <span>التاريخ:</span>
+                      <span dir="ltr">{new Date().toLocaleDateString('en-GB')}</span>
+                    </p>
+                    <p className="text-xs font-bold text-slate-600">رقم المرجع: <span dir="ltr">{getBookingRef(receiptBooking.id)}</span></p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full h-px bg-gradient-to-l from-transparent via-[#15317E]/20 to-transparent mb-10" />
+
+              <div className="px-2 space-y-8">
+                <div className="flex items-baseline gap-4 border-b-2 border-slate-100 pb-4">
+                  <span className="text-lg font-bold text-slate-500 min-w-[120px]">استلمنا من السيد/ة:</span>
+                  <span className="text-xl font-black text-[#15317E]">{receiptBooking.client_name}</span>
+                </div>
+                <div className="flex items-baseline gap-4 border-b-2 border-slate-100 pb-4">
+                  <span className="text-lg font-bold text-slate-500 min-w-[120px]">مبلغ وقدره:</span>
+                  <span className="text-2xl font-black text-slate-800">{receiptForm.amount || '0'} <span className="text-sm font-bold text-slate-500">ريال سعودي</span></span>
+                </div>
+                <div className="flex items-baseline gap-4 border-b-2 border-slate-100 pb-4">
+                  <span className="text-lg font-bold text-slate-500 min-w-[120px]">وذلك عبارة عن:</span>
+                  <span className="text-lg font-bold text-slate-800 leading-relaxed">
+                    {receiptTypeLabel(receiptForm.type)} - للفترة من والى: <span dir="ltr" className="inline-block px-1">{formatDateAr(receiptBooking.check_in)} → {formatDateAr(receiptBooking.check_out)}</span>
+                    {getNights(receiptBooking.check_in, receiptBooking.check_out) ? ` (${getNights(receiptBooking.check_in, receiptBooking.check_out)})` : ''}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-12 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                <h4 className="font-bold text-[#15317E] mb-3 flex items-center gap-2 text-sm">
+                  <CheckCircle2 className="w-4 h-4 text-[#D97706]" /> الشروط والأحكام
+                </h4>
+                <ul className="text-sm font-medium text-slate-600 space-y-2 list-disc list-inside">
+                  <li>هذا السند يثبت استلام المبلغ الموضح أعلاه فقط ولا يمثل تأكيداً نهائياً للحجز ما لم يسدد كامل المبلغ.</li>
+                  <li>العربون المدفوع <span className="text-rose-600 font-bold">غير مسترد</span> في حال إلغاء الحجز من قبل الضيف.</li>
+                  <li>يجب دفع باقي قيمة الحجز كاملاً قبل أو عند تسجيل الدخول.</li>
+                  <li>يتم تحصيل مبلغ تأمين إضافي عند الدخول ويسترد عند الخروج بعد التأكد من سلامة الممتلكات.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-auto px-12 pb-12 pt-6 border-t border-[#15317E]/10 bg-slate-50/50 rounded-b-xl mx-4 mb-4 flex justify-between items-center">
+              <div className="flex flex-col text-right gap-1.5">
+                {(user?.phone || receiptBooking.client_phone) && (
+                  <span className="text-[#15317E] font-black text-lg flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-[#D97706]" /> <span dir="ltr">{user?.phone || ''}</span>
+                  </span>
+                )}
+                {venue?.city && (
+                  <span className="text-slate-500 font-bold text-xs flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5" /> {venue.city}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+                <div className="text-left pl-2">
+                  <span className="block text-xs font-black text-[#15317E]">امسح الرمز</span>
+                  <span className="block text-[10px] font-bold text-slate-500">لزيارة صفحة المنشأة</span>
+                </div>
+                <div className="p-1 bg-[#15317E] rounded-lg"><QrCode className="w-10 h-10 text-white" strokeWidth={1.5} /></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          @page { margin: 0; size: A4 portrait; }
+          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
+          body * { visibility: hidden !important; }
+          .receipt-page, .receipt-page * { visibility: visible !important; }
+          .receipt-page { position: absolute; top: 0; right: 0; box-shadow: none !important; }
+        }
+      `}} />
+    </div>
+  );
+}
