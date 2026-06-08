@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CityCombobox from '@/components/venue/CityCombobox';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const ALL_FEATURES = ["مسبح","جلسات خارجية","واي فاي","ملعب","مطبخ","دخول ذاتي","ألعاب أطفال","شواء","قسم رجال","قسم نساء","غرف نوم","حديقة","مولد كهرباء","مكيف","مدفأة"];
 
@@ -163,6 +163,7 @@ export default function VenueForm() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const isEdit = !!id;
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => { await logout(false); navigate('/login'); };
 
@@ -272,10 +273,13 @@ export default function VenueForm() {
     try {
       if (isEdit) {
         await base44.entities.Venue.update(id, data);
+        await queryClient.invalidateQueries({ queryKey: ['venues'] });
+        await queryClient.invalidateQueries({ queryKey: ['venue', id] });
         toast.success('تم تحديث الشاليه بنجاح');
         navigate('/venue');
       } else {
         const created = await base44.entities.Venue.create(data);
+        await queryClient.invalidateQueries({ queryKey: ['venues'] });
         const slug = created?.slug || data.slug;
         const url = `${window.location.origin}/place/${slug}`;
         setSuccessVenue({ name: form.name, url, type: user?.business_type || 'الشاليه' });
