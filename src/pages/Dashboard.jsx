@@ -99,8 +99,8 @@ export default function Dashboard() {
   const copyProfileLink = async () => {
     const url = `${window.location.origin}/agent/${user.id}`;
     const shareData = {
-      title: user?.office_name || user?.full_name || 'صفحتي العقارية',
-      text: `تصفّح عقارات ${user?.office_name || user?.full_name || ''}`,
+      title: user?.office_name || 'مكتبي العقاري',
+      text: `تصفّح عقارات ${user?.office_name || ''}`,
       url,
     };
     if (navigator.share) {
@@ -154,7 +154,7 @@ export default function Dashboard() {
                   <img src={user.office_logo_url || user.profile_image_url} alt="شعار" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-xl font-bold text-white">
-                    {(user?.office_name || user?.full_name || 'م')[0]}
+                    {(user?.office_name || 'م')[0]}
                   </span>
                 )}
               </div>
@@ -162,7 +162,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[11px] text-white/70 mb-0.5 tracking-wider">مرحباً بك،</p>
-              <h1 className="text-base font-bold">{user?.office_name || user?.full_name || 'المكتب'}</h1>
+              <h1 className="text-base font-bold">{user?.office_name || 'مكتبي العقاري'}</h1>
             </div>
           </div>
 
