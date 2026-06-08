@@ -58,17 +58,17 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <div className="w-full max-w-[420px] animate-slide-up">
 
-          {/* الشعار بحجم متناسق */}
+          {/* الشعار بحجم ملموس وأنيق */}
           <div className="mb-10 text-center flex justify-center">
             {!imageError ? (
               <img 
                 src={logo} 
                 alt="Aqar Cloud Logo" 
-                className="w-48 md:w-56 h-auto object-contain drop-shadow-sm" 
+                className="w-32 md:w-40 h-auto object-contain drop-shadow-sm transition-all duration-300" 
                 onError={() => setImageError(true)} 
               />
             ) : (
-              <Building2 className="w-20 h-20 text-[#15317E]" />
+              <Building2 className="w-16 h-16 text-[#15317E]" />
             )}
           </div>
 
