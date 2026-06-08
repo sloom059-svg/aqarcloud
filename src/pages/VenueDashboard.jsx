@@ -22,15 +22,17 @@ import {
 // ────────────────────────────────────────────
 const getStatusBadge = (status) => {
   const map = {
-    'نشط':     { type: 'active',  label: 'متاح الآن' },
-    'غير نشط': { type: 'stopped', label: 'إيقاف مؤقت' },
+    'نشط':     { type: 'active',   label: 'متاح الآن' },
+    'غير نشط': { type: 'stopped',  label: 'إيقاف مؤقت' },
+    'معطّل':   { type: 'disabled', label: 'معطّل مؤقتاً' },
   };
   const info = map[status] || { type: 'busy', label: status };
 
   const styles = {
-    active:  'bg-white/20 text-white backdrop-blur-md border border-white/30',
-    busy:    'bg-amber-500/90 text-white backdrop-blur-md border border-amber-400/50',
-    stopped: 'bg-rose-500/90 text-white backdrop-blur-md border border-rose-400/50',
+    active:   'bg-white/20 text-white backdrop-blur-md border border-white/30',
+    busy:     'bg-amber-500/90 text-white backdrop-blur-md border border-amber-400/50',
+    stopped:  'bg-rose-500/90 text-white backdrop-blur-md border border-rose-400/50',
+    disabled: 'bg-slate-700/90 text-white backdrop-blur-md border border-slate-600/50',
   };
 
   return (
@@ -176,6 +178,17 @@ export default function VenueDashboard() {
   const handleViewPage = (venue) => {
     const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
     window.open(url, '_blank');
+  };
+
+  const handleToggleStatus = async (venue) => {
+    const newStatus = venue.status === 'نشط' ? 'معطّل' : 'نشط';
+    try {
+      await base44.entities.Venue.update(venue.id, { status: newStatus });
+      qc.invalidateQueries({ queryKey: ['venues'] });
+      showToast(newStatus === 'نشط' ? 'تم تفعيل الشاليه' : 'تم تعطيل الشاليه مؤقتاً');
+    } catch (_) {
+      showToast('تعذّر تحديث الحالة');
+    }
   };
 
   const showToast = (msg) => {
@@ -385,7 +398,11 @@ export default function VenueDashboard() {
                 {venue.images?.[0] ? (
                   <img src={venue.images[0]} alt={venue.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-4xl">🏡</div>
+                  <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12">
+                      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/>
+                    </svg>
+                  </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#15317E]/90 via-[#15317E]/30 to-transparent" />
 
@@ -466,6 +483,23 @@ export default function VenueDashboard() {
                     </svg>
                   </button>
 
+                  {/* تفعيل / تعطيل */}
+                  <button
+                    onClick={() => handleToggleStatus(venue)}
+                    className={`w-12 flex items-center justify-center border rounded-xl transition-all shadow-sm group ${venue.status === 'معطّل' ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100'}`}
+                    title={venue.status === 'معطّل' ? 'تفعيل الشاليه' : 'تعطيل مؤقت'}
+                  >
+                    {venue.status === 'معطّل' ? (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                        <circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/>
+                      </svg>
+                    ) : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                        <circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/>
+                      </svg>
+                    )}
+                  </button>
+
                   {/* حذف */}
                   <button
                     onClick={() => setItemToDelete(venue)}
@@ -486,14 +520,14 @@ export default function VenueDashboard() {
           {/* حالة فارغة */}
           {venues.length === 0 && (
             <div className="text-center py-16">
-              <p className="text-4xl mb-4">🏡</p>
+              <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+                  <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/>
+                </svg>
+              </div>
               <p className="text-slate-500 font-medium mb-4">لا توجد وحدات سكنية حالياً</p>
-              <Link
-                to="/venue/add"
-                className="inline-flex items-center gap-2 bg-[#15317E] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#0d1e4c] transition-all"
-              >
-                <Plus className="w-4 h-4" />
-                أضف أول شاليه
+              <Link to="/venue/add" className="inline-flex items-center gap-2 bg-[#15317E] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#0d1e4c] transition-all">
+                <Plus className="w-4 h-4" /> أضف أول شاليه
               </Link>
             </div>
           )}
