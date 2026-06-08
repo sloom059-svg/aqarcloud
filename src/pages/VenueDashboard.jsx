@@ -398,7 +398,7 @@ export default function VenueDashboard() {
                 {venue.images?.[0] ? (
                   <img src={venue.images[0]} alt={venue.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                  <div className="w-full h-full bg-slate-200 flex items-center justify-center">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12">
                       <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/>
                     </svg>
