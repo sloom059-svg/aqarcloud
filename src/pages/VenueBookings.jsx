@@ -322,28 +322,70 @@ export default function VenueBookings() {
     if (!receiptRef.current) return;
     setDownloadingReceipt(true);
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(receiptRef.current, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
-      const fileName = `سند-${receiptBooking?.client_name || 'استلام'}.png`;
+      // التأكد من تحميل خط Tajawal بالكامل (يمنع تداخل الحروف العربية)
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.load("700 16px Tajawal");
+          await document.fonts.load("900 16px Tajawal");
+          await document.fonts.ready;
+        } catch (_) {}
+      }
+      await new Promise(r => setTimeout(r, 300));
 
-      // تحويل لـ blob (صورة) — الصورة ما فيها نص فلا يتداخل على أي جهاز
+      const html2canvas = (await import('html2canvas')).default;
+      const node = receiptRef.current;
+      const canvas = await html2canvas(node, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        letterRendering: true,
+        windowWidth: node.scrollWidth,
+        windowHeight: node.scrollHeight,
+        onclone: (doc) => {
+          // إجبار الخط على كامل السند في النسخة الملتقطة
+          doc.querySelectorAll('.receipt-page, .receipt-page *').forEach(el => {
+            el.style.fontFamily = "'Tajawal', sans-serif";
+          });
+        },
+      });
+      const fileName = `سند-${receiptBooking?.client_name || 'استلام'}.png`;
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
       if (!blob) throw new Error('no blob');
 
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-      // على الجوال: مشاركة الصورة (حفظ في الصور / الملفات / إرسال)
       if (isMobile && navigator.share && navigator.canShare) {
         const file = new File([blob], fileName, { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: 'سند استلام' });
-          setDownloadingReceipt(false);
-          return;
+          try {
+            await navigator.share({ files: [file], title: 'سند استلام' });
+            setDownloadingReceipt(false);
+            return;
+          } catch (shareErr) {
+            // المستخدم ألغى أو فشلت — نكمل للطريقة البديلة
+          }
         }
       }
 
-      // عام: تنزيل مباشر
       const blobUrl = URL.createObjectURL(blob);
+
+      // على آيفون: افتح الصورة في تبويب جديد (المستخدم يضغط مطوّل ويحفظ في الصور)
+      if (isIOS) {
+        const win = window.open();
+        if (win) {
+          win.document.write(`<img src="${blobUrl}" style="width:100%" alt="سند استلام" />`);
+          win.document.title = fileName;
+        } else {
+          window.location.href = blobUrl;
+        }
+        showToast('اضغط مطولاً على الصورة لحفظها');
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+        setDownloadingReceipt(false);
+        return;
+      }
+
+      // عام (أندرويد/كمبيوتر): تنزيل مباشر
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = fileName;
