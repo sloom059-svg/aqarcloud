@@ -443,7 +443,7 @@ export default function VenueBookings() {
                   <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-lg font-bold text-white">
-                    {(user?.full_name || user?.office_name || 'م')[0]}
+                    {(venue?.name || 'ش')[0]}
                   </span>
                 )}
               </div>
@@ -771,7 +771,7 @@ export default function VenueBookings() {
                     {user?.office_logo_url ? <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" /> : <FileText className="w-6 h-6" />}
                   </div>
                   <div>
-                    <h1 className="text-2xl font-black text-[#15317E] mb-1">{venue?.name || user?.office_name || 'المنشأة'}</h1>
+                    <h1 className="text-2xl font-black text-[#15317E] mb-1">{venue?.name || 'المنشأة'}</h1>
                     {venue?.city && <p className="text-xs font-bold tracking-widest text-slate-400">{venue.city}</p>}
                   </div>
                 </div>
