@@ -329,7 +329,7 @@ export default function VenueBookings() {
       const html2canvas = (await import('html2canvas')).default;
       const node = receiptRef.current;
       const canvas = await html2canvas(node, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         backgroundColor: '#ffffff',
         width: node.offsetWidth,
@@ -339,6 +339,11 @@ export default function VenueBookings() {
         onclone: (doc) => {
           const wrap = doc.querySelector('.receipt-scale-wrap');
           if (wrap) { wrap.style.transform = 'none'; wrap.style.margin = '0'; }
+          // إصلاح ربط الحروف: إلغاء أي letter-spacing سالب
+          doc.querySelectorAll('.receipt-page *').forEach(el => {
+            const ls = window.getComputedStyle(el).letterSpacing;
+            if (ls && ls !== 'normal' && parseFloat(ls) < 0) el.style.letterSpacing = 'normal';
+          });
         },
       });
 
@@ -850,11 +855,11 @@ export default function VenueBookings() {
                   </div>
                   <div>
                     <h1 className="text-2xl font-black text-[#15317E] mb-1">{venue?.name || 'المنشأة'}</h1>
-                    {venue?.city && <p className="text-xs font-bold tracking-widest text-slate-400">{venue.city}</p>}
+                    {venue?.city && <p className="text-xs font-bold text-slate-400">{venue.city}</p>}
                   </div>
                 </div>
                 <div className="text-left border-r-4 border-[#15317E] pr-5">
-                  <h2 className="text-2xl font-black text-slate-800 tracking-tight">سند استلام</h2>
+                  <h2 className="text-2xl font-extrabold text-slate-800" style={{ letterSpacing: 'normal' }}>سند استلام</h2>
                   <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Receipt Voucher</p>
                   <div className="mt-3 space-y-1">
                     <p className="text-xs font-bold text-slate-600 flex justify-end gap-1.5">
