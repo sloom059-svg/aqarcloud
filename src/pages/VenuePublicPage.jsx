@@ -58,9 +58,25 @@ const SocialIcons = {
 
 const SOCIAL_LIST = [
   { key: 'instagram', label: 'انستقرام' },
-  { key: 'tiktok', label: 'تيك توك' },
-  { key: 'x', label: 'إكس' },
+  { key: 'tiktok',   label: 'تيك توك' },
+  { key: 'snapchat', label: 'سناب شات' },
+  { key: 'x',        label: 'إكس' },
 ];
+
+// بناء الرابط الصحيح لكل منصة من اسم المستخدم
+const buildSocialUrl = (key, value) => {
+  if (!value) return '#';
+  const username = value.replace(/^@/, '').trim();
+  const urls = {
+    instagram: `https://www.instagram.com/${username}`,
+    tiktok:    `https://www.tiktok.com/@${username}`,
+    snapchat:  `https://www.snapchat.com/add/${username}`,
+    x:         `https://x.com/${username}`,
+  };
+  // لو المستخدم أدخل رابط كامل، استخدمه مباشرة
+  if (value.startsWith('http')) return value;
+  return urls[key] || `https://${value}`;
+};
 
 // ── استخراج معرّف فيديو يوتيوب من أي صيغة رابط (نسخة محصّنة) ──
 const getYoutubeId = (url) => {
@@ -541,7 +557,7 @@ export default function VenuePublicPage() {
                   {activeSocials.map(s => {
                     const Icon = SocialIcons[s.key];
                     return (
-                      <a key={s.key} href={social[s.key]} target="_blank" rel="noreferrer" title={s.label}
+                      <a key={s.key} href={buildSocialUrl(s.key, social[s.key])} target="_blank" rel="noreferrer" title={s.label}
                         className="w-12 h-12 rounded-full bg-[#0f172a] border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37] hover:bg-[#d4af37] hover:text-[#020617] hover:-translate-y-1 transition-all duration-300">
                         <Icon />
                       </a>
@@ -830,7 +846,7 @@ export default function VenuePublicPage() {
                 {activeSocials.map(s => {
                   const Icon = SocialIcons[s.key];
                   return (
-                    <a key={s.key} href={social[s.key]} target="_blank" rel="noreferrer" title={s.label}
+                    <a key={s.key} href={buildSocialUrl(s.key, social[s.key])} target="_blank" rel="noreferrer" title={s.label}
                       className="w-12 h-12 rounded-full bg-white border flex items-center justify-center hover:-translate-y-1 transition-all duration-300 shadow-sm"
                       style={{ borderColor: `${accent}33`, color: accent }}>
                       <Icon />
