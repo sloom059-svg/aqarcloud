@@ -4,6 +4,7 @@ import {
   MapPin, BedDouble, Bath, Maximize, MessageCircle, Map, Compass,
   CheckCircle2, Download, QrCode, X
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 const formatPrice = (p) => p ? new Intl.NumberFormat('en-US').format(p) : '';
 const ARABIC = { بيع: 'للبيع', إيجار: 'للإيجار' };
@@ -144,7 +145,13 @@ export default function PropertyCardExport({ property, agent, onClose }) {
             )}
           </div>
           <div className="bg-white p-1.5 rounded-xl shadow-inner">
-            <QrCode className="w-12 h-12 text-[#15317E]" />
+            <QRCodeSVG
+              value={`${window.location.origin}/property/${property.id}`}
+              size={48}
+              bgColor="#ffffff"
+              fgColor="#15317E"
+              level="M"
+            />
           </div>
         </div>
       </div>
