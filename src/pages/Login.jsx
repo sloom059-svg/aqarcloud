@@ -58,22 +58,16 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <div className="w-full max-w-[420px] animate-slide-up">
 
-          {/* الشعار والهوية (تم التعديل) */}
+          {/* الشعار والهوية (تم تكبير الدائرة وإزالة النص أسفلها) */}
           <div className="mb-10 text-center flex flex-col items-center">
-            {/* الدائرة الجديدة: أخذت مكان الدائرة القديمة، وهي بيضاء وبدون أي محتوى نصي */}
-            <div className="w-24 h-24 bg-white rounded-full shadow-xl shadow-[#15317E]/10 flex items-center justify-center mb-6 border border-slate-100 relative overflow-hidden group">
+            <div className="w-40 h-40 bg-white rounded-full shadow-xl shadow-[#15317E]/10 flex items-center justify-center mb-6 border border-slate-100 relative overflow-hidden group">
               <div className="absolute inset-0 bg-[#15317E]/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300" />
               {!imageError ? (
-                // استخدام الشعار المرفوع كـ عنصر وحيد داخل الدائرة، مكبر (w-20) ليملأها
-                <img src={logo} alt="Aqar Cloud Logo" className="w-20 h-20 object-contain relative z-10" onError={() => setImageError(true)} />
+                <img src={logo} alt="Aqar Cloud Logo" className="w-32 h-32 object-contain relative z-10" onError={() => setImageError(true)} />
               ) : (
-                // أيقونة احتياطية مكبرة في حال لم تحمل الصورة
-                <Building2 className="w-16 h-16 text-[#15317E] relative z-10" />
+                <Building2 className="w-20 h-20 text-[#15317E] relative z-10" />
               )}
             </div>
-            {/* إبقاء اسم "عقار كلاود" كـ نص كبير تحت الشعار كما هو في الكود الأصلي */}
-            <h1 className="text-4xl font-black text-[#15317E] mb-1">عقار كلاود</h1>
-            <h2 className="text-lg font-bold text-slate-400 tracking-widest uppercase">Aqar Cloud</h2>
           </div>
 
           {error && (
@@ -143,7 +137,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* القسم الأيسر: الهوية البصرية (بقيت كما هي) */}
+      {/* القسم الأيسر: الهوية البصرية */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#15317E] items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
           alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay" />
@@ -172,7 +166,7 @@ export default function Login() {
               </div>
               <div>
                 <div className="font-bold text-base">حجوزات بلا تعقيد</div>
-                <div className="text-white/60 text-sm">تابع حجوزاتك بتقويم الإتاحة لحظياً</div>
+                <div className="text-white/60 text-sm">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
               </div>
             </div>
 
