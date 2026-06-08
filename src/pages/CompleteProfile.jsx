@@ -582,6 +582,10 @@ export default function CompleteProfile() {
               <div className="px-4 pb-4 border-t border-slate-100 pt-3">
                 <Textarea value={form.booking_terms} onChange={e=>setForm(p=>({...p,booking_terms:e.target.value}))} placeholder="اكتب شروط الحجز..." rows={3}
                   className="rounded-xl border-slate-200 resize-none focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E]"/>
+                <p className="text-[11px] text-[#15317E] font-bold mt-2 flex items-center gap-1.5 bg-[#15317E]/5 px-3 py-2 rounded-xl">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 flex-shrink-0"><path d="M9 12h6m-3-3v6M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
+                  الشروط تضاف تلقائياً مع سند الاستلام
+                </p>
               </div>
             )}
           </div>
