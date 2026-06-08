@@ -47,9 +47,15 @@ const XIcon = (props) => (
     <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
   </svg>
 );
+const SnapchatIcon = (props) => (
+  <svg viewBox="0 0 448 512" fill="currentColor" {...props}>
+    <path d="M424.2 263.8c-2.4-10.6-20.2-13.1-34.4-11-20.2 2.9-46.7 9-61.1 5.9-9.1-2-12.7-10.1-10.6-20.9 2-10.2 10.1-26.6 15.8-37.5 44-84.3 13.3-145-38.3-177.3C268.4 6 226.5-.4 191 1.7c-47.5 2.8-82 17.5-104.9 51.5-17.7 26.2-22.1 63.3-10.1 94.6 7.6 19.8 23 48.2 24.3 64.9 1.1 13.7-8.1 20.3-19.1 23-14.7 3.6-43.2-3.1-61.9-5.5-13.7-1.7-27.1 2-30.7 13.1-4 12.3 8.9 25 15.5 29.8 17.3 12.5 40 24.1 64.1 36.8 6.5 3.5 12.1 12 11.2 21.6-1 10.5-6.8 19.3-15.1 24.8-14.6 9.8-33.1 15.1-49.8 18.2-15.6 2.9-32.9 2.5-44.5 11.2C-5.5 391-2.9 405.3 6 414.2c16 16.1 41 18.9 62.1 22.1 19.1 2.9 38.6 3.6 57 8.3 16 4.1 30.6 11 41.5 23.3 7 7.9 13.9 17.8 24.4 23.4 12 6.5 26.7 8.7 39.5 8.7 12.5 0 25.5-2 37.2-7.8 10.7-5.3 17.8-15.5 24.9-23.7 11-12.7 25.9-19.8 42-23.9 18.6-4.8 38.3-5.3 57.6-8.2 21.2-3.2 46.5-6.1 62.6-22.4 8.7-8.8 11.5-23.4 5.2-32.2z"/>
+  </svg>
+);
 
 const SOCIAL_FIELDS = [
   { key: 'instagram', label: 'انستقرام', placeholder: '@yourname', Icon: Instagram },
+  { key: 'snapchat', label: 'سناب شات', placeholder: '@yourname', Icon: (p) => <SnapchatIcon {...p} /> },
   { key: 'tiktok', label: 'تيك توك', placeholder: '@yourname', Icon: (p) => <TikTokIcon {...p} /> },
   { key: 'x', label: 'إكس (تويتر)', placeholder: '@yourname', Icon: (p) => <XIcon {...p} /> },
 ];
@@ -172,7 +178,7 @@ export default function VenueForm() {
     maps_url: '', images: [], video_url: '',
     youtube_urls: [],
     custom_features: [],
-    social: { instagram: '', tiktok: '', x: '' },
+    social: { instagram: '', snapchat: '', tiktok: '', x: '' },
     page_theme: 'classic',
     price_weekday: '', price_weekend: '',
     whatsapp: '', check_in_time: '14:00', check_out_time: '12:00',
@@ -202,7 +208,7 @@ export default function VenueForm() {
       youtube_urls: existing.youtube_urls || [],
       page_theme: existing.page_theme || 'classic',
       theme_color: existing.theme_color || '#c9a96e',
-      social: { instagram: '', tiktok: '', x: '', ...(existing.social || {}) },
+      social: { instagram: '', snapchat: '', tiktok: '', x: '', ...(existing.social || {}) },
     }));
   }, [existing]);
 
