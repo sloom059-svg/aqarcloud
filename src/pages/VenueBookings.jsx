@@ -771,8 +771,8 @@ export default function VenueBookings() {
                     {user?.office_logo_url ? <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" /> : <FileText className="w-6 h-6" />}
                   </div>
                   <div>
-                    <h1 className="text-2xl font-black text-[#15317E] mb-1">{venue?.name || 'المنشأة'}</h1>
-                    <p className="text-xs font-bold tracking-widest text-slate-400">{user?.office_name || ''}</p>
+                    <h1 className="text-2xl font-black text-[#15317E] mb-1">{venue?.name || user?.office_name || 'المنشأة'}</h1>
+                    {venue?.city && <p className="text-xs font-bold tracking-widest text-slate-400">{venue.city}</p>}
                   </div>
                 </div>
                 <div className="text-left border-r-4 border-[#15317E] pr-5">
