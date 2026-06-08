@@ -42,9 +42,9 @@ export default function PropertyCardExport({ property, agent, onClose }) {
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
       `}} />
       <div ref={cardRef} dir="rtl" className="bg-white w-full rounded-3xl overflow-hidden shadow-2xl relative" style={{ fontFamily: 'Tajawal, sans-serif' }}>
-        <div className="h-48 relative">
+        <div className="h-64 relative">
           <img src={property.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'} alt="عقار" className="w-full h-full object-cover" crossOrigin="anonymous" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#15317E]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           <div className="absolute top-4 right-4">
             <div className="bg-white text-[#15317E] px-3 py-1 rounded-lg text-xs font-bold shadow-md">{ARABIC[property.listing_type] || property.listing_type || 'للبيع'}</div>
           </div>
