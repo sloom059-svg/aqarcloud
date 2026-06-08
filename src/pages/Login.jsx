@@ -58,8 +58,8 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <div className="w-full max-w-[420px] animate-slide-up">
 
-          {/* الشعار (تم تكبيره درجة واحدة ليكون أبرز وأجمل) */}
-          <div className="mb-12 text-center flex justify-center">
+          {/* الشعار (تم تقليل المسافة السفلية mb-8 بدلاً من mb-12 لينزل الشعار ويقترب من الفورم) */}
+          <div className="mb-8 text-center flex justify-center">
             {!imageError ? (
               <img 
                 src={logo} 
@@ -139,48 +139,46 @@ export default function Login() {
         </div>
       </div>
 
-      {/* القسم الأيسر: الهوية البصرية (الخلفية أصبحت سوداء أنيقة) */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#0a0a0a] items-center justify-center overflow-hidden">
+      {/* القسم الأيسر: الهوية البصرية */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#fa4b6a] items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
           alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" />
-        {/* التدرج اللوني هنا أصبح من الأسود الفاتح إلى الأسود القاتم */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#111111]/95 to-[#000000]/95" />
-        
+        <div className="absolute inset-0 bg-gradient-to-br from-[#fa4b6a]/95 to-[#d82a48]/95" />
         <div className="relative z-10 text-white p-12 max-w-lg text-right animate-fade-in">
-          <div className="w-16 h-1.5 bg-white/20 rounded-full mb-8" />
+          <div className="w-16 h-1.5 bg-white/30 rounded-full mb-8" />
           <h2 className="text-4xl font-black mb-4 leading-tight">منصتك الأولى<br/>لإدارة عقاراتك وشاليهاتك</h2>
-          <p className="text-white/70 text-lg leading-relaxed font-medium">
+          <p className="text-white/80 text-lg leading-relaxed font-medium">
             حلٌّ متكامل للوسطاء العقاريين وملاك الشاليهات — أدِر عقاراتك وحجوزاتك، وشارك صفحتك مع عملائك بكل سهولة واحترافية.
           </p>
 
           <div className="space-y-5 mt-12 pt-10 border-t border-white/10">
             <div className="flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
-                <Building2 className="w-5 h-5 text-white/90" />
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
+                <Building2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="font-bold text-base text-white/90">إدارة العقارات والشاليهات</div>
-                <div className="text-white/50 text-sm mt-0.5">كل وحداتك في مكان واحد منظّم</div>
+                <div className="font-bold text-base">إدارة العقارات والشاليهات</div>
+                <div className="text-white/70 text-sm">كل وحداتك في مكان واحد منظّم</div>
               </div>
             </div>
 
             <div className="flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
-                <CalendarCheck className="w-5 h-5 text-white/90" />
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
+                <CalendarCheck className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="font-bold text-base text-white/90">حجوزات بلا تعقيد</div>
-                <div className="text-white/50 text-sm mt-0.5">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
+                <div className="font-bold text-base">حجوزات بلا تعقيد</div>
+                <div className="text-white/70 text-sm">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
               </div>
             </div>
 
             <div className="flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
-                <Share2 className="w-5 h-5 text-white/90" />
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
+                <Share2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="font-bold text-base text-white/90">صفحة عرض احترافية</div>
-                <div className="text-white/50 text-sm mt-0.5">شارك عقاراتك مع عملائك برابط واحد</div>
+                <div className="font-bold text-base">صفحة عرض احترافية</div>
+                <div className="text-white/70 text-sm">شارك عقاراتك مع عملائك برابط واحد</div>
               </div>
             </div>
           </div>
