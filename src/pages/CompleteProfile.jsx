@@ -41,9 +41,9 @@ const TikTokIcon = (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><p
 const XIcon = (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>;
 
 const SOCIAL_FIELDS = [
-  { key: 'instagram', label: 'انستقرام', placeholder: 'https://instagram.com/...', Icon: Instagram },
-  { key: 'tiktok',    label: 'تيك توك',  placeholder: 'https://tiktok.com/@...',  Icon: TikTokIcon },
-  { key: 'x',         label: 'إكس',      placeholder: 'https://x.com/...',         Icon: XIcon },
+  { key: 'instagram', label: 'انستقرام', placeholder: '@yourname', Icon: Instagram },
+  { key: 'tiktok',    label: 'تيك توك',  placeholder: '@yourname',  Icon: TikTokIcon },
+  { key: 'x',         label: 'إكس',      placeholder: '@yourname',         Icon: XIcon },
 ];
 
 const THEME_COLORS = [
