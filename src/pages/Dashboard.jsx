@@ -11,7 +11,7 @@ import {
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Plus, Building2, Pencil, Trash2, Share2, Home, Download,
+  Plus, Building2, Pencil, Trash2, Share2, Home, Download, Eye,
   Bell, Wallet, LogOut, User, ChevronDown, Loader2, CheckCircle
 } from "lucide-react";
 import PropertyCard from '@/components/property/PropertyCard';
@@ -240,10 +240,16 @@ export default function Dashboard() {
             <h2 className="text-base font-bold text-[#15317E]">عقاراتي</h2>
             <div className="flex gap-2">
               <button
+                onClick={() => window.open(`${window.location.origin}/agent/${user.id}`, '_blank')}
+                className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
+              >
+                <Eye className="w-3.5 h-3.5" /> عرض صفحتي
+              </button>
+              <button
                 onClick={copyProfileLink}
                 className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
               >
-                <Share2 className="w-3.5 h-3.5" /> شارك بروفايلك
+                <Share2 className="w-3.5 h-3.5" /> شارك
               </button>
               <button
                 onClick={() => navigate('/add-property')}
