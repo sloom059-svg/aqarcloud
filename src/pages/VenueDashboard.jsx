@@ -14,7 +14,10 @@ import {
   User,
   Loader2,
   Plus,
-  ChevronDown
+  ChevronDown,
+  Home,
+  Building2,
+  Share2
 } from 'lucide-react';
 
 // ────────────────────────────────────────────
@@ -65,16 +68,16 @@ function ProfileMenu({ onLogout }) {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
           <Link
             to="/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
+            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-medium"
           >
-            <User className="w-4 h-4 text-[#15317E]" />
+            <User className="w-4 h-4 text-[#e56d6d]" />
             الملف الشخصي
           </Link>
-          <div className="h-px bg-slate-100" />
+          <div className="h-px bg-gray-100" />
           <button
             onClick={() => { setOpen(false); onLogout(); }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-medium"
@@ -184,7 +187,7 @@ export default function VenueDashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#15317E]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#e56d6d]" />
       </div>
     );
   }
@@ -192,42 +195,42 @@ export default function VenueDashboard() {
   return (
     <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-20 relative">
 
-      {/* ── Toast ── */}
+      {/* ── Toast (شكل فخم وحديث) ── */}
       {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#15317E] text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[#0d1e4c]">
-          <CheckCircle className="w-5 h-5 text-emerald-400" />
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-white text-gray-800 px-6 py-3.5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex items-center gap-3 border border-gray-100 animate-in fade-in slide-in-from-top-4">
+          <CheckCircle className="w-5 h-5 text-emerald-500" />
           <span className="text-sm font-bold tracking-wide">{toastMessage}</span>
         </div>
       )}
 
-      {/* ── Modal تأكيد الحذف ── */}
+      {/* ── Modal تأكيد الحذف (مطور للفخامة) ── */}
       {itemToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-[#15317E] rounded-[2rem] p-6 w-full max-w-sm shadow-2xl border border-[#2a4db3]">
-            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-5 mx-auto border border-white/20">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-2xl border border-gray-100 animate-in zoom-in-95">
+            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-5 mx-auto border border-rose-100">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
                 <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
                 <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-center text-white mb-2">تأكيد الحذف</h3>
-            <p className="text-sm text-white/70 text-center mb-6 leading-relaxed">
+            <h3 className="text-xl font-black text-center text-gray-800 mb-2">تأكيد الحذف</h3>
+            <p className="text-sm text-gray-500 text-center mb-8 leading-relaxed font-medium">
               هل أنت متأكد من رغبتك في حذف<br />
-              <span className="text-emerald-400 font-bold text-base">{itemToDelete.name}</span>؟<br />
-              <span className="text-xs opacity-60">لا يمكن التراجع عن هذا الإجراء لاحقاً.</span>
+              <span className="text-[#e56d6d] font-bold text-base">{itemToDelete.name}</span>؟<br />
+              <span className="text-xs opacity-80 block mt-1">لا يمكن التراجع عن هذا الإجراء لاحقاً.</span>
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setItemToDelete(null)}
-                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-sm"
+                className="flex-1 py-3.5 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all text-sm"
               >
                 تراجع
               </button>
               <button
                 onClick={() => deleteMutation.mutate(itemToDelete.id)}
                 disabled={deleteMutation.isPending}
-                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 transition-all border border-rose-400 text-sm disabled:opacity-60"
+                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-500/20 transition-all text-sm disabled:opacity-60"
               >
                 {deleteMutation.isPending ? '...' : 'نعم، احذف'}
               </button>
@@ -236,8 +239,8 @@ export default function VenueDashboard() {
         </div>
       )}
 
-      {/* ── الخلفية الزرقاء العلوية ── */}
-      <div className="absolute top-0 left-0 right-0 h-[190px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
+      {/* ── الخلفية العلوية باللون الجديد ── */}
+      <div className="absolute top-0 left-0 right-0 h-[190px] bg-gradient-to-b from-[#e56d6d] to-[#d85c5c] rounded-b-[2.5rem] shadow-sm" />
 
       <div className="relative z-10 max-w-md mx-auto">
 
@@ -246,22 +249,22 @@ export default function VenueDashboard() {
 
           {/* بيانات المالك */}
           <div className="flex items-center gap-3">
-            {/* الشعار - دائرة ثابتة زي واتساب */}
+            {/* الشعار */}
             <div className="relative flex-shrink-0">
-              <div className="w-12 h-12 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 rounded-full border-2 border-white/40 bg-white/20 overflow-hidden flex items-center justify-center shadow-md backdrop-blur-sm">
                 {user?.office_logo_url ? (
                   <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-xl font-bold text-white">
+                  <span className="text-xl font-black text-white drop-shadow-sm">
                     {(user?.full_name || user?.office_name || 'م')[0]}
                   </span>
                 )}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#e56d6d] rounded-full" />
             </div>
             <div>
-              <p className="text-[11px] text-white/70 mb-0.5 tracking-wider">مرحباً بك،</p>
-              <h1 className="text-base font-bold">{user?.full_name || user?.office_name || 'المالك'}</h1>
+              <p className="text-[11px] text-white/90 mb-0.5 tracking-wider font-medium">مرحباً بك،</p>
+              <h1 className="text-base font-black drop-shadow-sm">{user?.full_name || user?.office_name || 'المالك'}</h1>
             </div>
           </div>
 
@@ -272,25 +275,25 @@ export default function VenueDashboard() {
             <div className="relative" ref={notifsRef}>
               <button
                 onClick={() => setShowNotifs(!showNotifs)}
-                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white'}`}
+                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#e56d6d] shadow-md' : 'bg-white/10 hover:bg-white/20 text-white shadow-sm'}`}
                 title="الإشعارات"
               >
                 <Bell className="w-4 h-4" />
                 {hasNotifications && (
-                  <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)] border border-[#e56d6d]" />
                 )}
               </button>
               {showNotifs && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                  <div className="px-4 py-3 bg-[#15317E] text-white flex items-center justify-between">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                  <div className="px-4 py-3 bg-gradient-to-r from-[#e56d6d] to-[#d85c5c] text-white flex items-center justify-between">
                     <span className="text-sm font-bold">الإشعارات</span>
                     {hasNotifications && (
-                      <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">{newBookings.length}</span>
+                      <span className="text-[10px] bg-white text-[#e56d6d] px-2 py-0.5 rounded-full font-bold shadow-sm">{newBookings.length}</span>
                     )}
                   </div>
                   {newBookings.length === 0 ? (
-                    <div className="px-4 py-6 text-center">
-                      <p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p>
+                    <div className="px-4 py-8 text-center">
+                      <p className="text-sm text-gray-400 font-medium">لا توجد إشعارات جديدة</p>
                     </div>
                   ) : (
                     <div className="max-h-64 overflow-y-auto">
@@ -301,14 +304,14 @@ export default function VenueDashboard() {
                             key={b.id}
                             to={`/venue/bookings/${b.venue_id}`}
                             onClick={() => setShowNotifs(false)}
-                            className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
+                            className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
                           >
-                            <div className="w-9 h-9 rounded-xl bg-[#15317E]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <Calendar className="w-4 h-4 text-[#15317E]" />
+                            <div className="w-9 h-9 rounded-xl bg-[#fff0f0] flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Calendar className="w-4 h-4 text-[#e56d6d]" />
                             </div>
                             <div className="flex-1 min-w-0 text-right">
-                              <p className="text-sm font-bold text-slate-700">حجز جديد</p>
-                              <p className="text-xs text-slate-500 truncate">
+                              <p className="text-sm font-bold text-gray-800">حجز جديد</p>
+                              <p className="text-xs text-gray-500 truncate mt-0.5 font-medium">
                                 {b.client_name || 'عميل'} — {v?.name || 'شاليه'}
                               </p>
                             </div>
@@ -325,16 +328,16 @@ export default function VenueDashboard() {
             <div className="relative" ref={revenueRef}>
               <button
                 onClick={() => setShowRevenue(!showRevenue)}
-                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}
+                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#e56d6d] shadow-md' : 'bg-white/10 hover:bg-white/20 text-white shadow-sm'}`}
                 title="إيرادات الشهر"
               >
                 <Wallet className="w-4 h-4" />
               </button>
               {showRevenue && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
-                  <p className="text-[11px] text-slate-500 font-medium mb-1">إيرادات الشهر (الحجوزات المؤكدة)</p>
-                  <p className="text-xl font-bold text-[#15317E]" dir="ltr">
-                    {monthlyRevenue.toLocaleString('en-US')} <span className="text-[10px] font-normal text-slate-400">ر.س</span>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 p-5 z-50 text-center animate-in fade-in slide-in-from-top-2">
+                  <p className="text-xs text-gray-500 font-bold mb-1.5">إيرادات الشهر (مؤكدة)</p>
+                  <p className="text-2xl font-black text-[#e56d6d]" dir="ltr">
+                    {monthlyRevenue.toLocaleString('en-US')} <span className="text-[11px] font-bold text-gray-400">ر.س</span>
                   </p>
                 </div>
               )}
@@ -350,16 +353,16 @@ export default function VenueDashboard() {
 
           {/* عنوان القسم */}
           <div className="flex items-center justify-between px-2 text-white mb-4">
-            <h3 className="text-lg font-bold">وحداتي السكنية</h3>
+            <h3 className="text-xl font-black drop-shadow-sm">وحداتي السكنية</h3>
             <div className="flex items-center gap-2.5">
-              <span className="bg-white/10 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm border border-white/10">
+              <span className="bg-white/20 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md border border-white/20 shadow-sm">
                 {venues.length} وحدات
               </span>
               <Link
                 to="/venue/add"
-                className="flex items-center gap-1.5 bg-white text-[#15317E] px-3.5 py-1.5 rounded-full text-xs font-bold shadow-[0_4px_15px_rgba(0,0,0,0.15)] hover:shadow-[0_4px_20px_rgba(255,255,255,0.25)] hover:-translate-y-0.5 transition-all group"
+                className="flex items-center gap-1.5 bg-white text-[#e56d6d] px-3.5 py-1.5 rounded-full text-xs font-bold shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 transition-all group"
               >
-                <div className="bg-[#15317E]/10 rounded-full p-0.5">
+                <div className="bg-[#fff0f0] rounded-full p-0.5">
                   <Plus className="w-3 h-3 group-hover:rotate-90 transition-transform duration-300" strokeWidth={3} />
                 </div>
                 إضافة شاليه
@@ -369,16 +372,19 @@ export default function VenueDashboard() {
 
           {/* بطاقات الشاليهات */}
           {venues.map((venue) => (
-            <div key={venue.id} className="bg-white rounded-[2rem] p-2 shadow-xl shadow-slate-200/50 border border-slate-100 transition-all duration-300">
+            <div key={venue.id} className="bg-white rounded-[2rem] p-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/60 hover:border-gray-200 transition-all duration-300">
 
               {/* الصورة */}
               <div className="relative h-56 rounded-[1.5rem] overflow-hidden">
                 {venue.images?.[0] ? (
                   <img src={venue.images[0]} alt={venue.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-4xl">🏡</div>
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <Home className="w-16 h-16 text-gray-300" strokeWidth={1.5} />
+                  </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#15317E]/90 via-[#15317E]/30 to-transparent" />
+                {/* تدرج لوني فخم من الأسود للشفاف لإبراز النص */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                 {/* شارة الحالة */}
                 <div className="absolute top-4 right-4">
@@ -386,9 +392,9 @@ export default function VenueDashboard() {
                 </div>
 
                 {/* اسم + موقع */}
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <h3 className="text-xl font-bold mb-1">{venue.name}</h3>
-                  <p className="text-sm text-white/80 flex items-center gap-1.5">
+                <div className="absolute bottom-5 left-5 right-5 text-white">
+                  <h3 className="text-2xl font-black mb-1.5 drop-shadow-md">{venue.name}</h3>
+                  <p className="text-sm text-white/90 flex items-center gap-1.5 font-medium">
                     <MapPin className="w-4 h-4" />
                     {venue.city}
                   </p>
@@ -396,27 +402,27 @@ export default function VenueDashboard() {
               </div>
 
               {/* السعر والحجوزات */}
-              <div className="flex items-center justify-between px-4 py-4">
+              <div className="flex items-center justify-between px-5 py-5">
                 <div>
-                  <p className="text-xs text-slate-500 mb-0.5 font-medium">السعر / ليلة ويكند</p>
-                  <p className="text-lg font-bold text-[#15317E]" dir="ltr">
-                    {venue.price_weekend?.toLocaleString('en-US') ?? '—'} <span className="text-xs font-normal text-slate-400">ر.س</span>
+                  <p className="text-xs text-gray-400 mb-1 font-bold">السعر / ليلة ويكند</p>
+                  <p className="text-xl font-black text-gray-800" dir="ltr">
+                    {venue.price_weekend?.toLocaleString('en-US') ?? '—'} <span className="text-xs font-bold text-gray-400">ر.س</span>
                   </p>
                 </div>
-                <div className="w-px h-8 bg-slate-200" />
+                <div className="w-px h-10 bg-gray-100" />
                 <div className="text-left">
-                  <p className="text-xs text-slate-500 mb-0.5 font-medium">حجوزات الشهر</p>
-                  <p className="text-lg font-bold text-[#15317E]" dir="ltr">
+                  <p className="text-xs text-gray-400 mb-1 font-bold">حجوزات الشهر</p>
+                  <p className="text-xl font-black text-gray-800" dir="ltr">
                     {bookings.filter(b => b.venue_id === venue.id && b.status !== 'ملغي' && isThisMonth(b)).length}
                   </p>
                 </div>
               </div>
 
               {/* شريط الإجراءات */}
-              <div className="bg-slate-50 rounded-[1.2rem] p-2 flex gap-2">
+              <div className="bg-gray-50/80 rounded-[1.2rem] p-2 flex gap-2">
                 <Link
                   to={`/venue/bookings/${venue.id}`}
-                  className="flex-1 bg-[#15317E] hover:bg-[#0d1e4c] text-white flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#15317E]/20"
+                  className="flex-1 bg-gradient-to-r from-[#e56d6d] to-[#d85c5c] hover:from-[#d85c5c] hover:to-[#c44e4e] text-white flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all shadow-[0_4px_12px_rgba(229,109,109,0.2)]"
                 >
                   <Calendar className="w-5 h-5" />
                   إدارة الحجوزات
@@ -426,7 +432,7 @@ export default function VenueDashboard() {
                   {/* تعديل */}
                   <Link
                     to={`/venue/edit/${venue.id}`}
-                    className="w-12 flex items-center justify-center bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 rounded-xl transition-all shadow-sm group"
+                    className="w-12 flex items-center justify-center bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-[#e56d6d] hover:border-gray-300 rounded-xl transition-all shadow-sm group"
                     title="تعديل"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
@@ -437,7 +443,7 @@ export default function VenueDashboard() {
                   {/* مشاركة */}
                   <button
                     onClick={() => handleShare(venue)}
-                    className="w-12 flex items-center justify-center bg-white text-[#15317E] border border-slate-200 hover:bg-blue-50 hover:border-blue-200 rounded-xl transition-all shadow-sm group"
+                    className="w-12 flex items-center justify-center bg-white text-[#e56d6d] border border-gray-200 hover:bg-[#fff0f0] hover:border-[#f9d2d2] rounded-xl transition-all shadow-sm group"
                     title="مشاركة"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
@@ -449,7 +455,7 @@ export default function VenueDashboard() {
                   {/* حذف */}
                   <button
                     onClick={() => setItemToDelete(venue)}
-                    className="w-12 flex items-center justify-center bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 rounded-xl transition-all shadow-sm group"
+                    className="w-12 flex items-center justify-center bg-white text-rose-500 border border-gray-200 hover:bg-rose-50 hover:border-rose-200 rounded-xl transition-all shadow-sm group"
                     title="حذف"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
@@ -465,15 +471,17 @@ export default function VenueDashboard() {
 
           {/* حالة فارغة */}
           {venues.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-4xl mb-4">🏡</p>
-              <p className="text-slate-500 font-medium mb-4">لا توجد وحدات سكنية حالياً</p>
+            <div className="text-center py-20 bg-white rounded-[2rem] border border-gray-100 shadow-sm mt-8">
+              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-gray-100">
+                <Home className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
+              </div>
+              <p className="text-gray-500 font-bold mb-6">لا توجد وحدات سكنية حالياً</p>
               <Link
                 to="/venue/add"
-                className="inline-flex items-center gap-2 bg-[#15317E] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#0d1e4c] transition-all"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e56d6d] to-[#d85c5c] text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:shadow-[0_8px_20px_rgba(229,109,109,0.3)] transition-all hover:-translate-y-0.5"
               >
-                <Plus className="w-4 h-4" />
-                أضف أول شاليه
+                <Plus className="w-5 h-5" />
+                أضف أول شاليه لك
               </Link>
             </div>
           )}
