@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Eye, EyeOff, Lock, Mail, MapPin, Cloud, CalendarCheck, Building2, Share2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Lock, Mail, CalendarCheck, Building2, Share2 } from 'lucide-react';
 
 // استدعاء الشعار من المجلد الرئيسي src
 import logo from '../aqar-cloud-logo.png';
@@ -58,20 +58,20 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <div className="w-full max-w-[420px] animate-slide-up">
 
-          {/* الشعار والهوية */}
+          {/* الشعار والهوية (تم التعديل) */}
           <div className="mb-10 text-center flex flex-col items-center">
-            <div className="w-24 h-24 bg-white rounded-full shadow-xl shadow-[#15317E]/10 flex items-center justify-center mb-6 border border-slate-100 relative group overflow-hidden">
+            {/* الدائرة الجديدة: أخذت مكان الدائرة القديمة، وهي بيضاء وبدون أي محتوى نصي */}
+            <div className="w-24 h-24 bg-white rounded-full shadow-xl shadow-[#15317E]/10 flex items-center justify-center mb-6 border border-slate-100 relative overflow-hidden group">
               <div className="absolute inset-0 bg-[#15317E]/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300" />
               {!imageError ? (
-                // استخدام الشعار المرفوع من المجلد مباشرة هنا
-                <img src={logo} alt="Aqar Cloud Logo" className="w-16 h-16 object-contain relative z-10" onError={() => setImageError(true)} />
+                // استخدام الشعار المرفوع كـ عنصر وحيد داخل الدائرة، مكبر (w-20) ليملأها
+                <img src={logo} alt="Aqar Cloud Logo" className="w-20 h-20 object-contain relative z-10" onError={() => setImageError(true)} />
               ) : (
-                <div className="relative flex items-center justify-center z-10">
-                  <MapPin className="w-12 h-12 text-[#15317E]" strokeWidth={2} />
-                  <Cloud className="w-7 h-7 text-[#15317E] absolute top-1.5 fill-white" strokeWidth={2} />
-                </div>
+                // أيقونة احتياطية مكبرة في حال لم تحمل الصورة
+                <Building2 className="w-16 h-16 text-[#15317E] relative z-10" />
               )}
             </div>
+            {/* إبقاء اسم "عقار كلاود" كـ نص كبير تحت الشعار كما هو في الكود الأصلي */}
             <h1 className="text-4xl font-black text-[#15317E] mb-1">عقار كلاود</h1>
             <h2 className="text-lg font-bold text-slate-400 tracking-widest uppercase">Aqar Cloud</h2>
           </div>
@@ -143,7 +143,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* القسم الأيسر: الهوية البصرية */}
+      {/* القسم الأيسر: الهوية البصرية (بقيت كما هي) */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#15317E] items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
           alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay" />
@@ -172,7 +172,7 @@ export default function Login() {
               </div>
               <div>
                 <div className="font-bold text-base">حجوزات بلا تعقيد</div>
-                <div className="text-white/60 text-sm">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
+                <div className="text-white/60 text-sm">تابع حجوزاتك بتقويم الإتاحة لحظياً</div>
               </div>
             </div>
 
