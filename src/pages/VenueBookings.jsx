@@ -323,31 +323,26 @@ export default function VenueBookings() {
     setDownloadingReceipt(true);
     try {
       const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
-      const canvas = await html2canvas(receiptRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const imgH = (canvas.height * pageW) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pageW, Math.min(imgH, pageH));
-      const fileName = `سند-${receiptBooking?.client_name || 'استلام'}.pdf`;
+      const canvas = await html2canvas(receiptRef.current, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
+      const fileName = `سند-${receiptBooking?.client_name || 'استلام'}.png`;
 
-      // كشف الجوال
+      // تحويل لـ blob (صورة) — الصورة ما فيها نص فلا يتداخل على أي جهاز
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
+      if (!blob) throw new Error('no blob');
+
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const blob = pdf.output('blob');
 
+      // على الجوال: مشاركة الصورة (حفظ في الصور / الملفات / إرسال)
       if (isMobile && navigator.share && navigator.canShare) {
-        // مشاركة الملف مباشرة (يظهر خيار الحفظ في الملفات)
-        const file = new File([blob], fileName, { type: 'application/pdf' });
+        const file = new File([blob], fileName, { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: fileName });
+          await navigator.share({ files: [file], title: 'سند استلام' });
           setDownloadingReceipt(false);
           return;
         }
       }
 
-      // طريقة عامة: فتح/تنزيل عبر رابط blob
+      // عام: تنزيل مباشر
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
