@@ -60,6 +60,26 @@ const getNights = (checkIn, checkOut) => {
   return `${diff} ليلة`;
 };
 
+// حساب سعر الحجز من أسعار الشاليه (ويكند: خميس/جمعة)
+const calcBookingPrice = (booking, venue) => {
+  if (booking?.price) return Number(booking.price);
+  if (booking?.total_price) return Number(booking.total_price);
+  if (!venue || !booking?.check_in || !booking?.check_out) return null;
+  const weekday = Number(venue.price_weekday) || 0;
+  const weekend = Number(venue.price_weekend) || weekday;
+  if (!weekday && !weekend) return null;
+  let total = 0;
+  let cur = new Date(booking.check_in);
+  const end = new Date(booking.check_out);
+  while (cur < end) {
+    const day = cur.getDay(); // 0=أحد ... 4=خميس, 5=جمعة, 6=سبت
+    const isWeekend = day === 4 || day === 5; // خميس وجمعة
+    total += isWeekend ? weekend : weekday;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return total || null;
+};
+
 // يولّد رقم مرجعي ثابت من الـ UUID (4 أرقام)
 const getBookingRef = (id) => {
   if (!id) return '#0000';
@@ -262,13 +282,16 @@ export default function VenueBookings() {
   // ── سند الاستلام ──
   const openReceipt = (booking) => {
     setReceiptBooking(booking);
-    setReceiptForm({ type: 'deposit', amount: '' });
+    const total = calcBookingPrice(booking, venue);
+    setReceiptForm({ type: 'full', amount: total ? String(total) : '' });
   };
 
   const handleReceiptTypeChange = (type) => {
-    let defaultAmount = '';
-    if (type === 'full' && receiptBooking?.price) defaultAmount = String(receiptBooking.price).replace(/,/g, '');
-    setReceiptForm({ type, amount: defaultAmount });
+    const total = calcBookingPrice(receiptBooking, venue);
+    let amount = receiptForm.amount;
+    if (type === 'full') amount = total ? String(total) : '';
+    else amount = ''; // عربون/دفعة يكتبه بنفسه
+    setReceiptForm({ type, amount });
   };
 
   const receiptTypeLabel = (t) => t === 'deposit' ? 'عربون حجز' : t === 'partial' ? 'دفعة من حساب الحجز' : 'تسوية كامل قيمة الحجز';
@@ -645,7 +668,7 @@ export default function VenueBookings() {
                       )}
                       <div className="w-px h-3 bg-slate-200" />
                       <div className="text-[11px] text-[#15317E] font-bold">
-                        {booking.price ? `${booking.price} ر.س` : '—'}
+                        {calcBookingPrice(booking, venue) ? `${calcBookingPrice(booking, venue).toLocaleString('en-US')} ر.س` : '—'}
                       </div>
                     </div>
 
@@ -688,7 +711,7 @@ export default function VenueBookings() {
                 </div>
                 <div className="text-left">
                   <p className="text-[10px] text-slate-500 font-bold mb-0.5">إجمالي الحجز</p>
-                  <p className="text-xs font-bold text-slate-700">{receiptBooking.price || '—'} ر.س</p>
+                  <p className="text-xs font-bold text-slate-700">{calcBookingPrice(receiptBooking, venue) ? `${calcBookingPrice(receiptBooking, venue).toLocaleString('en-US')}` : '—'} ر.س</p>
                 </div>
               </div>
 
