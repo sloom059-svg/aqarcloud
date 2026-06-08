@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Eye, EyeOff, Lock, Mail, MapPin, Cloud, CalendarCheck, Building2, Share2 } from 'lucide-react';
 
+// استدعاء الشعار من المجلد الرئيسي src
+import logo from '../aqar-cloud-logo.png';
+
 const GoogleIcon = ({ className }) => (
   <svg viewBox="0 0 24 24" className={className}>
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -11,8 +14,6 @@ const GoogleIcon = ({ className }) => (
     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
   </svg>
 );
-
-const LOGO_URL = "https://media.base44.com/images/public/6a218975cdf06fe8cd10f742/4f84b960a_10000065611.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -59,10 +60,11 @@ export default function Login() {
 
           {/* الشعار والهوية */}
           <div className="mb-10 text-center flex flex-col items-center">
-            <div className="w-24 h-24 bg-white rounded-full shadow-xl shadow-[#15317E]/10 flex items-center justify-center mb-6 border border-slate-100 relative group">
+            <div className="w-24 h-24 bg-white rounded-full shadow-xl shadow-[#15317E]/10 flex items-center justify-center mb-6 border border-slate-100 relative group overflow-hidden">
               <div className="absolute inset-0 bg-[#15317E]/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300" />
               {!imageError ? (
-                <img src={LOGO_URL} alt="Aqar Cloud" className="w-16 h-16 object-contain relative z-10" onError={() => setImageError(true)} />
+                // استخدام الشعار المرفوع من المجلد مباشرة هنا
+                <img src={logo} alt="Aqar Cloud Logo" className="w-16 h-16 object-contain relative z-10" onError={() => setImageError(true)} />
               ) : (
                 <div className="relative flex items-center justify-center z-10">
                   <MapPin className="w-12 h-12 text-[#15317E]" strokeWidth={2} />
