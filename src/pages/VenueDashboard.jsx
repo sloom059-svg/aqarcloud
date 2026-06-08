@@ -180,6 +180,15 @@ export default function VenueDashboard() {
     window.open(url, '_blank');
   };
 
+  const handleToggleStatus = async (venue) => {
+    const newStatus = venue.status;
+    try {
+      await base44.entities.Venue.update(venue.id, { status: newStatus });
+      qc.invalidateQueries({ queryKey: ['venues'] });
+      showToast(newStatus === 'نشط' ? 'تم تفعيل الشاليه' : 'تم إيقاف الشاليه مؤقتاً');
+    } catch (_) { showToast('تعذّر تحديث الحالة'); }
+  };
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3000);
@@ -395,13 +404,39 @@ export default function VenueDashboard() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#15317E]/90 via-[#15317E]/30 to-transparent" />
 
+                {/* overlay معطّل */}
+                {venue.status === 'معطّل' && (
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 opacity-80">
+                      <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                    </svg>
+                    <span className="text-white text-sm font-bold opacity-90">الشاليه متوقف عن العرض حالياً</span>
+                  </div>
+                )}
+
+                {/* شريط نشط / معطّل */}
+                <div className="absolute top-3 right-3 flex items-center bg-white/60 backdrop-blur-md p-1 rounded-full shadow-sm border border-white/60 z-20">
+                  <button
+                    onClick={() => handleToggleStatus({ ...venue, status: 'نشط' })}
+                    className={`px-3 py-1 text-[11px] font-bold rounded-full transition-all duration-300 ${venue.status === 'نشط' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  >
+                    نشط
+                  </button>
+                  <button
+                    onClick={() => handleToggleStatus({ ...venue, status: 'معطّل' })}
+                    className={`px-3 py-1 text-[11px] font-bold rounded-full transition-all duration-300 ${venue.status === 'معطّل' ? 'bg-white text-rose-500 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  >
+                    معطّل
+                  </button>
+                </div>
+
                 {/* شارة الحالة */}
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 left-4 z-10">
                   {getStatusBadge(venue.status)}
                 </div>
 
                 {/* اسم + موقع */}
-                <div className="absolute bottom-4 left-4 right-4 text-white">
+                <div className="absolute bottom-4 left-4 right-4 text-white z-10">
                   <h3 className="text-xl font-bold mb-1">{venue.name}</h3>
                   <p className="text-sm text-white/80 flex items-center gap-1.5">
                     <MapPin className="w-4 h-4" />
