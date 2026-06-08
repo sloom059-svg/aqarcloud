@@ -155,7 +155,8 @@ export default function VenueBookings() {
 
   // سند الاستلام
   const [receiptBooking, setReceiptBooking] = useState(null);
-  const [receiptForm, setReceiptForm]       = useState({ type: 'deposit', amount: '' });
+  const [receiptForm, setReceiptForm]       = useState({ type: 'deposit', amount: '', customTerms: null });
+  const [showEditTerms, setShowEditTerms]   = useState(false);
   const [showReceiptPreview, setShowReceiptPreview] = useState(false);
   const [downloadingReceipt, setDownloadingReceipt] = useState(false);
   const receiptRef = useRef(null);
@@ -291,7 +292,11 @@ export default function VenueBookings() {
   const openReceipt = (booking) => {
     setReceiptBooking(booking);
     const total = calcBookingPrice(booking, venue);
-    setReceiptForm({ type: 'full', amount: total ? String(total) : '' });
+    setReceiptForm({
+      type: 'full',
+      amount: total ? String(total) : '',
+      customTerms: null, // null = يستخدم شروط الشاليه تلقائياً
+    });
   };
 
   const handleReceiptTypeChange = (type) => {
@@ -815,6 +820,12 @@ export default function VenueBookings() {
                   className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E] outline-none transition-all text-sm font-black text-left" dir="ltr" placeholder="0.00" />
               </div>
 
+              {/* زر تحديث الشروط */}
+              <button type="button" onClick={() => setShowEditTerms(true)}
+                className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-slate-300 hover:border-[#15317E] hover:text-[#15317E] text-slate-500 rounded-xl text-xs font-bold transition-all">
+                <FileText className="w-3.5 h-3.5" /> تحديث شروط هذا السند
+              </button>
+
               <div className="pt-2 flex gap-2">
                 <button onClick={() => { if (!receiptForm.amount) { showToast('أدخل مبلغ السند'); return; } setShowReceiptPreview(true); }}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-xl font-bold text-xs transition-all shadow-sm">
@@ -823,6 +834,46 @@ export default function VenueBookings() {
                 <button onClick={sendReceiptWhatsApp}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#1DA851] text-white rounded-xl font-bold text-xs transition-all shadow-sm">
                   <IconWa className="w-3.5 h-3.5" /> إرسال للعميل
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ مودال تعديل شروط السند ══ */}
+      {showEditTerms && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden">
+            <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="font-bold text-[#15317E] flex items-center gap-2 text-sm">
+                <FileText className="w-4 h-4" /> شروط هذا السند
+              </h3>
+              <button onClick={() => setShowEditTerms(false)} className="p-1 bg-slate-200 text-slate-500 rounded-full hover:bg-slate-300">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                هذه الشروط لهذا السند فقط — لن تؤثر على إعدادات الشاليه.
+                {venue?.booking_terms && receiptForm.customTerms === null && (
+                  <span className="text-[#15317E] font-bold"> (يستخدم شروط الشاليه حالياً)</span>
+                )}
+              </p>
+              <textarea
+                rows={6}
+                value={receiptForm.customTerms ?? (venue?.booking_terms || `هذا السند يثبت استلام المبلغ الموضح أعلاه فقط.\nالعربون المدفوع غير مسترد في حال إلغاء الحجز من قبل الضيف.\nيجب دفع باقي قيمة الحجز كاملاً قبل أو عند تسجيل الدخول.\nيتم تحصيل مبلغ تأمين إضافي عند الدخول ويسترد عند الخروج.`)}
+                onChange={e => setReceiptForm(prev => ({ ...prev, customTerms: e.target.value }))}
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E] outline-none transition-all text-sm resize-none leading-relaxed"
+              />
+              <div className="flex gap-2 pt-1">
+                <button onClick={() => setReceiptForm(prev => ({ ...prev, customTerms: venue?.booking_terms || null }))}
+                  className="flex-1 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">
+                  إعادة الشروط الأصلية
+                </button>
+                <button onClick={() => setShowEditTerms(false)}
+                  className="flex-1 py-2.5 text-xs font-bold text-white bg-[#15317E] hover:bg-[#0d1e4c] rounded-xl transition-all shadow-sm">
+                  حفظ وإغلاق
                 </button>
               </div>
             </div>
@@ -892,17 +943,28 @@ export default function VenueBookings() {
                 </div>
               </div>
 
-              <div className="mt-12 bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                <h4 className="font-bold text-[#15317E] mb-3 flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-[#D97706]" /> الشروط والأحكام
-                </h4>
-                <ul className="text-sm font-medium text-slate-600 space-y-2 list-disc list-inside">
-                  <li>هذا السند يثبت استلام المبلغ الموضح أعلاه فقط ولا يمثل تأكيداً نهائياً للحجز ما لم يسدد كامل المبلغ.</li>
-                  <li>العربون المدفوع <span className="text-rose-600 font-bold">غير مسترد</span> في حال إلغاء الحجز من قبل الضيف.</li>
-                  <li>يجب دفع باقي قيمة الحجز كاملاً قبل أو عند تسجيل الدخول.</li>
-                  <li>يتم تحصيل مبلغ تأمين إضافي عند الدخول ويسترد عند الخروج بعد التأكد من سلامة الممتلكات.</li>
-                </ul>
-              </div>
+              {(venue?.booking_terms || receiptForm.customTerms !== null || true) && (
+                <div className="mt-12 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                  <h4 className="font-bold text-[#15317E] mb-3 flex items-center gap-2 text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-[#D97706]" /> الشروط والأحكام
+                  </h4>
+                  {(() => {
+                    // الأولوية: شروط مخصصة للسند → شروط الشاليه → شروط افتراضية
+                    const terms = receiptForm.customTerms ?? venue?.booking_terms;
+                    if (terms?.trim()) {
+                      return <p className="text-sm font-medium text-slate-600 leading-relaxed whitespace-pre-line">{terms}</p>;
+                    }
+                    return (
+                      <ul className="text-sm font-medium text-slate-600 space-y-2 list-disc list-inside">
+                        <li>هذا السند يثبت استلام المبلغ الموضح أعلاه فقط ولا يمثل تأكيداً نهائياً للحجز ما لم يسدد كامل المبلغ.</li>
+                        <li>العربون المدفوع <span className="text-rose-600 font-bold">غير مسترد</span> في حال إلغاء الحجز من قبل الضيف.</li>
+                        <li>يجب دفع باقي قيمة الحجز كاملاً قبل أو عند تسجيل الدخول.</li>
+                        <li>يتم تحصيل مبلغ تأمين إضافي عند الدخول ويسترد عند الخروج بعد التأكد من سلامة الممتلكات.</li>
+                      </ul>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
 
             <div className="mt-auto px-12 pb-6 pt-6 border-t border-[#15317E]/10 bg-slate-50/50 rounded-b-xl mx-4 mb-4 flex flex-col gap-5">
