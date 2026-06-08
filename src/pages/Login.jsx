@@ -52,20 +52,19 @@ export default function Login() {
   if (!mounted) return null;
 
   return (
-    // تغيير الخلفية إلى أبيض نقي لإزالة اللمسة الزرقاء المزعجة
     <div dir="rtl" className="min-h-screen bg-white font-sans flex overflow-hidden">
 
       {/* القسم الأيمن: نموذج تسجيل الدخول */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <div className="w-full max-w-[420px] animate-slide-up">
 
-          {/* الشعار */}
+          {/* الشعار (تم تكبيره درجة واحدة ليكون أبرز وأجمل) */}
           <div className="mb-12 text-center flex justify-center">
             {!imageError ? (
               <img 
                 src={logo} 
                 alt="Aqar Cloud Logo" 
-                className="w-32 md:w-40 h-auto object-contain transition-all duration-300" 
+                className="w-36 md:w-44 h-auto object-contain transition-all duration-300" 
                 onError={() => setImageError(true)} 
               />
             ) : (
@@ -87,7 +86,6 @@ export default function Login() {
                 <input
                   type="email" dir="ltr" placeholder="name@example.com"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
-                  /* حقول إدخال عصرية مسطحة بدون ظلال مزعجة */
                   className="w-full pr-12 pl-4 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#fa4b6a] focus:ring-4 focus:ring-[#fa4b6a]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
                 />
                 <Mail className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#fa4b6a] transition-colors" />
@@ -103,7 +101,6 @@ export default function Login() {
                 <input
                   type={showPassword ? "text" : "password"} dir="ltr" placeholder="••••••••"
                   value={password} onChange={(e) => setPassword(e.target.value)} required
-                  /* حقول إدخال عصرية مسطحة بدون ظلال مزعجة */
                   className="w-full pr-12 pl-12 py-4 bg-[#f9f9f9] border border-transparent rounded-2xl focus:bg-white focus:border-[#fa4b6a] focus:ring-4 focus:ring-[#fa4b6a]/10 outline-none transition-all duration-300 text-sm font-medium text-left placeholder:text-gray-400"
                 />
                 <Lock className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#fa4b6a] transition-colors" />
@@ -114,7 +111,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* زر الدخول بلون حيوي وظل مخصص ناعم */}
             <button type="submit" disabled={loading}
               className="w-full mt-2 py-4 bg-gradient-to-r from-[#fa4b6a] to-[#f53859] text-white rounded-2xl font-bold text-base shadow-[0_8px_20px_rgba(250,75,106,0.25)] hover:shadow-[0_12px_25px_rgba(250,75,106,0.35)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
               {loading ? <><Loader2 className="w-5 h-5 animate-spin" />جاري التحقق...</> : 'تسجيل الدخول'}
@@ -128,7 +124,7 @@ export default function Login() {
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {/* زر Google بتصميم أنيق ومحايد */}
+          {/* زر Google */}
           <button onClick={handleGoogle} type="button" disabled={loading}
             className="w-full py-4 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-800 rounded-2xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70">
             <GoogleIcon className="w-5 h-5" />
@@ -143,46 +139,48 @@ export default function Login() {
         </div>
       </div>
 
-      {/* القسم الأيسر: الهوية البصرية */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#fa4b6a] items-center justify-center overflow-hidden">
+      {/* القسم الأيسر: الهوية البصرية (الخلفية أصبحت سوداء أنيقة) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#0a0a0a] items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
           alt="Chalet" className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#fa4b6a]/95 to-[#d82a48]/95" />
+        {/* التدرج اللوني هنا أصبح من الأسود الفاتح إلى الأسود القاتم */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#111111]/95 to-[#000000]/95" />
+        
         <div className="relative z-10 text-white p-12 max-w-lg text-right animate-fade-in">
-          <div className="w-16 h-1.5 bg-white/30 rounded-full mb-8" />
+          <div className="w-16 h-1.5 bg-white/20 rounded-full mb-8" />
           <h2 className="text-4xl font-black mb-4 leading-tight">منصتك الأولى<br/>لإدارة عقاراتك وشاليهاتك</h2>
-          <p className="text-white/80 text-lg leading-relaxed font-medium">
+          <p className="text-white/70 text-lg leading-relaxed font-medium">
             حلٌّ متكامل للوسطاء العقاريين وملاك الشاليهات — أدِر عقاراتك وحجوزاتك، وشارك صفحتك مع عملائك بكل سهولة واحترافية.
           </p>
 
           <div className="space-y-5 mt-12 pt-10 border-t border-white/10">
             <div className="flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
-                <Building2 className="w-5 h-5 text-white" />
+              <div className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
+                <Building2 className="w-5 h-5 text-white/90" />
               </div>
               <div>
-                <div className="font-bold text-base">إدارة العقارات والشاليهات</div>
-                <div className="text-white/70 text-sm">كل وحداتك في مكان واحد منظّم</div>
+                <div className="font-bold text-base text-white/90">إدارة العقارات والشاليهات</div>
+                <div className="text-white/50 text-sm mt-0.5">كل وحداتك في مكان واحد منظّم</div>
               </div>
             </div>
 
             <div className="flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
-                <CalendarCheck className="w-5 h-5 text-white" />
+              <div className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
+                <CalendarCheck className="w-5 h-5 text-white/90" />
               </div>
               <div>
-                <div className="font-bold text-base">حجوزات بلا تعقيد</div>
-                <div className="text-white/70 text-sm">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
+                <div className="font-bold text-base text-white/90">حجوزات بلا تعقيد</div>
+                <div className="text-white/50 text-sm mt-0.5">تابع حجوزاتك وتقويم الإتاحة لحظياً</div>
               </div>
             </div>
 
             <div className="flex items-center gap-4 group">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
-                <Share2 className="w-5 h-5 text-white" />
+              <div className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
+                <Share2 className="w-5 h-5 text-white/90" />
               </div>
               <div>
-                <div className="font-bold text-base">صفحة عرض احترافية</div>
-                <div className="text-white/70 text-sm">شارك عقاراتك مع عملائك برابط واحد</div>
+                <div className="font-bold text-base text-white/90">صفحة عرض احترافية</div>
+                <div className="text-white/50 text-sm mt-0.5">شارك عقاراتك مع عملائك برابط واحد</div>
               </div>
             </div>
           </div>
