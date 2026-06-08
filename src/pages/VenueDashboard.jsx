@@ -14,8 +14,7 @@ import {
   User,
   Loader2,
   Plus,
-  ChevronDown,
-  Home
+  ChevronDown
 } from 'lucide-react';
 
 // ────────────────────────────────────────────
@@ -166,8 +165,17 @@ export default function VenueDashboard() {
 
   const handleShare = (venue) => {
     const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
-    navigator.clipboard.writeText(url).catch(() => {});
-    showToast('تم نسخ الرابط بنجاح!');
+    if (navigator.share) {
+      navigator.share({ title: venue.name, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).catch(() => {});
+      showToast('تم نسخ الرابط بنجاح!');
+    }
+  };
+
+  const handleViewPage = (venue) => {
+    const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
+    window.open(url, '_blank');
   };
 
   const showToast = (msg) => {
@@ -377,9 +385,7 @@ export default function VenueDashboard() {
                 {venue.images?.[0] ? (
                   <img src={venue.images[0]} alt={venue.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400">
-                    <Home className="w-12 h-12" strokeWidth={1.5} />
-                  </div>
+                  <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-4xl">🏡</div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#15317E]/90 via-[#15317E]/30 to-transparent" />
 
@@ -437,6 +443,17 @@ export default function VenueDashboard() {
                     </svg>
                   </Link>
 
+                  {/* عرض الصفحة */}
+                  <button
+                    onClick={() => handleViewPage(venue)}
+                    className="w-12 flex items-center justify-center bg-white text-[#15317E] border border-slate-200 hover:bg-blue-50 hover:border-blue-200 rounded-xl transition-all shadow-sm group"
+                    title="عرض الصفحة"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+
                   {/* مشاركة */}
                   <button
                     onClick={() => handleShare(venue)}
@@ -469,9 +486,7 @@ export default function VenueDashboard() {
           {/* حالة فارغة */}
           {venues.length === 0 && (
             <div className="text-center py-16">
-              <div className="flex justify-center mb-4">
-                <Home className="w-16 h-16 text-slate-400" strokeWidth={1.5} />
-              </div>
+              <p className="text-4xl mb-4">🏡</p>
               <p className="text-slate-500 font-medium mb-4">لا توجد وحدات سكنية حالياً</p>
               <Link
                 to="/venue/add"
