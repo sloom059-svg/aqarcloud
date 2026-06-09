@@ -135,9 +135,18 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
       for (const v of memberVenues) { try { await base44.entities.Venue.delete(v.id); } catch (_) {} }
       for (const p of memberProps) { try { await base44.entities.Property.delete(p.id); } catch (_) {} }
 
-      // ٤. حذف حساب Auth + بيانات User
+      // ٤. حذف الملف الشخصي مباشرة من جدول profiles
+      try {
+        const { error: profErr } = await supabase.from('profiles').delete().eq('id', memberToDelete.id);
+        if (profErr) throw profErr;
+      } catch (e) {
+        showToast('تعذّر حذف الملف: ' + (e?.message || 'صلاحيات'));
+        setDeleting(false);
+        return;
+      }
+
+      // ٥. محاولة حذف حساب Auth (قد تحتاج دالة backend)
       try { await supabase.auth.admin.deleteUser(memberToDelete.id); } catch (_) {}
-      try { await base44.entities.User.delete(memberToDelete.id); } catch (_) {}
 
       qc.invalidateQueries({ queryKey: ['admin-members'] });
       qc.invalidateQueries({ queryKey: ['admin-bookings'] });
