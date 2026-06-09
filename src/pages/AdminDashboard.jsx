@@ -112,22 +112,40 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
     try {
       const memberVenues = venues.filter(v => v.owner_id === memberToDelete.id);
       const memberProps = properties.filter(p => p.owner_id === memberToDelete.id || p.created_by_id === memberToDelete.id);
+
+      // ١. حذف الصور من التخزين
       const imageUrls = [
         ...(memberVenues.flatMap(v => v.images || [])),
         ...(memberProps.flatMap(p => p.images || [])),
-        memberToDelete.office_logo_url, memberToDelete.avatar_url,
+        memberToDelete.office_logo_url,
+        memberToDelete.avatar_url,
+        memberToDelete.profile_image_url,
       ].filter(Boolean);
       for (const url of imageUrls) {
         try { await base44.integrations.Core.DeleteFile(url); } catch (_) {}
       }
+
+      // ٢. حذف الحجوزات المرتبطة بالشاليهات
+      const memberBookings = bookings.filter(b => memberVenues.some(v => v.id === b.venue_id) || b.owner_id === memberToDelete.id);
+      for (const b of memberBookings) {
+        try { await base44.entities.Booking.delete(b.id); } catch (_) {}
+      }
+
+      // ٣. حذف الشاليهات والعقارات
       for (const v of memberVenues) { try { await base44.entities.Venue.delete(v.id); } catch (_) {} }
       for (const p of memberProps) { try { await base44.entities.Property.delete(p.id); } catch (_) {} }
+
+      // ٤. حذف حساب Auth + بيانات User
       try { await supabase.auth.admin.deleteUser(memberToDelete.id); } catch (_) {}
       try { await base44.entities.User.delete(memberToDelete.id); } catch (_) {}
+
       qc.invalidateQueries({ queryKey: ['admin-members'] });
-      showToast('تم الحذف بنجاح');
+      qc.invalidateQueries({ queryKey: ['admin-bookings'] });
+      qc.invalidateQueries({ queryKey: ['admin-venues'] });
+      qc.invalidateQueries({ queryKey: ['admin-properties'] });
+      showToast('تم حذف العضو وجميع بياناته نهائياً');
     } catch (e) {
-      showToast('حدث خطأ أثناء الحذف');
+      showToast('حدث خطأ أثناء الحذف: ' + (e?.message || ''));
     }
     setDeleting(false);
     setMemberToDelete(null);
