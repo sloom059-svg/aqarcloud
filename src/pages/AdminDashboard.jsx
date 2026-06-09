@@ -138,22 +138,27 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
       // ٤. حذف الملف الشخصي + حساب Auth عبر Edge Function
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL || supabase.supabaseUrl}/functions/v1/delete-member`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session?.access_token || ''}`,
-            },
-            body: JSON.stringify({ userId: memberToDelete.id }),
-          }
-        );
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://unptzucothzejcgntmpi.supabase.co';
+        const functionUrl = `${supabaseUrl}/functions/v1/delete-member`;
+        console.log('🔥 Edge Function URL:', functionUrl);
+        console.log('🔥 userId:', memberToDelete.id);
+        console.log('🔥 session token:', session?.access_token ? 'موجود' : 'غير موجود');
+        
+        const res = await fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token || ''}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+          },
+          body: JSON.stringify({ userId: memberToDelete.id }),
+        });
+        
         const result = await res.json();
         if (!res.ok) {
           // fallback: احذف الملف مباشرة على الأقل
           await supabase.from('profiles').delete().eq('id', memberToDelete.id);
-          showToast('حُذفت البيانات (الحساب قد يحتاج حذف يدوي): ' + (result?.error || ''));
+          showToast('حُذفت البيانات فقط: ' + (result?.error || ''));
           qc.invalidateQueries({ queryKey: ['admin-members'] });
           setDeleting(false);
           setMemberToDelete(null);
