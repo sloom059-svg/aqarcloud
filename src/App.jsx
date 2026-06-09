@@ -1,3 +1,4 @@
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -17,6 +18,7 @@ import EditProperty from '@/pages/EditProperty';
 import PropertyDetail from '@/pages/PropertyDetail';
 import Profile from '@/pages/Profile';
 import AgentProfile from '@/pages/AgentProfile';
+import AppLayout from '@/components/layout/AppLayout';
 import CompleteProfile from '@/pages/CompleteProfile';
 import CheckProfile from '@/pages/CheckProfile';
 import VenueDashboard from '@/pages/VenueDashboard';
@@ -26,7 +28,19 @@ import VenueBookings from '@/pages/VenueBookings';
 import VenuePublicPage from '@/pages/VenuePublicPage';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { user, isAuthenticated, isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+
+  // توجيه تلقائي: عضو داخل بدون ملف مكتمل → فورم الإكمال
+  React.useEffect(() => {
+    if (isLoadingAuth || !isAuthenticated || !user) return;
+    const path = window.location.pathname;
+    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/complete-profile', '/check-profile'];
+    const isPublicView = publicPaths.includes(path) || path.startsWith('/agent/') || path.startsWith('/property/') || path.startsWith('/place/');
+    // لو ما عنده office_name (ملف ناقص/محذوف) ومو في صفحة عامة → وديه للفورم
+    if (!user.office_name && !isPublicView) {
+      window.location.href = '/complete-profile';
+    }
+  }, [user, isAuthenticated, isLoadingAuth]);
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -56,14 +70,16 @@ const AuthenticatedApp = () => {
       <Route path="/property/:id" element={<PropertyDetail />} />
       <Route path="/place/:slug" element={<VenuePublicPage />} />
 
-      {/* Protected pages — كلها بهيدر خاص، بدون شريط علوي */}
+      {/* Protected pages */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/add-property" element={<AddProperty />} />
-        <Route path="/edit-property/:id" element={<EditProperty />} />
-        {/* Venue routes */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/add-property" element={<AddProperty />} />
+          <Route path="/edit-property/:id" element={<EditProperty />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+        {/* Venue routes - no AppLayout */}
         <Route path="/venue" element={<VenueDashboard />} />
         <Route path="/venue/add" element={<VenueForm />} />
         <Route path="/venue/edit/:id" element={<VenueForm />} />
