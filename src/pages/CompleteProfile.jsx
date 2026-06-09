@@ -125,7 +125,15 @@ function StepHeader({ step, total, onBack, title }) {
 }
 
 function Style() {
-  return <style dangerouslySetInnerHTML={{__html: `@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap'); body { font-family: 'Tajawal', sans-serif; }`}} />;
+  return <style dangerouslySetInnerHTML={{__html: `@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+    .onboarding-bg { background-color:#f4f7fb; background-image: radial-gradient(at 0% 0%, rgba(21,49,126,.08) 0, transparent 48%), radial-gradient(at 100% 0%, rgba(201,169,110,.10) 0, transparent 46%); }
+    .soft-card { box-shadow: 0 22px 55px -28px rgba(21,49,126,.30); }
+    .choice-card { transition: all .22s ease; }
+    .choice-card:hover { transform: translateY(-4px); }
+    @keyframes floatUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-float-up { animation: floatUp .45s ease-out both; }
+  `}} />;
 }
 
 export default function CompleteProfile() {
@@ -133,7 +141,7 @@ export default function CompleteProfile() {
   const [role, setRole]   = useState("");
 
   // بيانات الوسيط
-  const [brokerForm, setBrokerForm] = useState({ office_name: "", phone: "", city: "", office_logo_url: "" });
+  const [brokerForm, setBrokerForm] = useState({ office_name: "", phone: "", city: "", office_logo_url: "", motheo_license: "" });
 
   // بيانات الشاليه — نفس VenueForm
   const [form, setForm] = useState({
@@ -185,10 +193,15 @@ export default function CompleteProfile() {
   // ── حفظ الوسيط ──
   const saveBroker = async (e) => {
     e.preventDefault(); setError("");
-    if (!brokerForm.office_name || !brokerForm.phone || !brokerForm.city) { setError("يرجى تعبئة جميع الحقول"); return; }
+    if (!brokerForm.office_name || !brokerForm.phone || !brokerForm.city) { setError("يرجى تعبئة اسم المكتب والواتساب والمدينة"); return; }
     setSaving(true);
-    await base44.auth.updateMe({ ...brokerForm, business_type: role });
-    window.location.href = "/";
+    try {
+      await base44.auth.updateMe({ ...brokerForm, business_type: role });
+      setPhase("success");
+    } catch (_) {
+      setError("حدث خطأ، حاول مجدداً");
+    }
+    setSaving(false);
   };
 
   // ── حفظ الشاليه ──
@@ -224,7 +237,7 @@ export default function CompleteProfile() {
   // PHASE: اختيار الدور
   // ══════════════════════════════════════════════════
   if (phase === "role-select") return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans flex justify-center">
+    <div dir="rtl" className="min-h-screen onboarding-bg font-sans flex justify-center">
       <div className="w-full max-w-md">
         <div className="bg-[#15317E] pt-8 pb-10 px-4 rounded-b-[2.5rem] shadow-lg mb-8 text-center">
           <h1 className="text-2xl font-black text-white mb-2">أهلاً بك معنا!</h1>
@@ -233,7 +246,7 @@ export default function CompleteProfile() {
         <div className="px-5 space-y-3">
           {ROLES.map(r => (
             <button key={r.id} onClick={() => { setRole(r.id); setForm(p=>({...p,venue_type:r.id})); setPhase(r.id==='وسيط'?"broker-form":"venue-step-1"); }}
-              className="w-full relative p-5 rounded-[1.5rem] border-2 border-slate-100 bg-white hover:border-[#15317E]/40 hover:bg-[#15317E]/5 text-right transition-all flex items-center gap-4 shadow-sm">
+              className="w-full relative p-5 rounded-[1.5rem] border-2 border-slate-100 bg-white hover:border-[#15317E]/40 hover:bg-[#15317E]/5 text-right transition-all flex items-center gap-4 shadow-sm choice-card">
               <div className="p-3 rounded-2xl bg-slate-100 text-slate-500"><r.Icon className="w-6 h-6" /></div>
               <div className="flex-1">
                 <h3 className="font-bold text-lg text-slate-700 mb-0.5">{r.label}</h3>
@@ -252,7 +265,7 @@ export default function CompleteProfile() {
   // PHASE: فورم الوسيط
   // ══════════════════════════════════════════════════
   if (phase === "broker-form") return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans flex justify-center pb-10">
+    <div dir="rtl" className="min-h-screen onboarding-bg font-sans flex justify-center pb-10">
       <div className="w-full max-w-md">
         <StepHeader step={1} total={1} onBack={() => setPhase("role-select")} title="إكمال بيانات الحساب" />
         <div className="px-5">
@@ -267,7 +280,7 @@ export default function CompleteProfile() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-600 mb-2">رقم الجوال *</label>
+              <label className="block text-xs font-bold text-slate-600 mb-2">رقم الواتساب *</label>
               <div className="relative">
                 <input value={brokerForm.phone} onChange={e=>setBrokerForm(p=>({...p,phone:e.target.value}))} placeholder="05xxxxxxxx" dir="ltr"
                   className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E] outline-none text-sm font-medium shadow-sm transition-all" />
@@ -282,7 +295,15 @@ export default function CompleteProfile() {
               </Select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-600 mb-2">الشعار (اختياري)</label>
+              <label className="block text-xs font-bold text-slate-600 mb-2">رقم رخصة موثوق (اختياري)</label>
+              <div className="relative">
+                <input value={brokerForm.motheo_license} onChange={e=>setBrokerForm(p=>({...p,motheo_license:e.target.value}))} placeholder="اكتب رقم الرخصة إن وجد" dir="ltr"
+                  className="w-full pl-4 pr-11 py-3.5 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E] outline-none text-sm font-medium shadow-sm transition-all" />
+                <ShieldCheck className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-600 mb-2">الشعار أو الصورة الشخصية (اختياري)</label>
               <label className="flex items-center gap-3 h-12 px-4 border border-slate-200 bg-white rounded-2xl cursor-pointer hover:bg-slate-50 transition shadow-sm">
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin text-slate-400" /> :
                   brokerForm.office_logo_url ? <img src={brokerForm.office_logo_url} alt="شعار" className="h-8 w-8 object-contain rounded" /> :
@@ -306,7 +327,7 @@ export default function CompleteProfile() {
   // PHASE: شاليه خطوة 1 — معلومات أساسية + ثيم
   // ══════════════════════════════════════════════════
   if (phase === "venue-step-1") return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans flex justify-center pb-10">
+    <div dir="rtl" className="min-h-screen onboarding-bg font-sans flex justify-center pb-10">
       <div className="w-full max-w-md">
         <StepHeader step={1} total={4} onBack={() => setPhase("role-select")} title="إعداد الحساب" />
         <div className="px-5 space-y-5">
@@ -399,7 +420,7 @@ export default function CompleteProfile() {
   // PHASE: شاليه خطوة 2 — الصور + يوتيوب
   // ══════════════════════════════════════════════════
   if (phase === "venue-step-2") return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans flex justify-center pb-10">
+    <div dir="rtl" className="min-h-screen onboarding-bg font-sans flex justify-center pb-10">
       <div className="w-full max-w-md">
         <StepHeader step={2} total={4} onBack={()=>setPhase("venue-step-1")} title="إعداد الحساب" />
         <div className="px-5 space-y-5">
@@ -456,7 +477,7 @@ export default function CompleteProfile() {
   // PHASE: شاليه خطوة 3 — المميزات + السوشيال
   // ══════════════════════════════════════════════════
   if (phase === "venue-step-3") return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans flex justify-center pb-10">
+    <div dir="rtl" className="min-h-screen onboarding-bg font-sans flex justify-center pb-10">
       <div className="w-full max-w-md">
         <StepHeader step={3} total={4} onBack={()=>setPhase("venue-step-2")} title="إعداد الحساب" />
         <div className="px-5 space-y-5">
@@ -522,7 +543,7 @@ export default function CompleteProfile() {
   // PHASE: شاليه خطوة 4 — الأسعار والمواعيد والواتساب
   // ══════════════════════════════════════════════════
   if (phase === "venue-step-4") return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans flex justify-center pb-10">
+    <div dir="rtl" className="min-h-screen onboarding-bg font-sans flex justify-center pb-10">
       <div className="w-full max-w-md">
         <StepHeader step={4} total={4} onBack={()=>setPhase("venue-step-3")} title="إعداد الحساب" />
         <div className="px-5 space-y-5">
@@ -604,30 +625,34 @@ export default function CompleteProfile() {
   // PHASE: مبروك!
   // ══════════════════════════════════════════════════
   if (phase === "success") return (
-    <div dir="rtl" className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
+    <div dir="rtl" className="fixed inset-0 z-50 onboarding-bg flex flex-col items-center justify-center p-6 text-center">
       <div className="relative mb-8">
         <div className="absolute inset-0 bg-[#15317E] rounded-full blur-2xl opacity-20 animate-pulse"/>
         <div className="w-28 h-28 bg-[#15317E] rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white">
           <PartyPopper className="w-12 h-12 text-white"/>
         </div>
       </div>
-      <h1 className="text-3xl font-black text-[#15317E] mb-3">مبروك! {roleLabel} جاهز</h1>
+      <h1 className="text-3xl font-black text-[#15317E] mb-3">مبروك! تم إكمال ملفك</h1>
       <p className="text-slate-500 text-sm mb-10 max-w-[260px] leading-relaxed">
-        تم إعداد صفحة <span className="font-bold text-[#15317E]">{form.name}</span> بنجاح. يمكنك الآن البدء في استقبال الحجوزات.
+        {role === 'وسيط' ? <>تم تجهيز حساب مكتبك بنجاح. بإمكانك الآن إضافة عقاراتك مباشرة من لوحة التحكم.</> : <>تم إعداد صفحة <span className="font-bold text-[#15317E]">{form.name}</span> بنجاح. يمكنك الآن البدء في استقبال الحجوزات.</>}
       </p>
       <div className="w-full space-y-3 max-w-sm">
-        <button onClick={() => window.location.href = '/venue'}
+        <button onClick={() => window.location.href = role === 'وسيط' ? '/' : '/venue'}
           className="w-full py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#15317E]/30 transition-all flex items-center justify-center gap-2">
-          <Rocket className="w-5 h-5"/> انتقل إلى لوحة التحكم
+          <Rocket className="w-5 h-5"/> {role === 'وسيط' ? 'انطلق وأضف عقاراتك' : 'انتقل إلى لوحة التحكم'}
         </button>
-        <button onClick={() => { if (navigator.share) { navigator.share({ title: form.name, url: venuePublicUrl }).catch(() => {}); } else { navigator.clipboard.writeText(venuePublicUrl); }}}
-          className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
-          <Share2 className="w-5 h-5"/> مشاركة الصفحة
-        </button>
-        <button onClick={() => window.open(venuePublicUrl, '_blank')}
-          className="w-full py-4 bg-transparent text-slate-500 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2">
-          <Eye className="w-4 h-4"/> شاهد صفحة {roleLabel}
-        </button>
+        {role !== 'وسيط' && (
+          <>
+            <button onClick={() => { if (navigator.share) { navigator.share({ title: form.name, url: venuePublicUrl }).catch(() => {}); } else { navigator.clipboard.writeText(venuePublicUrl); }}}
+              className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+              <Share2 className="w-5 h-5"/> مشاركة الصفحة
+            </button>
+            <button onClick={() => window.open(venuePublicUrl, '_blank')}
+              className="w-full py-4 bg-transparent text-slate-500 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+              <Eye className="w-4 h-4"/> شاهد صفحة {roleLabel}
+            </button>
+          </>
+        )}
       </div>
       <Style />
     </div>
