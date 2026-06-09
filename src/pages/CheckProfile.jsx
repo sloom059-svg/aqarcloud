@@ -1,15 +1,27 @@
 import { useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { supabase } from "@/api/base44Client";
 
-// صفحة مؤقتة: تتحقق من بيانات المستخدم بعد تسجيل الدخول بـ Google
-// إذا ناقصة البيانات → توجه لصفحة الإكمال، وإلا → الصفحة الرئيسية
 export default function CheckProfile() {
   useEffect(() => {
     const check = async () => {
-      const user = await base44.auth.me();
-      if (!user?.office_name || !user?.phone) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { window.location.href = "/login"; return; }
+
+      // تحقق من profiles مباشرة (مو user_metadata)
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('office_name, phone, business_type')
+        .eq('id', user.id)
+        .single();
+
+      // لو ما فيه profile أو ناقص → فورم الاختيار
+      if (!profile || !profile.office_name || !profile.phone) {
         window.location.href = "/complete-profile";
-      } else if (user?.business_type && user.business_type !== 'وسيط') {
+        return;
+      }
+
+      // فيه profile كامل → وديه للداشبورد المناسب
+      if (profile.business_type && profile.business_type !== 'وسيط') {
         window.location.href = "/venue";
       } else {
         window.location.href = "/";
