@@ -135,38 +135,14 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
       for (const v of memberVenues) { try { await base44.entities.Venue.delete(v.id); } catch (_) {} }
       for (const p of memberProps) { try { await base44.entities.Property.delete(p.id); } catch (_) {} }
 
-      // ٤. حذف الملف الشخصي + حساب Auth عبر Edge Function
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://unptzucothzejcgntmpi.supabase.co';
-        const functionUrl = `${supabaseUrl}/functions/v1/delete-member`;
-        console.log('🔥 Edge Function URL:', functionUrl);
-        console.log('🔥 userId:', memberToDelete.id);
-        console.log('🔥 session token:', session?.access_token ? 'موجود' : 'غير موجود');
-        
-        const res = await fetch(functionUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token || ''}`,
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-          },
-          body: JSON.stringify({ userId: memberToDelete.id }),
-        });
-        
-        const result = await res.json();
-        if (!res.ok) {
-          // fallback: احذف الملف مباشرة على الأقل
-          await supabase.from('profiles').delete().eq('id', memberToDelete.id);
-          showToast('حُذفت البيانات فقط: ' + (result?.error || ''));
-          qc.invalidateQueries({ queryKey: ['admin-members'] });
-          setDeleting(false);
-          setMemberToDelete(null);
-          return;
-        }
-      } catch (e) {
-        // fallback: احذف الملف مباشرة
-        try { await supabase.from('profiles').delete().eq('id', memberToDelete.id); } catch (_) {}
+      // ٤. حذف كل شي عبر Database Function (تحذف Auth + كل البيانات)
+      const { error: fnErr } = await supabase.rpc('delete_user_completely', {
+        user_id: memberToDelete.id
+      });
+      if (fnErr) {
+        // fallback: احذف الملف على الأقل
+        await supabase.from('profiles').delete().eq('id', memberToDelete.id);
+        showToast('حُذفت البيانات: ' + fnErr.message);
       }
 
       qc.invalidateQueries({ queryKey: ['admin-members'] });
