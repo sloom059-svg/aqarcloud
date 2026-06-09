@@ -77,16 +77,16 @@ export default function AdminDashboard() {
 function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, setActiveTab, search, setSearch, memberToDelete, setMemberToDelete, deleting, setDeleting, toast, showToast }) {
 
   const { data: members = [], isLoading: loadingMembers } = useQuery({
-    queryKey: ['admin-members'], queryFn: () => base44.entities.User.list(),
+    queryKey: ['admin-members'], queryFn: () => base44.entities.User.filter({}),
   });
   const { data: properties = [] } = useQuery({
-    queryKey: ['admin-properties'], queryFn: () => base44.entities.Property.list(),
+    queryKey: ['admin-properties'], queryFn: () => base44.entities.Property.filter({}),
   });
   const { data: venues = [] } = useQuery({
-    queryKey: ['admin-venues'], queryFn: () => base44.entities.Venue.list(),
+    queryKey: ['admin-venues'], queryFn: () => base44.entities.Venue.filter({}),
   });
   const { data: bookings = [] } = useQuery({
-    queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list(),
+    queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.filter({}),
   });
 
   const brokers = members.filter(m => m.business_type === 'وسيط' || (!m.business_type && m.office_name));
