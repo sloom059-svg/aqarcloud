@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { toast } from 'sonner';
+import { PartyPopper, Eye, Share2, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,12 +11,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  ArrowRight, Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown,
+  Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown,
   Star, ShieldCheck, Waves, Wifi, UtensilsCrossed, Tv, Dumbbell, Bath,
-  Wind, Music, Camera, Heart, Gift, Mountain, Car, Bed, Flame, Trees, Instagram, ChevronDown
+  Wind, Music, Camera, Heart, Gift, Mountain, Car, Bed, Flame, Trees, Instagram, ChevronDown,
+  Bell, Wallet, LogOut, User, ChevronRight
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CityCombobox from '@/components/venue/CityCombobox';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const ALL_FEATURES = ["مسبح","جلسات خارجية","واي فاي","ملعب","مطبخ","دخول ذاتي","ألعاب أطفال","شواء","قسم رجال","قسم نساء","غرف نوم","حديقة","مولد كهرباء","مكيف","مدفأة"];
 
@@ -43,11 +47,17 @@ const XIcon = (props) => (
     <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
   </svg>
 );
+const SnapchatIcon = (props) => (
+  <svg viewBox="0 0 448 512" fill="currentColor" {...props}>
+    <path d="M424.2 263.8c-2.4-10.6-20.2-13.1-34.4-11-20.2 2.9-46.7 9-61.1 5.9-9.1-2-12.7-10.1-10.6-20.9 2-10.2 10.1-26.6 15.8-37.5 44-84.3 13.3-145-38.3-177.3C268.4 6 226.5-.4 191 1.7c-47.5 2.8-82 17.5-104.9 51.5-17.7 26.2-22.1 63.3-10.1 94.6 7.6 19.8 23 48.2 24.3 64.9 1.1 13.7-8.1 20.3-19.1 23-14.7 3.6-43.2-3.1-61.9-5.5-13.7-1.7-27.1 2-30.7 13.1-4 12.3 8.9 25 15.5 29.8 17.3 12.5 40 24.1 64.1 36.8 6.5 3.5 12.1 12 11.2 21.6-1 10.5-6.8 19.3-15.1 24.8-14.6 9.8-33.1 15.1-49.8 18.2-15.6 2.9-32.9 2.5-44.5 11.2C-5.5 391-2.9 405.3 6 414.2c16 16.1 41 18.9 62.1 22.1 19.1 2.9 38.6 3.6 57 8.3 16 4.1 30.6 11 41.5 23.3 7 7.9 13.9 17.8 24.4 23.4 12 6.5 26.7 8.7 39.5 8.7 12.5 0 25.5-2 37.2-7.8 10.7-5.3 17.8-15.5 24.9-23.7 11-12.7 25.9-19.8 42-23.9 18.6-4.8 38.3-5.3 57.6-8.2 21.2-3.2 46.5-6.1 62.6-22.4 8.7-8.8 11.5-23.4 5.2-32.2z"/>
+  </svg>
+);
 
 const SOCIAL_FIELDS = [
-  { key: 'instagram', label: 'انستقرام', placeholder: 'https://instagram.com/...', Icon: Instagram },
-  { key: 'tiktok', label: 'تيك توك', placeholder: 'https://tiktok.com/@...', Icon: (p) => <TikTokIcon {...p} /> },
-  { key: 'x', label: 'إكس (تويتر)', placeholder: 'https://x.com/...', Icon: (p) => <XIcon {...p} /> },
+  { key: 'instagram', label: 'انستقرام', placeholder: '@yourname', Icon: Instagram },
+  { key: 'snapchat', label: 'سناب شات', placeholder: '@yourname', Icon: (p) => <SnapchatIcon {...p} /> },
+  { key: 'tiktok', label: 'تيك توك', placeholder: '@yourname', Icon: (p) => <TikTokIcon {...p} /> },
+  { key: 'x', label: 'إكس (تويتر)', placeholder: '@yourname', Icon: (p) => <XIcon {...p} /> },
 ];
 
 const THEME_COLORS = [
@@ -123,18 +133,52 @@ function CustomFeatureRow({ cf, onUpdate, onRemove }) {
   );
 }
 
+// ── Dropdown الملف الشخصي / الخروج ──
+function ProfileMenu({ onLogout }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(!open)}
+        className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white flex items-center gap-1">
+        <LogOut className="w-4 h-4" />
+        <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50">
+          <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium">
+            <User className="w-4 h-4 text-[#15317E]" /> الملف الشخصي
+          </Link>
+          <div className="h-px bg-slate-100" />
+          <button onClick={() => { setOpen(false); onLogout(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-medium">
+            <LogOut className="w-4 h-4" /> تسجيل الخروج
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function VenueForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const isEdit = !!id;
+  const queryClient = useQueryClient();
+
+  const handleLogout = async () => { await logout(false); navigate('/login'); };
 
   const [form, setForm] = useState({
     name: '', venue_type: '', description: '', city: '',
     maps_url: '', images: [], video_url: '',
     youtube_urls: [],
     custom_features: [],
-    social: { instagram: '', tiktok: '', x: '' },
+    social: { instagram: '', snapchat: '', tiktok: '', x: '' },
     page_theme: 'classic',
     price_weekday: '', price_weekend: '',
     whatsapp: '', check_in_time: '14:00', check_out_time: '12:00',
@@ -143,6 +187,11 @@ export default function VenueForm() {
   });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [successVenue, setSuccessVenue] = useState(null);
+  const [showRevenue, setShowRevenue] = useState(false);
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [showSocial, setShowSocial] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const { data: existing } = useQuery({
     queryKey: ['venue', id],
@@ -159,8 +208,18 @@ export default function VenueForm() {
       youtube_urls: existing.youtube_urls || [],
       page_theme: existing.page_theme || 'classic',
       theme_color: existing.theme_color || '#c9a96e',
-      social: { instagram: '', tiktok: '', x: '', ...(existing.social || {}) },
+      social: { instagram: '', snapchat: '', tiktok: '', x: '', ...(existing.social || {}) },
     }));
+  }, [existing]);
+
+  // افتح القسم تلقائياً عند تحميل البيانات لو فيها محتوى
+  useEffect(() => {
+    if (existing) {
+      const hasSocial = Object.values(existing.social || {}).some(v => v?.trim());
+      const hasTerms = !!(existing.booking_terms?.trim());
+      if (hasSocial) setShowSocial(true);
+      if (hasTerms) setShowTerms(true);
+    }
   }, [existing]);
 
   useEffect(() => {
@@ -224,44 +283,134 @@ export default function VenueForm() {
       price_weekday: form.price_weekday ? Number(form.price_weekday) : undefined,
       price_weekend: form.price_weekend ? Number(form.price_weekend) : undefined,
       owner_id: user?.id,
-      slug: form.slug || form.name.replace(/\s+/g, '-').toLowerCase(),
+      slug: form.slug || `venue-${Date.now()}`,
       custom_features: (form.custom_features || []).filter(cf => cf.label && cf.label.trim()),
       social: cleanSocial,
     };
 
-    if (isEdit) {
-      await base44.entities.Venue.update(id, data);
-    } else {
-      await base44.entities.Venue.create(data);
+    try {
+      if (isEdit) {
+        await base44.entities.Venue.update(id, data);
+        await queryClient.invalidateQueries({ queryKey: ['venues'] });
+        await queryClient.invalidateQueries({ queryKey: ['venue', id] });
+        toast.success('تم تحديث الشاليه بنجاح');
+        navigate('/venue');
+      } else {
+        const created = await base44.entities.Venue.create(data);
+        await queryClient.invalidateQueries({ queryKey: ['venues'] });
+        const slug = created?.slug || data.slug;
+        const url = `${window.location.origin}/place/${slug}`;
+        setSuccessVenue({ name: form.name, url, type: user?.business_type || 'الشاليه' });
+      }
+    } catch (err) {
+      toast.error('حدث خطأ: ' + (err?.message || 'تعذّر الحفظ'));
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    navigate('/venue');
   };
 
   const isClassic = form.page_theme === 'classic';
-  const [showSocial, setShowSocial] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
 
-  // افتح القسم تلقائياً عند تحميل البيانات لو فيها محتوى
-  useEffect(() => {
-    if (existing) {
-      const hasSocial = Object.values(existing.social || {}).some(v => v?.trim());
-      const hasTerms = !!(existing.booking_terms?.trim());
-      if (hasSocial) setShowSocial(true);
-      if (hasTerms) setShowTerms(true);
-    }
-  }, [existing]);
-
-  return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      <div className="bg-primary text-primary-foreground px-4 py-4 flex items-center gap-3">
-        <button onClick={() => navigate('/venue')}>
-          <ArrowRight className="w-5 h-5" />
-        </button>
-        <h1 className="text-xl font-bold">{isEdit ? 'تعديل المكان' : 'إضافة مكان جديد'}</h1>
+  // ══ شاشة النجاح ══
+  if (successVenue) return (
+    <div dir="rtl" className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center font-sans">
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+      `}} />
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-[#15317E] rounded-full blur-2xl opacity-20 animate-pulse" />
+        <div className="w-28 h-28 bg-[#15317E] rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white">
+          <PartyPopper className="w-12 h-12 text-white" />
+        </div>
       </div>
+      <h1 className="text-3xl font-black text-[#15317E] mb-3">تم الإضافة بنجاح</h1>
+      <p className="text-slate-500 text-sm mb-10 max-w-[280px] leading-relaxed">
+        تم إعداد صفحة <span className="font-bold text-[#15317E]">{successVenue.name}</span> بنجاح. يمكنك الآن البدء في استقبال الحجوزات.
+      </p>
+      <div className="w-full space-y-3 max-w-sm">
+        <button onClick={() => navigate('/venue')}
+          className="w-full py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#15317E]/30 transition-all flex items-center justify-center gap-2">
+          <LayoutDashboard className="w-5 h-5" /> انتقل إلى لوحة التحكم
+        </button>
+        <button onClick={() => {
+          if (navigator.share) { navigator.share({ title: successVenue.name, url: successVenue.url }).catch(() => {}); }
+          else { navigator.clipboard.writeText(successVenue.url); toast.success('تم نسخ الرابط'); }
+        }}
+          className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+          <Share2 className="w-5 h-5" /> مشاركة الصفحة
+        </button>
+        <button onClick={() => window.open(successVenue.url, '_blank')}
+          className="w-full py-4 bg-transparent text-slate-500 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+          <Eye className="w-4 h-4" /> شاهد صفحة الشاليه
+        </button>
+      </div>
+    </div>
+  );
 
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+  // ══ الصفحة الرئيسية ══
+  return (
+    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-10 relative">
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+      `}} />
+
+      {/* الخلفية الزرقاء */}
+      <div className="absolute top-0 left-0 right-0 h-[120px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
+
+      <div className="relative z-10 max-w-2xl mx-auto px-4">
+        {/* الهيدر الموحّد */}
+        <header className="pt-7 pb-5 flex items-center justify-between text-white">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/venue')} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div className="relative flex-shrink-0">
+              <div className="w-11 h-11 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
+                {user?.office_logo_url ? (
+                  <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-lg font-bold text-white">{(form.name || 'ش')[0]}</span>
+                )}
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold leading-tight">{isEdit ? 'تعديل المكان' : 'إضافة مكان جديد'}</h1>
+              <p className="text-[11px] text-white/70 mt-0.5">{form.name || 'منشأتي'}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button onClick={() => setShowNotifs(!showNotifs)}
+                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
+                <Bell className="w-4 h-4" />
+              </button>
+              {showNotifs && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+                  <div className="px-4 py-3 bg-[#15317E] text-white"><span className="text-sm font-bold">الإشعارات</span></div>
+                  <div className="px-4 py-6 text-center"><p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p></div>
+                </div>
+              )}
+            </div>
+            <div className="relative">
+              <button onClick={() => setShowRevenue(!showRevenue)}
+                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
+                <Wallet className="w-4 h-4" />
+              </button>
+              {showRevenue && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center">
+                  <p className="text-[11px] text-slate-500 font-medium">المحفظة</p>
+                  <p className="text-sm font-bold text-[#15317E] mt-1">قريباً</p>
+                </div>
+              )}
+            </div>
+            <ProfileMenu onLogout={handleLogout} />
+          </div>
+        </header>
+
+      <form onSubmit={handleSubmit} className="space-y-5 pt-2">
         {/* Basic Info */}
         <Card>
           <CardHeader><CardTitle className="text-base">المعلومات الأساسية</CardTitle></CardHeader>
@@ -280,9 +429,22 @@ export default function VenueForm() {
               <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="مثال: شاليه الريم" required />
             </div>
             <div className="space-y-2">
-              <Label>الرابط المختصر (اختياري)</Label>
-              <Input value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} placeholder="alreem" dir="ltr" />
-              <p className="text-xs text-muted-foreground">site.com/place/{form.slug || 'alreem'}</p>
+              <Label>الرابط المختصر <span className="text-xs text-slate-400 font-normal">(إنجليزي فقط)</span></Label>
+              <Input
+                value={form.slug}
+                onChange={e => {
+                  // يقبل فقط: حروف إنجليزية، أرقام، شرطة
+                  const val = e.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9-]/g, '')
+                    .replace(/--+/g, '-');
+                  setForm(p => ({ ...p, slug: val }));
+                }}
+                placeholder="my-chalet"
+                dir="ltr"
+                className="font-mono"
+              />
+              <p className="text-xs text-muted-foreground">site.com/place/{form.slug || 'my-chalet'}</p>
             </div>
             <div className="space-y-2">
               <Label>المدينة *</Label>
@@ -365,7 +527,10 @@ export default function VenueForm() {
               {form.images.map((img, i) => (
                 <div key={i} className="relative aspect-square rounded-xl overflow-hidden border">
                   <img src={img} className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => setForm(p => ({ ...p, images: p.images.filter((_,j)=>j!==i) }))}
+                  <button type="button" onClick={async () => {
+                    await base44.integrations.Core.DeleteFile(img);
+                    setForm(p => ({ ...p, images: p.images.filter((_,j)=>j!==i) }));
+                  }}
                     className="absolute top-1 left-1 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center">
                     <X className="w-3 h-3" />
                   </button>
@@ -455,6 +620,10 @@ export default function VenueForm() {
               {showTerms && (
                 <div className="p-3 border-t border-border">
                   <Textarea value={form.booking_terms} onChange={e => setForm(p => ({ ...p, booking_terms: e.target.value }))} placeholder="اكتب شروط الحجز..." rows={3} />
+                  <p className="text-[11px] text-[#15317E] font-bold mt-2 flex items-center gap-1.5 bg-[#15317E]/5 px-3 py-2 rounded-xl">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 flex-shrink-0"><path d="M9 12h6m-3-3v6M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
+                    الشروط تضاف تلقائياً مع سند الاستلام
+                  </p>
                 </div>
               )}
             </div>
@@ -524,6 +693,7 @@ export default function VenueForm() {
           {saving ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : isEdit ? 'حفظ التعديلات' : 'إضافة المكان'}
         </Button>
       </form>
+      </div>
     </div>
   );
 }
