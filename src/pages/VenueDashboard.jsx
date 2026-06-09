@@ -430,11 +430,6 @@ export default function VenueDashboard() {
                   </button>
                 </div>
 
-                {/* شارة الحالة */}
-                <div className="absolute top-4 left-4 z-10">
-                  {getStatusBadge(venue.status)}
-                </div>
-
                 {/* اسم + موقع */}
                 <div className="absolute bottom-4 left-4 right-4 text-white z-10">
                   <h3 className="text-xl font-bold mb-1">{venue.name}</h3>
