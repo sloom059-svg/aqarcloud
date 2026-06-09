@@ -13,15 +13,17 @@ const TABLE_MAP = {
 
 const mapUser = (authUser, profile = {}) => {
   if (!authUser) return null
+  // نعتمد على بيانات profiles فقط — لا نستخدم user_metadata كبديل
+  // عشان لو حُذف الـ profile، تطلع البيانات فاضية فيتوجّه لفورم الإكمال
   return {
     id: authUser.id,
     email: authUser.email,
-    full_name: profile.full_name || authUser.user_metadata?.full_name || authUser.user_metadata?.office_name || '',
-    office_name: profile.office_name || authUser.user_metadata?.office_name || '',
-    business_type: profile.business_type || authUser.user_metadata?.business_type || '',
-    phone: profile.phone || authUser.user_metadata?.phone || '',
-    city: profile.city || authUser.user_metadata?.city || '',
-    role: profile.role || authUser.user_metadata?.role || 'user',
+    full_name: profile.full_name || '',
+    office_name: profile.office_name || '',
+    business_type: profile.business_type || '',
+    phone: profile.phone || '',
+    city: profile.city || '',
+    role: profile.role || 'user',
     ...profile,
   }
 }
