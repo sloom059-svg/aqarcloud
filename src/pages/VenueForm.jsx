@@ -1,31 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { toast } from 'sonner';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { PartyPopper, Eye, Share2, LayoutDashboard } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  PartyPopper, Share2, LayoutDashboard, Eye, ChevronRight, LogOut, User,
-  Bell, Wallet, Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown,
+  Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown,
   Star, ShieldCheck, Waves, Wifi, UtensilsCrossed, Tv, Dumbbell, Bath,
-  Wind, Music, Camera, Heart, Gift, Mountain, Car, Bed, Flame, Trees, Instagram,
-  Home, Tent, TreePine, Armchair, MapPin, Youtube
+  Wind, Music, Camera, Heart, Gift, Mountain, Car, Bed, Flame, Trees, Instagram, ChevronDown,
+  Bell, Wallet, LogOut, User, ChevronRight
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import CityCombobox from '@/components/venue/CityCombobox';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-const ALL_FEATURES = [
-  { id: 'pool', name: 'مسبح', icon: Waves },
-  { id: 'outdoor', name: 'جلسات خارجية', icon: TreePine },
-  { id: 'wifi', name: 'واي فاي', icon: Wifi },
-  { id: 'kitchen', name: 'مطبخ', icon: UtensilsCrossed },
-  { id: 'kids', name: 'ألعاب أطفال', icon: Star },
-  { id: 'grill', name: 'شواء', icon: Flame },
-  { id: 'men', name: 'قسم رجال', icon: ShieldCheck },
-  { id: 'women', name: 'قسم نساء', icon: Heart },
-  { id: 'bed', name: 'غرف نوم', icon: Bed },
-  { id: 'ac', name: 'مكيف', icon: Wind },
-  { id: 'garden', name: 'حديقة', icon: Trees },
-  { id: 'self', name: 'دخول ذاتي', icon: Home }
-];
+const ALL_FEATURES = ["مسبح","جلسات خارجية","واي فاي","ملعب","مطبخ","دخول ذاتي","ألعاب أطفال","شواء","قسم رجال","قسم نساء","غرف نوم","حديقة","مولد كهرباء","مكيف","مدفأة"];
 
 const CUSTOM_ICON_OPTIONS = [
   { key: 'star', Icon: Star },
@@ -43,13 +38,19 @@ const CUSTOM_ICON_OPTIONS = [
 const MAX_YOUTUBE = 5;
 
 const TikTokIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.41-.02-.34-.02-.68-.02-1.02.13-1.6.82-3.08 1.94-4.21 1.52-1.52 3.8-2.26 5.86-1.92V14.3c-1.11-.27-2.31-.1-3.29.41-.85.45-1.46 1.25-1.63 2.21-.07.39-.07.79-.02 1.18.17 1.25 1.05 2.34 2.19 2.81 1.29.54 2.8.46 4.02-.2 1.19-.65 1.95-1.9 2.05-3.26.2-2.9.06-5.82.09-8.73z"/></svg>
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.41-.02-.34-.02-.68-.02-1.02.13-1.6.82-3.08 1.94-4.21 1.52-1.52 3.8-2.26 5.86-1.92V14.3c-1.11-.27-2.31-.1-3.29.41-.85.45-1.46 1.25-1.63 2.21-.07.39-.07.79-.02 1.18.17 1.25 1.05 2.34 2.19 2.81 1.29.54 2.8.46 4.02-.2 1.19-.65 1.95-1.9 2.05-3.26.2-2.9.06-5.82.09-8.73z"/>
+  </svg>
 );
 const XIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
+  </svg>
 );
 const SnapchatIcon = (props) => (
-  <svg viewBox="0 0 448 512" fill="currentColor" {...props}><path d="M424.2 263.8c-2.4-10.6-20.2-13.1-34.4-11-20.2 2.9-46.7 9-61.1 5.9-9.1-2-12.7-10.1-10.6-20.9 2-10.2 10.1-26.6 15.8-37.5 44-84.3 13.3-145-38.3-177.3C268.4 6 226.5-.4 191 1.7c-47.5 2.8-82 17.5-104.9 51.5-17.7 26.2-22.1 63.3-10.1 94.6 7.6 19.8 23 48.2 24.3 64.9 1.1 13.7-8.1 20.3-19.1 23-14.7 3.6-43.2-3.1-61.9-5.5-13.7-1.7-27.1 2-30.7 13.1-4 12.3 8.9 25 15.5 29.8 17.3 12.5 40 24.1 64.1 36.8 6.5 3.5 12.1 12 11.2 21.6-1 10.5-6.8 19.3-15.1 24.8-14.6 9.8-33.1 15.1-49.8 18.2-15.6 2.9-32.9 2.5-44.5 11.2C-5.5 391-2.9 405.3 6 414.2c16 16.1 41 18.9 62.1 22.1 19.1 2.9 38.6 3.6 57 8.3 16 4.1 30.6 11 41.5 23.3 7 7.9 13.9 17.8 24.4 23.4 12 6.5 26.7 8.7 39.5 8.7 12.5 0 25.5-2 37.2-7.8 10.7-5.3 17.8-15.5 24.9-23.7 11-12.7 25.9-19.8 42-23.9 18.6-4.8 38.3-5.3 57.6-8.2 21.2-3.2 46.5-6.1 62.6-22.4 8.7-8.8 11.5-23.4 5.2-32.2z"/></svg>
+  <svg viewBox="0 0 448 512" fill="currentColor" {...props}>
+    <path d="M424.2 263.8c-2.4-10.6-20.2-13.1-34.4-11-20.2 2.9-46.7 9-61.1 5.9-9.1-2-12.7-10.1-10.6-20.9 2-10.2 10.1-26.6 15.8-37.5 44-84.3 13.3-145-38.3-177.3C268.4 6 226.5-.4 191 1.7c-47.5 2.8-82 17.5-104.9 51.5-17.7 26.2-22.1 63.3-10.1 94.6 7.6 19.8 23 48.2 24.3 64.9 1.1 13.7-8.1 20.3-19.1 23-14.7 3.6-43.2-3.1-61.9-5.5-13.7-1.7-27.1 2-30.7 13.1-4 12.3 8.9 25 15.5 29.8 17.3 12.5 40 24.1 64.1 36.8 6.5 3.5 12.1 12 11.2 21.6-1 10.5-6.8 19.3-15.1 24.8-14.6 9.8-33.1 15.1-49.8 18.2-15.6 2.9-32.9 2.5-44.5 11.2C-5.5 391-2.9 405.3 6 414.2c16 16.1 41 18.9 62.1 22.1 19.1 2.9 38.6 3.6 57 8.3 16 4.1 30.6 11 41.5 23.3 7 7.9 13.9 17.8 24.4 23.4 12 6.5 26.7 8.7 39.5 8.7 12.5 0 25.5-2 37.2-7.8 10.7-5.3 17.8-15.5 24.9-23.7 11-12.7 25.9-19.8 42-23.9 18.6-4.8 38.3-5.3 57.6-8.2 21.2-3.2 46.5-6.1 62.6-22.4 8.7-8.8 11.5-23.4 5.2-32.2z"/>
+  </svg>
 );
 
 const SOCIAL_FIELDS = [
@@ -60,19 +61,17 @@ const SOCIAL_FIELDS = [
 ];
 
 const THEME_COLORS = [
-  { name: 'ذهبي', value: '#c9a96e' }, { name: 'أخضر زمردي', value: '#0f3d36' },
-  { name: 'كحلي', value: '#15317E' }, { name: 'نبيتي', value: '#7c2d3a' },
-  { name: 'بني فاخر', value: '#6b4f3a' }, { name: 'تركوازي', value: '#1d7874' },
-  { name: 'بنفسجي', value: '#5b3a70' }, { name: 'رمادي فحمي', value: '#2f3640' },
+  { name: 'ذهبي',    value: '#c9a96e' },
+  { name: 'أخضر زمردي', value: '#0f3d36' },
+  { name: 'كحلي',    value: '#1e304a' },
+  { name: 'نبيتي',   value: '#7c2d3a' },
+  { name: 'بني فاخر', value: '#6b4f3a' },
+  { name: 'تركوازي', value: '#1d7874' },
+  { name: 'بنفسجي',  value: '#5b3a70' },
+  { name: 'أزرق ملكي', value: '#2c4a7c' },
+  { name: 'رمادي فحمي', value: '#2f3640' },
+  { name: 'وردي هادئ', value: '#b56576' },
 ];
-
-const REGIONS_DATA = {
-  'الرياض': ['الرياض', 'الخرج', 'المجمعة', 'الدرعية', 'الدوادمي', 'الزلفي'],
-  'مكة المكرمة': ['مكة المكرمة', 'جدة', 'الطائف', 'القنفذة', 'الليث'],
-  'الشرقية': ['الدمام', 'الخبر', 'الظهران', 'الجبيل', 'الأحساء', 'حفر الباطن'],
-  'القصيم': ['بريدة', 'عنيزة', 'الرس', 'البكيرية', 'البدائع'],
-  'عسير': ['أبها', 'خميس مشيط', 'بيشة', 'النماص', 'محايل عسير']
-};
 
 const TIME_OPTIONS = (() => {
   const out = [];
@@ -81,39 +80,118 @@ const TIME_OPTIONS = (() => {
       const val = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
       const period = h < 12 ? 'ص' : 'م';
       let h12 = h % 12; if (h12 === 0) h12 = 12;
-      out.push({ val, label: `${h12}:${String(m).padStart(2,'0')} ${period}` });
+      const label = `${h12}:${String(m).padStart(2,'0')} ${period}`;
+      out.push({ val, label });
     }
   }
   return out;
 })();
 
-export default function VenueWizard() {
+function CustomFeatureRow({ cf, onUpdate, onRemove }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const ActiveIcon = CUSTOM_ICON_OPTIONS.find(o => o.key === cf.icon)?.Icon || Star;
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-2 mb-2">
+      <button type="button" onClick={onRemove} className="text-destructive hover:text-destructive/80 shrink-0">
+        <Trash2 className="w-4 h-4" />
+      </button>
+      <Input
+        value={cf.label}
+        onChange={e => onUpdate({ label: e.target.value })}
+        placeholder="مثال: إطلالة جبلية"
+        className="flex-1 h-9"
+      />
+      <div className="relative" ref={ref}>
+        <button type="button" onClick={() => setOpen(o => !o)}
+          className="w-9 h-9 rounded-lg border border-border bg-muted flex items-center justify-center hover:border-primary/50 transition shrink-0">
+          <ActiveIcon className="w-4 h-4 text-muted-foreground" />
+        </button>
+        {open && (
+          <div className="absolute right-0 top-10 z-50 bg-white border border-border rounded-xl shadow-lg p-2 grid grid-cols-5 gap-1.5 w-52">
+            {CUSTOM_ICON_OPTIONS.map(({ key, Icon }) => {
+              const active = cf.icon === key;
+              return (
+                <button key={key} type="button" title={key}
+                  onClick={() => { onUpdate({ icon: key }); setOpen(false); }}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border ${active ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-transparent hover:border-primary/40'}`}>
+                  <Icon className="w-4 h-4" />
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Dropdown الملف الشخصي / الخروج ──
+function ProfileMenu({ onLogout }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(!open)}
+        className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white flex items-center gap-1">
+        <LogOut className="w-4 h-4" />
+        <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50">
+          <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium">
+            <User className="w-4 h-4 text-[#15317E]" /> الملف الشخصي
+          </Link>
+          <div className="h-px bg-slate-100" />
+          <button onClick={() => { setOpen(false); onLogout(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-medium">
+            <LogOut className="w-4 h-4" /> تسجيل الخروج
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function VenueForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const isEdit = !!id;
   const queryClient = useQueryClient();
 
-  // Wizard State
-  const TOTAL_STEPS = 8;
-  const [currentStep, setCurrentStep] = useState(1);
-  const hideNextButtonOnSteps = [1, 5]; 
-
   const handleLogout = async () => { await logout(false); navigate('/login'); };
 
-  // Form State
   const [form, setForm] = useState({
-    name: '', venue_type: '', description: '', city: '', maps_url: '', images: [], video_url: '',
-    youtube_urls: [], custom_features: [], social: { instagram: '', snapchat: '', tiktok: '', x: '' },
-    page_theme: 'classic', price_weekday: '', price_weekend: '', whatsapp: '',
-    check_in_time: '14:00', check_out_time: '12:00', booking_terms: '', features: [],
-    status: 'نشط', slug: '', theme_color: '#c9a96e',
+    name: '', venue_type: '', description: '', city: '',
+    maps_url: '', images: [], video_url: '',
+    youtube_urls: [],
+    custom_features: [],
+    social: { instagram: '', snapchat: '', tiktok: '', x: '' },
+    page_theme: 'classic',
+    price_weekday: '', price_weekend: '',
+    whatsapp: '', check_in_time: '14:00', check_out_time: '12:00',
+    booking_terms: '', features: [], status: 'نشط', slug: '',
+    theme_color: '#c9a96e',
   });
-
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [successVenue, setSuccessVenue] = useState(null);
-  const [selectedRegion, setSelectedRegion] = useState('');
+  const [showRevenue, setShowRevenue] = useState(false);
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [showSocial, setShowSocial] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const { data: existing } = useQuery({
     queryKey: ['venue', id],
@@ -124,7 +202,8 @@ export default function VenueWizard() {
 
   useEffect(() => {
     if (existing) setForm(prev => ({
-      ...prev, ...existing,
+      ...prev,
+      ...existing,
       custom_features: existing.custom_features || [],
       youtube_urls: existing.youtube_urls || [],
       page_theme: existing.page_theme || 'classic',
@@ -133,25 +212,21 @@ export default function VenueWizard() {
     }));
   }, [existing]);
 
+  // افتح القسم تلقائياً عند تحميل البيانات لو فيها محتوى
+  useEffect(() => {
+    if (existing) {
+      const hasSocial = Object.values(existing.social || {}).some(v => v?.trim());
+      const hasTerms = !!(existing.booking_terms?.trim());
+      if (hasSocial) setShowSocial(true);
+      if (hasTerms) setShowTerms(true);
+    }
+  }, [existing]);
+
   useEffect(() => {
     if (user?.business_type && !form.venue_type) {
       setForm(prev => ({ ...prev, venue_type: user.business_type }));
     }
   }, [user]);
-
-  // Handlers
-  const nextStep = () => { if (currentStep < TOTAL_STEPS) setCurrentStep(c => c + 1); };
-  const prevStep = () => { if (currentStep > 1) setCurrentStep(c => c - 1); };
-
-  const selectType = (type) => {
-    setForm(p => ({ ...p, venue_type: type }));
-    setTimeout(() => nextStep(), 350);
-  };
-
-  const selectTheme = (theme) => {
-    setForm(p => ({ ...p, page_theme: theme }));
-    if (theme === 'royal') setTimeout(() => nextStep(), 350);
-  };
 
   const handleImgUpload = async (e) => {
     const files = Array.from(e.target.files);
@@ -167,10 +242,38 @@ export default function VenueWizard() {
   };
 
   const toggleFeature = (f) => {
-    setForm(p => ({ ...p, features: p.features.includes(f) ? p.features.filter(x => x !== f) : [...p.features, f] }));
+    setForm(prev => ({
+      ...prev,
+      features: prev.features.includes(f) ? prev.features.filter(x => x !== f) : [...prev.features, f]
+    }));
   };
 
-  const handleSubmit = async () => {
+  const addCustomFeature = () => {
+    setForm(prev => ({
+      ...prev,
+      custom_features: [...(prev.custom_features || []), { label: '', icon: 'star' }]
+    }));
+  };
+  const updateCustomFeature = (i, patch) => {
+    setForm(prev => {
+      const arr = [...(prev.custom_features || [])];
+      arr[i] = { ...arr[i], ...patch };
+      return { ...prev, custom_features: arr };
+    });
+  };
+  const removeCustomFeature = (i) => {
+    setForm(prev => ({
+      ...prev,
+      custom_features: (prev.custom_features || []).filter((_, j) => j !== i)
+    }));
+  };
+
+  const updateSocial = (key, value) => {
+    setForm(prev => ({ ...prev, social: { ...(prev.social || {}), [key]: value } }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setSaving(true);
     const cleanSocial = {};
     Object.entries(form.social || {}).forEach(([k, v]) => { if (v && v.trim()) cleanSocial[k] = v.trim(); });
@@ -189,12 +292,15 @@ export default function VenueWizard() {
       if (isEdit) {
         await base44.entities.Venue.update(id, data);
         await queryClient.invalidateQueries({ queryKey: ['venues'] });
+        await queryClient.invalidateQueries({ queryKey: ['venue', id] });
         toast.success('تم تحديث الشاليه بنجاح');
         navigate('/venue');
       } else {
         const created = await base44.entities.Venue.create(data);
         await queryClient.invalidateQueries({ queryKey: ['venues'] });
-        setSuccessVenue({ name: form.name, url: `${window.location.origin}/place/${created?.slug || data.slug}` });
+        const slug = created?.slug || data.slug;
+        const url = `${window.location.origin}/place/${slug}`;
+        setSuccessVenue({ name: form.name, url, type: user?.business_type || 'الشاليه' });
       }
     } catch (err) {
       toast.error('حدث خطأ: ' + (err?.message || 'تعذّر الحفظ'));
@@ -203,372 +309,390 @@ export default function VenueWizard() {
     }
   };
 
-  const getStepClass = (step) => {
-    if (step < currentStep) return 'passed';
-    if (step === currentStep) return 'active';
-    return '';
-  };
+  const isClassic = form.page_theme === 'classic';
 
+  // ══ شاشة النجاح ══
   if (successVenue) return (
-    <div dir="rtl" className="fixed inset-0 z-50 bg-[#f4f7fb] flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
+    <div dir="rtl" className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center font-sans">
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+      `}} />
       <div className="relative mb-8">
-        <div className="absolute inset-0 bg-emerald-400 rounded-full blur-[60px] opacity-30 animate-pulse" />
-        <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-emerald-50 text-emerald-500">
-          <PartyPopper className="w-12 h-12" />
+        <div className="absolute inset-0 bg-[#15317E] rounded-full blur-2xl opacity-20 animate-pulse" />
+        <div className="w-28 h-28 bg-[#15317E] rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white">
+          <PartyPopper className="w-12 h-12 text-white" />
         </div>
       </div>
-      <h1 className="text-4xl font-black text-slate-800 mb-3">يا سلام! خلصنا 🎉</h1>
-      <p className="text-slate-500 text-lg mb-10 max-w-[320px] leading-relaxed mx-auto">
-        تم تجهيز صفحة مكانك بأناقة تامة. تقدر الحين تستقبل حجوزاتك وترسل الرابط لعملائك.
+      <h1 className="text-3xl font-black text-[#15317E] mb-3">تم الإضافة بنجاح</h1>
+      <p className="text-slate-500 text-sm mb-10 max-w-[280px] leading-relaxed">
+        تم إعداد صفحة <span className="font-bold text-[#15317E]">{successVenue.name}</span> بنجاح. يمكنك الآن البدء في استقبال الحجوزات.
       </p>
-      <div className="w-full space-y-4 max-w-sm mx-auto">
-        <button onClick={() => navigate('/venue')} className="w-full py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-lg shadow-xl shadow-[#15317E]/20 transition-all flex items-center justify-center gap-2">
-          <LayoutDashboard className="w-5 h-5" /> انطلق للوحة التحكم
+      <div className="w-full space-y-3 max-w-sm">
+        <button onClick={() => navigate('/venue')}
+          className="w-full py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#15317E]/30 transition-all flex items-center justify-center gap-2">
+          <LayoutDashboard className="w-5 h-5" /> انتقل إلى لوحة التحكم
         </button>
-        <div className="flex gap-4">
-          <button onClick={() => {
-            if (navigator.share) navigator.share({ title: successVenue.name, url: successVenue.url }).catch(()=>{});
-            else { navigator.clipboard.writeText(successVenue.url); toast.success('تم النسخ'); }
-          }} className="flex-1 py-4 bg-white border border-slate-200 hover:border-[#15317E] text-slate-700 hover:text-[#15317E] rounded-2xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
-            <Share2 className="w-5 h-5" /> انسخ الرابط
-          </button>
-          <button onClick={() => window.open(successVenue.url, '_blank')} className="flex-1 py-4 bg-white border border-slate-200 hover:border-[#15317E] text-slate-700 hover:text-[#15317E] rounded-2xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
-            <Eye className="w-5 h-5" /> عاين الصفحة
-          </button>
-        </div>
+        <button onClick={() => {
+          if (navigator.share) { navigator.share({ title: successVenue.name, url: successVenue.url }).catch(() => {}); }
+          else { navigator.clipboard.writeText(successVenue.url); toast.success('تم نسخ الرابط'); }
+        }}
+          className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+          <Share2 className="w-5 h-5" /> مشاركة الصفحة
+        </button>
+        <button onClick={() => window.open(successVenue.url, '_blank')}
+          className="w-full py-4 bg-transparent text-slate-500 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+          <Eye className="w-4 h-4" /> شاهد صفحة الشاليه
+        </button>
       </div>
     </div>
   );
 
+  // ══ الصفحة الرئيسية ══
   return (
-    <div dir="rtl" className="min-h-screen flex flex-col items-center justify-center py-10 px-4 relative bg-[#f4f7fb] font-sans">
+    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-10 relative">
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap');
-        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background-image: radial-gradient(at 0% 0%, hsla(225,39%,30%,0.05) 0px, transparent 50%), radial-gradient(at 100% 0%, hsla(40,45%,61%,0.05) 0px, transparent 50%); background-attachment: fixed; }
-        .steps-wrapper { position: relative; width: 100%; height: 100%; overflow: hidden; }
-        .step-panel { position: absolute; top: 0; left: 0; width: 100%; visibility: hidden; opacity: 0; transform: translateX(-50px) scale(0.95); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
-        .step-panel.active { position: relative; visibility: visible; opacity: 1; transform: translateX(0) scale(1); pointer-events: all; }
-        .step-panel.passed { transform: translateX(50px) scale(0.95); opacity: 0; position: absolute; }
-        .input-clean { border: none; border-bottom: 2px solid #e2e8f0; border-radius: 0; padding: 12px 0; background: transparent; font-size: 1.25rem; font-weight: 500; transition: border-color 0.3s ease; }
-        .input-clean:focus { outline: none; border-color: #15317E; box-shadow: none; }
-        .choice-card:hover { transform: translateY(-4px); border-color: #15317E; background-color: #f8faff; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; } .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
       `}} />
 
-      <div className="w-full max-w-xl mx-auto flex flex-col h-full min-h-[550px]">
-        {/* Header / Progress */}
-        <div className="mb-6 px-2 flex justify-between items-center transition-opacity duration-300">
-          <button onClick={prevStep} className={`w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-[#15317E] transition-all ${currentStep === 1 ? 'opacity-0 pointer-events-none' : ''}`}>
-            <ChevronRight className="w-5 h-5" />
-          </button>
-          <div className="flex-1 px-6">
-            <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-              <div className="h-full bg-[#15317E] transition-all duration-500 rounded-full" style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }} />
+      {/* الخلفية الزرقاء */}
+      <div className="absolute top-0 left-0 right-0 h-[120px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
+
+      <div className="relative z-10 max-w-2xl mx-auto px-4">
+        {/* الهيدر الموحّد */}
+        <header className="pt-7 pb-5 flex items-center justify-between text-white">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/venue')} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div className="relative flex-shrink-0">
+              <div className="w-11 h-11 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
+                {user?.office_logo_url ? (
+                  <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-lg font-bold text-white">{(form.name || 'ش')[0]}</span>
+                )}
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold leading-tight">{isEdit ? 'تعديل المكان' : 'إضافة مكان جديد'}</h1>
+              <p className="text-[11px] text-white/70 mt-0.5">{form.name || 'منشأتي'}</p>
             </div>
           </div>
-          <button onClick={() => navigate('/venue')} className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-red-500 transition-all">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="bg-white rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(21,49,126,0.05)] p-6 md:p-10 flex-1 flex flex-col relative overflow-hidden">
-          <div className="steps-wrapper flex-1 flex flex-col">
-
-            {/* STEP 1: Venue Type */}
-            <div className={`step-panel flex flex-col h-full ${getStepClass(1)}`}>
-              <div className="mb-8 text-center mt-4">
-                <span className="inline-block px-3 py-1 bg-[#15317E]/5 text-[#15317E] rounded-full text-xs font-bold mb-3">الخطوة ١</span>
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800">وش نوع المكان اللي بتضيفه؟</h2>
-                <p className="text-slate-500 mt-2 text-sm">اختر النوع المناسب عشان نجهز لك الخيارات الصح.</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-auto mb-4">
-                {[
-                  { id: 'شاليه', icon: Waves, color: 'text-blue-500 bg-blue-50' },
-                  { id: 'مخيم', icon: Tent, color: 'text-amber-500 bg-amber-50' },
-                  { id: 'مزرعة', icon: TreePine, color: 'text-green-600 bg-green-50' },
-                  { id: 'استراحة', icon: Armchair, color: 'text-purple-500 bg-purple-50' }
-                ].map(t => (
-                  <button key={t.id} onClick={() => selectType(t.id)}
-                    className={`choice-card bg-white border-2 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-all ${form.venue_type === t.id ? 'border-[#15317E] bg-blue-50/30' : 'border-slate-100'}`}>
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${t.color}`}><t.icon className="w-8 h-8" /></div>
-                    <span className="font-bold text-slate-700 text-lg">{t.id}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* STEP 2: Name & City & Desc */}
-            <div className={`step-panel flex flex-col h-full ${getStepClass(2)}`}>
-              <div className="mb-6 mt-4">
-                <span className="inline-block px-3 py-1 bg-[#15317E]/5 text-[#15317E] rounded-full text-xs font-bold mb-3">الخطوة ٢</span>
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800">أهلاً بك! وش اسم مكانك؟</h2>
-              </div>
-              <div className="space-y-6 flex-1 overflow-y-auto custom-scrollbar pr-2">
-                <div>
-                  <input type="text" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="مثال: شاليه الريم الفاخر" className="w-full input-clean text-[#15317E]" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-slate-500 mb-2">وصف جذاب للمكان (اختياري)</label>
-                  <textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-[#15317E] text-sm resize-none" placeholder="اكتب وصف مميز يجذب عملائك..." />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-slate-500 mb-3">في أي منطقة؟</label>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.keys(REGIONS_DATA).map(r => (
-                      <button key={r} onClick={() => { setSelectedRegion(r); setForm(p => ({ ...p, city: '' })); }}
-                        className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${selectedRegion === r ? 'bg-[#15317E] text-white border-[#15317E]' : 'bg-transparent text-slate-600 border-slate-200 hover:border-[#15317E]'}`}>
-                        {r}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {selectedRegion && (
-                  <div className="animate-in fade-in slide-in-from-top-2">
-                    <label className="block text-sm font-bold text-slate-500 mb-3">المدينة</label>
-                    <div className="flex flex-wrap gap-2">
-                      {REGIONS_DATA[selectedRegion].map(c => (
-                        <button key={c} onClick={() => setForm(p => ({ ...p, city: c }))}
-                          className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${form.city === c ? 'bg-[#15317E] text-white border-[#15317E]' : 'bg-transparent text-slate-600 border-slate-200 hover:border-[#15317E]'}`}>
-                          {c}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* STEP 3: Links */}
-            <div className={`step-panel flex flex-col h-full ${getStepClass(3)}`}>
-              <div className="mb-6 mt-4 text-center">
-                <div className="w-16 h-16 bg-slate-50 rounded-2xl mx-auto flex items-center justify-center text-slate-400 mb-4 text-2xl"><MapPin className="w-8 h-8" /></div>
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800">الروابط والموقع</h2>
-              </div>
-              <div className="space-y-8 mt-4 flex flex-col items-center w-full max-w-sm mx-auto">
-                <div className="w-full">
-                  <label className="block text-sm font-bold text-slate-500 mb-2 text-right">الرابط المخصص (اختياري)</label>
-                  <div className="flex items-center w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-2 focus-within:border-[#15317E] transition-all">
-                    <span className="pl-3 pr-4 text-slate-400 font-mono text-sm border-l border-slate-200 dir-ltr text-left">
-                      aqarcloud.com/
-                    </span>
-                    <input type="text" value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-') }))} placeholder="my-chalet" dir="ltr" className="w-full bg-transparent border-none outline-none font-mono text-lg text-[#15317E] font-bold p-2" />
-                  </div>
-                </div>
-                <div className="w-full">
-                  <label className="block text-sm font-bold text-slate-500 mb-2 text-right">رابط خرائط قوقل</label>
-                  <input type="url" value={form.maps_url} onChange={e => setForm(p => ({ ...p, maps_url: e.target.value }))} dir="ltr" placeholder="https://maps.google.com/..." className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 outline-none focus:border-[#15317E] transition-all" />
-                </div>
-              </div>
-            </div>
-
-            {/* STEP 4: Media */}
-            <div className={`step-panel flex flex-col h-full ${getStepClass(4)}`}>
-              <div className="mb-4 mt-2">
-                <h2 className="text-2xl font-bold text-slate-800">الصور تجذب العملاء! 📸</h2>
-                <p className="text-slate-500 mt-1 text-sm">ارفع أجمل صور للمكان وجولات الفيديو.</p>
-              </div>
-              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
-                <label className="border-2 border-dashed border-slate-300 rounded-[2rem] bg-slate-50 hover:bg-slate-100 transition-all p-6 flex flex-col items-center justify-center cursor-pointer text-center group">
-                  <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 text-[#15317E] group-hover:scale-110 transition-transform">
-                    {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
-                  </div>
-                  <h3 className="font-bold text-slate-700">اضغط لرفع الصور</h3>
-                  <p className="text-xs text-slate-400 mt-1">حد أقصى ١٠ صور</p>
-                  <input type="file" accept="image/*" multiple className="hidden" onChange={handleImgUpload} disabled={uploading} />
-                </label>
-                
-                {form.images.length > 0 && (
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {form.images.map((img, i) => (
-                      <div key={i} className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border">
-                        <img src={img} className="w-full h-full object-cover" />
-                        <button onClick={async () => { await base44.integrations.Core.DeleteFile(img); setForm(p => ({ ...p, images: p.images.filter((_,j)=>j!==i) })); }} className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"><X className="w-3 h-3" /></button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-bold text-slate-600">روابط يوتيوب (اختياري)</label>
-                    {form.youtube_urls.length < MAX_YOUTUBE && (
-                      <button onClick={() => setForm(p => ({ ...p, youtube_urls: [...p.youtube_urls, ''] }))} className="text-xs text-[#15317E] font-bold flex items-center gap-1"><Plus className="w-3 h-3"/> إضافة</button>
-                    )}
-                  </div>
-                  {form.youtube_urls.map((url, i) => (
-                    <div key={i} className="relative flex items-center gap-2 mb-2">
-                      <div className="relative flex-1">
-                        <Youtube className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 w-5 h-5" />
-                        <input type="url" dir="ltr" value={url} onChange={e => { const arr = [...form.youtube_urls]; arr[i] = e.target.value; setForm(p => ({ ...p, youtube_urls: arr })); }} placeholder="https://youtube.com/..." className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 pr-10 outline-none focus:border-[#15317E] text-sm" />
-                      </div>
-                      <button onClick={() => setForm(p => ({ ...p, youtube_urls: p.youtube_urls.filter((_,j)=>j!==i) }))} className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* STEP 5: Theme */}
-            <div className={`step-panel flex flex-col h-full ${getStepClass(5)}`}>
-              <div className="mb-6 mt-4 text-center">
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800">كيف تبي شكل صفحتك؟ 🎨</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                <button onClick={() => selectTheme('classic')} className={`choice-card relative bg-white border-2 rounded-[2rem] p-6 text-right overflow-hidden group ${form.page_theme === 'classic' ? 'border-[#15317E] ring-2 ring-[#15317E]/20' : 'border-slate-100'}`}>
-                  <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-blue-400 to-emerald-400" />
-                  <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-amber-500 text-xl mb-4"><Sun className="w-6 h-6" /></div>
-                  <h3 className="font-bold text-lg text-slate-800">الكلاسيكي الفاتح</h3>
-                  <p className="text-sm text-slate-500 mt-1">مشرق، نظيف، وتقدر تختار لونه.</p>
-                </button>
-                <button onClick={() => selectTheme('royal')} className={`choice-card relative bg-slate-900 border-2 rounded-[2rem] p-6 text-right overflow-hidden group hover:border-[#c9a96e] ${form.page_theme === 'royal' ? 'border-[#c9a96e]' : 'border-slate-800'}`}>
-                  <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-yellow-600 to-yellow-300" />
-                  <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-yellow-500 text-xl mb-4"><Crown className="w-6 h-6" /></div>
-                  <h3 className="font-bold text-lg text-white">الأسود الملكي</h3>
-                  <p className="text-sm text-slate-400 mt-1">فخامة داكنة بلمسات ذهبية.</p>
-                </button>
-              </div>
-              {form.page_theme === 'classic' && (
-                <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 text-center">
-                  <p className="text-sm font-bold text-slate-600 mb-4">اختر لون الثيم:</p>
-                  <div className="flex flex-wrap justify-center gap-3">
-                    {THEME_COLORS.map(c => (
-                      <button key={c.value} onClick={() => setForm(p => ({ ...p, theme_color: c.value }))}
-                        className={`w-10 h-10 rounded-full border-2 border-white shadow-md transition-transform flex items-center justify-center ${form.theme_color === c.value ? 'scale-110 ring-2 ring-offset-2' : 'hover:scale-110'}`}
-                        style={{ backgroundColor: c.value, '--tw-ring-color': c.value }}>
-                        {form.theme_color === c.value && <Check className="w-5 h-5 text-white" strokeWidth={3} />}
-                      </button>
-                    ))}
-                  </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button onClick={() => setShowNotifs(!showNotifs)}
+                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
+                <Bell className="w-4 h-4" />
+              </button>
+              {showNotifs && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+                  <div className="px-4 py-3 bg-[#15317E] text-white"><span className="text-sm font-bold">الإشعارات</span></div>
+                  <div className="px-4 py-6 text-center"><p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p></div>
                 </div>
               )}
             </div>
+            <div className="relative">
+              <button onClick={() => setShowRevenue(!showRevenue)}
+                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
+                <Wallet className="w-4 h-4" />
+              </button>
+              {showRevenue && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center">
+                  <p className="text-[11px] text-slate-500 font-medium">المحفظة</p>
+                  <p className="text-sm font-bold text-[#15317E] mt-1">قريباً</p>
+                </div>
+              )}
+            </div>
+            <ProfileMenu onLogout={handleLogout} />
+          </div>
+        </header>
 
-            {/* STEP 6: Prices & Times */}
-            <div className={`step-panel flex flex-col h-full ${getStepClass(6)}`}>
-              <div className="mb-6 mt-4">
-                <h2 className="text-2xl font-bold text-slate-800">الأسعار والمواعيد 💰</h2>
-              </div>
-              <div className="space-y-4 overflow-y-auto custom-scrollbar pr-2">
-                <div className="flex gap-4">
-                  <div className="flex-1 bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-[#15317E] transition-all">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">وسط الأسبوع (ر.س)</label>
-                    <input type="number" value={form.price_weekday} onChange={e => setForm(p => ({ ...p, price_weekday: e.target.value }))} placeholder="مثال: 800" className="w-full bg-transparent border-none outline-none font-bold text-xl text-[#15317E]" />
-                  </div>
-                  <div className="flex-1 bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-[#15317E] transition-all">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">الويكند (ر.س)</label>
-                    <input type="number" value={form.price_weekend} onChange={e => setForm(p => ({ ...p, price_weekend: e.target.value }))} placeholder="مثال: 1200" className="w-full bg-transparent border-none outline-none font-bold text-xl text-[#15317E]" />
-                  </div>
+      <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+        {/* Basic Info */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">المعلومات الأساسية</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>نوع المكان *</Label>
+              <Select value={form.venue_type} onValueChange={v => setForm(p => ({ ...p, venue_type: v }))}>
+                <SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger>
+                <SelectContent>
+                  {['شاليه','مخيم','مزرعة','استراحة'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>اسم المكان *</Label>
+              <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="مثال: شاليه الريم" required />
+            </div>
+            <div className="space-y-2">
+              <Label>الرابط المختصر <span className="text-xs text-slate-400 font-normal">(إنجليزي فقط)</span></Label>
+              <Input
+                value={form.slug}
+                onChange={e => {
+                  // يقبل فقط: حروف إنجليزية، أرقام، شرطة
+                  const val = e.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9-]/g, '')
+                    .replace(/--+/g, '-');
+                  setForm(p => ({ ...p, slug: val }));
+                }}
+                placeholder="my-chalet"
+                dir="ltr"
+                className="font-mono"
+              />
+              <p className="text-xs text-muted-foreground">site.com/place/{form.slug || 'my-chalet'}</p>
+            </div>
+            <div className="space-y-2">
+              <Label>المدينة *</Label>
+              <CityCombobox value={form.city} onChange={v => setForm(p => ({ ...p, city: v }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>الوصف</Label>
+              <Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="اكتب وصفاً جذاباً للمكان..." rows={4} />
+            </div>
+            <div className="space-y-2">
+              <Label>رابط الموقع (قوقل ماب)</Label>
+              <Input value={form.maps_url} onChange={e => setForm(p => ({ ...p, maps_url: e.target.value }))} placeholder="https://maps.google.com/..." dir="ltr" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* شكل صفحة العرض */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">شكل صفحة العرض (الثيم)</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'classic' }))}
+                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${isClassic ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {isClassic && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
+                <div className="h-16 rounded-xl mb-3 bg-gradient-to-br from-gray-50 to-gray-200 border border-gray-200 flex items-center justify-center">
+                  <Sun className="w-6 h-6 text-amber-500" />
                 </div>
-                <div className="flex gap-4">
-                  <div className="flex-1 bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-[#15317E]">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">وقت الدخول</label>
-                    <select value={form.check_in_time} onChange={e => setForm(p => ({ ...p, check_in_time: e.target.value }))} className="w-full bg-transparent border-none outline-none font-bold text-lg text-slate-800">
-                      {TIME_OPTIONS.map(t => <option key={t.val} value={t.val}>{t.label}</option>)}
-                    </select>
-                  </div>
-                  <div className="flex-1 bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-[#15317E]">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">وقت الخروج</label>
-                    <select value={form.check_out_time} onChange={e => setForm(p => ({ ...p, check_out_time: e.target.value }))} className="w-full bg-transparent border-none outline-none font-bold text-lg text-slate-800">
-                      {TIME_OPTIONS.map(t => <option key={t.val} value={t.val}>{t.label}</option>)}
-                    </select>
-                  </div>
+                <div className="font-bold text-sm">فاتح كلاسيكي</div>
+                <div className="text-xs text-muted-foreground mt-0.5">تصميم نظيف بلون قابل للتخصيص</div>
+              </button>
+
+              <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'royal' }))}
+                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${!isClassic ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {!isClassic && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
+                <div className="h-16 rounded-xl mb-3 bg-gradient-to-br from-[#020617] to-[#0f172a] border border-[#d4af37]/30 flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-[#d4af37]" />
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-[#15317E] flex items-center">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 ml-3">
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-xs font-bold text-slate-500 mb-1">رقم واتساب للحجوزات</label>
-                    <input type="tel" dir="ltr" value={form.whatsapp} onChange={e => setForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="05XXXXXXXX" className="w-full bg-transparent border-none outline-none font-bold text-lg text-slate-800 text-left tracking-widest" />
-                  </div>
-                </div>
-              </div>
+                <div className="font-bold text-sm">الأسود الملكي</div>
+                <div className="text-xs text-muted-foreground mt-0.5">فخامة سوداء بلمسات ذهبية</div>
+              </button>
             </div>
 
-            {/* STEP 7: Features */}
-            <div className={`step-panel flex flex-col h-full ${getStepClass(7)}`}>
-              <div className="mb-6 mt-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800">المميزات ✨</h2>
-              </div>
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="flex flex-wrap gap-2.5">
-                  {ALL_FEATURES.map(f => {
-                    const isSelected = form.features.includes(f.name);
+            {isClassic && (
+              <div className="space-y-2 pt-2 border-t border-border">
+                <Label className="text-xs text-muted-foreground">لون الثيم</Label>
+                <div className="flex flex-wrap gap-2">
+                  {THEME_COLORS.map(c => {
+                    const active = form.theme_color === c.value;
                     return (
-                      <button key={f.id} onClick={() => toggleFeature(f.name)} className={`px-5 py-3 rounded-full border font-bold text-sm flex items-center gap-2 transition-all ${isSelected ? 'bg-[#15317E] text-white border-[#15317E] shadow-md scale-105' : 'bg-white text-slate-600 border-slate-200'}`}>
-                        <f.icon className="w-4 h-4" /> {f.name}
+                      <button key={c.value} type="button" title={c.name}
+                        onClick={() => setForm(p => ({ ...p, theme_color: c.value }))}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${active ? 'scale-110' : 'hover:scale-110'}`}
+                        style={{ background: c.value, outline: active ? `2px solid ${c.value}` : 'none', outlineOffset: '2px' }}>
+                        {active && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                       </button>
                     );
                   })}
                 </div>
-                
-                <div className="mt-8 border-t border-slate-100 pt-6">
-                  <label className="block text-sm font-bold text-slate-600 mb-3">مميزات إضافية مخصصة</label>
-                  {form.custom_features.map((cf, i) => {
-                    const ActiveIcon = CUSTOM_ICON_OPTIONS.find(o => o.key === cf.icon)?.Icon || Star;
-                    return (
-                      <div key={i} className="flex gap-2 mb-2">
-                        <button onClick={() => setForm(p => ({ ...p, custom_features: p.custom_features.filter((_,j)=>j!==i) }))} className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0"><Trash2 className="w-4 h-4" /></button>
-                        <input value={cf.label} onChange={e => { const arr = [...form.custom_features]; arr[i].label = e.target.value; setForm(p => ({ ...p, custom_features: arr })); }} placeholder="اسم الميزة..." className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 outline-none focus:border-[#15317E]" />
-                        <div className="relative group">
-                          <button className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center"><ActiveIcon className="w-4 h-4 text-slate-600" /></button>
-                          <div className="absolute right-0 bottom-full mb-2 hidden group-hover:grid grid-cols-5 gap-1 bg-white p-2 rounded-xl shadow-xl border z-10 w-44">
-                            {CUSTOM_ICON_OPTIONS.map(opt => (
-                              <button key={opt.key} onClick={() => { const arr = [...form.custom_features]; arr[i].icon = opt.key; setForm(p => ({ ...p, custom_features: arr })); }} className="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded"><opt.Icon className="w-3.5 h-3.5" /></button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <button onClick={() => setForm(p => ({ ...p, custom_features: [...p.custom_features, { label: '', icon: 'star' }] }))} className="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 font-bold text-sm hover:border-[#15317E] hover:text-[#15317E] flex items-center justify-center gap-2 transition-colors">
-                    <Plus className="w-4 h-4" /> إضافة ميزة
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full" style={{ background: form.theme_color }} />
+                  <span className="text-xs text-muted-foreground">
+                    {THEME_COLORS.find(c => c.value === form.theme_color)?.name || form.theme_color}
+                  </span>
+                </div>
+              </div>
+            )}
+            {!isClassic && (
+              <p className="text-xs text-muted-foreground pt-2 border-t border-border">
+                الثيم الأسود الملكي يستخدم اللون الذهبي تلقائياً، لذلك لا حاجة لاختيار لون.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* الصور والفيديو */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">الصور والفيديو</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              {form.images.map((img, i) => (
+                <div key={i} className="relative aspect-square rounded-xl overflow-hidden border">
+                  <img src={img} className="w-full h-full object-cover" />
+                  <button type="button" onClick={async () => {
+                    await base44.integrations.Core.DeleteFile(img);
+                    setForm(p => ({ ...p, images: p.images.filter((_,j)=>j!==i) }));
+                  }}
+                    className="absolute top-1 left-1 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center">
+                    <X className="w-3 h-3" />
                   </button>
                 </div>
-              </div>
+              ))}
+              {form.images.length < 10 && (
+                <label className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition">
+                  {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><Upload className="w-5 h-5 text-muted-foreground" /><span className="text-xs text-muted-foreground mt-1">إضافة</span></>}
+                  <input type="file" accept="image/*" multiple className="hidden" onChange={handleImgUpload} disabled={uploading} />
+                </label>
+              )}
             </div>
 
-            {/* STEP 8: Social & Terms */}
-            <div className={`step-panel flex flex-col h-full ${getStepClass(8)}`}>
-              <div className="mb-4 mt-2 text-center">
-                <h2 className="text-2xl font-bold text-slate-800">أخيراً، اللمسات الأخيرة</h2>
+            <div className="space-y-2">
+              <Label>روابط يوتيوب (اختياري · حتى {MAX_YOUTUBE} مقاطع)</Label>
+              {(form.youtube_urls || []).map((url, i) => (
+                <div key={i} className="flex gap-2">
+                  <Input value={url} dir="ltr" placeholder="https://youtube.com/..."
+                    onChange={e => {
+                      const arr = [...(form.youtube_urls || [])];
+                      arr[i] = e.target.value;
+                      setForm(p => ({ ...p, youtube_urls: arr }));
+                    }} />
+                  <button type="button" onClick={() => setForm(p => ({ ...p, youtube_urls: (p.youtube_urls || []).filter((_,j)=>j!==i) }))}
+                    className="text-destructive hover:text-destructive/80 shrink-0">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              {(form.youtube_urls || []).length < MAX_YOUTUBE && (
+                <button type="button" onClick={() => setForm(p => ({ ...p, youtube_urls: [...(p.youtube_urls || []), ''] }))}
+                  className="flex items-center gap-1.5 text-sm text-primary font-medium hover:underline mt-1">
+                  <Plus className="w-4 h-4" /> إضافة رابط يوتيوب
+                </button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* الأسعار والمواعيد */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">الأسعار والمواعيد</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>سعر أيام الأسبوع (ر.س)</Label>
+                <Input type="number" value={form.price_weekday} onChange={e => setForm(p => ({ ...p, price_weekday: e.target.value }))} placeholder="0" />
               </div>
-              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-3">حسابات التواصل الاجتماعي (اختياري)</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {SOCIAL_FIELDS.map(({ key, label, placeholder, Icon }) => (
-                      <div key={key} className="relative">
-                        <Icon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input dir="ltr" value={form.social?.[key] || ''} onChange={e => setForm(p => ({ ...p, social: { ...p.social, [key]: e.target.value } }))} placeholder={placeholder} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 pr-9 outline-none focus:border-[#15317E] text-sm" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-2">شروط الحجز (تطبع في سند الاستلام)</label>
-                  <textarea rows={4} value={form.booking_terms} onChange={e => setForm(p => ({ ...p, booking_terms: e.target.value }))} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-[#15317E] text-sm resize-none" placeholder="اكتب شروطك الخاصة..." />
-                </div>
+              <div className="space-y-2">
+                <Label>سعر الويكند (ر.س)</Label>
+                <Input type="number" value={form.price_weekend} onChange={e => setForm(p => ({ ...p, price_weekend: e.target.value }))} placeholder="0" />
               </div>
             </div>
-
-          </div>
-
-          {/* Footer Navigation */}
-          <div className="mt-6 pt-4 flex justify-between items-center bg-white z-10 border-t border-slate-50">
-            <div />
-            {currentStep < TOTAL_STEPS && !hideNextButtonOnSteps.includes(currentStep) && (
-              <button onClick={nextStep} className="px-8 py-3 rounded-full font-bold text-white bg-[#15317E] hover:bg-[#0d1e4c] shadow-lg shadow-[#15317E]/30 transition-all flex items-center gap-2 active:scale-95">
-                <span>متابعة</span> <ChevronRight className="w-4 h-4 rotate-180" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>وقت الدخول</Label>
+                <Select value={form.check_in_time} onValueChange={v => setForm(p => ({ ...p, check_in_time: v }))}>
+                  <SelectTrigger><SelectValue placeholder="اختر الوقت" /></SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {TIME_OPTIONS.map(t => <SelectItem key={t.val} value={t.val}>{t.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>وقت الخروج</Label>
+                <Select value={form.check_out_time} onValueChange={v => setForm(p => ({ ...p, check_out_time: v }))}>
+                  <SelectTrigger><SelectValue placeholder="اختر الوقت" /></SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {TIME_OPTIONS.map(t => <SelectItem key={t.val} value={t.val}>{t.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>رقم واتساب للتواصل *</Label>
+              <Input value={form.whatsapp} onChange={e => setForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="مثال: 0512345678" />
+            </div>
+            <div className="border border-border rounded-xl overflow-hidden">
+              <button type="button" onClick={() => setShowTerms(v => !v)}
+                className="w-full flex items-center gap-3 px-4 py-3 text-right bg-muted/30 hover:bg-muted/50 transition">
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all ${showTerms ? 'bg-primary border-primary' : 'border-border'}`}>
+                  {showTerms && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
+                </div>
+                <span className="font-medium text-sm flex-1">شروط الحجز</span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showTerms ? 'rotate-180' : ''}`} />
               </button>
-            )}
-            {currentStep === TOTAL_STEPS && (
-              <button onClick={handleSubmit} disabled={saving} className="px-8 py-3 rounded-full font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2 active:scale-95">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4" /> <span>احفظ وانشر الشاليه</span></>}
+              {showTerms && (
+                <div className="p-3 border-t border-border">
+                  <Textarea value={form.booking_terms} onChange={e => setForm(p => ({ ...p, booking_terms: e.target.value }))} placeholder="اكتب شروط الحجز..." rows={3} />
+                  <p className="text-[11px] text-[#15317E] font-bold mt-2 flex items-center gap-1.5 bg-[#15317E]/5 px-3 py-2 rounded-xl">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 flex-shrink-0"><path d="M9 12h6m-3-3v6M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
+                    الشروط تضاف تلقائياً مع سند الاستلام
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* السوشيال */}
+        <Card>
+          <CardHeader className="p-0">
+            <button type="button" onClick={() => setShowSocial(v => !v)}
+              className="w-full flex items-center gap-3 px-6 py-4 text-right">
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all ${showSocial ? 'bg-primary border-primary' : 'border-border'}`}>
+                {showSocial && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
+              </div>
+              <CardTitle className="text-base flex-1">حسابات التواصل الاجتماعي</CardTitle>
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showSocial ? 'rotate-180' : ''}`} />
+            </button>
+          </CardHeader>
+          {showSocial && (
+            <CardContent className="space-y-3 pt-0">
+              <p className="text-xs text-muted-foreground">أضف روابط حساباتك، وستظهر كأيقونات في أسفل صفحة العرض.</p>
+              {SOCIAL_FIELDS.map(({ key, label, placeholder, Icon }) => (
+                <div key={key} className="space-y-1.5">
+                  <Label className="flex items-center gap-2 text-sm">
+                    <Icon className="w-4 h-4 text-muted-foreground" /> {label}
+                  </Label>
+                  <Input value={form.social?.[key] || ''} dir="ltr" placeholder={placeholder}
+                    onChange={e => updateSocial(key, e.target.value)} />
+                </div>
+              ))}
+            </CardContent>
+          )}
+        </Card>
+
+        {/* المميزات */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">المميزات</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {ALL_FEATURES.map(f => (
+                <button key={f} type="button" onClick={() => toggleFeature(f)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.features.includes(f) ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/30'}`}>
+                  {f}
+                </button>
+              ))}
+            </div>
+
+            <div className="border-t border-border pt-3">
+              <p className="text-xs text-muted-foreground mb-3">مزايا إضافية مخصصة — اكتب اسمها واختر أيقونة</p>
+              {(form.custom_features || []).map((cf, i) => (
+                <CustomFeatureRow
+                  key={i}
+                  cf={cf}
+                  onUpdate={patch => updateCustomFeature(i, patch)}
+                  onRemove={() => removeCustomFeature(i)}
+                />
+              ))}
+              <button type="button" onClick={addCustomFeature}
+                className="flex items-center gap-1.5 w-full border border-dashed border-border rounded-xl px-4 py-2.5 text-sm text-primary font-medium hover:border-primary/50 hover:bg-primary/5 transition mt-1">
+                <Plus className="w-4 h-4" /> إضافة ميزة مخصصة
               </button>
-            )}
-          </div>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Button type="submit" size="lg" className="w-full" disabled={saving}>
+          {saving ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : isEdit ? 'حفظ التعديلات' : 'إضافة المكان'}
+        </Button>
+      </form>
       </div>
     </div>
   );
