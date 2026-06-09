@@ -135,18 +135,34 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
       for (const v of memberVenues) { try { await base44.entities.Venue.delete(v.id); } catch (_) {} }
       for (const p of memberProps) { try { await base44.entities.Property.delete(p.id); } catch (_) {} }
 
-      // ٤. حذف الملف الشخصي مباشرة من جدول profiles
+      // ٤. حذف الملف الشخصي + حساب Auth عبر Edge Function
       try {
-        const { error: profErr } = await supabase.from('profiles').delete().eq('id', memberToDelete.id);
-        if (profErr) throw profErr;
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL || supabase.supabaseUrl}/functions/v1/delete-member`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token || ''}`,
+            },
+            body: JSON.stringify({ userId: memberToDelete.id }),
+          }
+        );
+        const result = await res.json();
+        if (!res.ok) {
+          // fallback: احذف الملف مباشرة على الأقل
+          await supabase.from('profiles').delete().eq('id', memberToDelete.id);
+          showToast('حُذفت البيانات (الحساب قد يحتاج حذف يدوي): ' + (result?.error || ''));
+          qc.invalidateQueries({ queryKey: ['admin-members'] });
+          setDeleting(false);
+          setMemberToDelete(null);
+          return;
+        }
       } catch (e) {
-        showToast('تعذّر حذف الملف: ' + (e?.message || 'صلاحيات'));
-        setDeleting(false);
-        return;
+        // fallback: احذف الملف مباشرة
+        try { await supabase.from('profiles').delete().eq('id', memberToDelete.id); } catch (_) {}
       }
-
-      // ٥. محاولة حذف حساب Auth (قد تحتاج دالة backend)
-      try { await supabase.auth.admin.deleteUser(memberToDelete.id); } catch (_) {}
 
       qc.invalidateQueries({ queryKey: ['admin-members'] });
       qc.invalidateQueries({ queryKey: ['admin-bookings'] });
