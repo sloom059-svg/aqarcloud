@@ -24,21 +24,21 @@ import CheckProfile from '@/pages/CheckProfile';
 import VenueDashboard from '@/pages/VenueDashboard';
 import AdminDashboard from '@/pages/AdminDashboard';
 import VenueForm from '@/pages/VenueForm';
+import VenueWizard from '@/pages/VenueWizard';
 import VenueBookings from '@/pages/VenueBookings';
 import VenuePublicPage from '@/pages/VenuePublicPage';
 
 const AuthenticatedApp = () => {
   const { user, isAuthenticated, isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // توجيه تلقائي: عضو داخل بدون ملف مكتمل → فورم الإكمال
+  // توجيه فوري: عضو داخل بدون ملف مكتمل → فورم الإكمال
   React.useEffect(() => {
     if (isLoadingAuth || !isAuthenticated || !user) return;
     const path = window.location.pathname;
-    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/complete-profile', '/check-profile'];
+    const publicPaths = ['/login','/register','/forgot-password','/reset-password','/complete-profile','/check-profile'];
     const isPublicView = publicPaths.includes(path) || path.startsWith('/agent/') || path.startsWith('/property/') || path.startsWith('/place/');
-    // لو ما عنده office_name (ملف ناقص/محذوف) ومو في صفحة عامة → وديه للفورم
     if (!user.office_name && !isPublicView) {
-      window.location.href = '/complete-profile';
+      window.location.replace('/complete-profile');
     }
   }, [user, isAuthenticated, isLoadingAuth]);
 
@@ -81,7 +81,7 @@ const AuthenticatedApp = () => {
         </Route>
         {/* Venue routes - no AppLayout */}
         <Route path="/venue" element={<VenueDashboard />} />
-        <Route path="/venue/add" element={<VenueForm />} />
+        <Route path="/venue/add" element={<VenueWizard />} />
         <Route path="/venue/edit/:id" element={<VenueForm />} />
         <Route path="/venue/bookings/:id" element={<VenueBookings />} />
         <Route path="/admin" element={<AdminDashboard />} />
