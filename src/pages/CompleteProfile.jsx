@@ -45,9 +45,13 @@ const VENUE_TYPES=[
 const THEME_COLORS=['#15317E','#c9a96e','#0f3d36','#7c2d3a','#5b3a70','#1d7874','#2f3640','#b56576'];
 const BTN='bg-[#2d2d2d] hover:bg-[#1a1a1a] text-white';
 const STORAGE_KEY='complete_profile_state';
+const SUCCESS_STORAGE_KEY='complete_profile_success';
 const saveState=(s)=>{try{sessionStorage.setItem(STORAGE_KEY,JSON.stringify(s));}catch(_){}};
 const loadState=()=>{try{const s=sessionStorage.getItem(STORAGE_KEY);return s?JSON.parse(s):null;}catch(_){return null;}};
 const clearState=()=>{try{sessionStorage.removeItem(STORAGE_KEY);}catch(_){}};
+const saveSuccess=(s)=>{try{sessionStorage.setItem(SUCCESS_STORAGE_KEY,JSON.stringify(s));}catch(_){}};
+const loadSuccess=()=>{try{const s=sessionStorage.getItem(SUCCESS_STORAGE_KEY);return s?JSON.parse(s):null;}catch(_){return null;}};
+const clearSuccess=()=>{try{sessionStorage.removeItem(SUCCESS_STORAGE_KEY);}catch(_){}};
 
 export default function CompleteProfile() {
   const logoRef=useRef();
@@ -65,7 +69,7 @@ export default function CompleteProfile() {
   const [saving,setSaving]=useState(false);
   const [uploadingLogo,setUploadingLogo]=useState(false);
   const [uploadingImgs,setUploadingImgs]=useState(false);
-  const [success,setSuccess]=useState(null);
+  const [success,setSuccess]=useState(()=>loadSuccess());
   const [broker,setBroker]=useState(validSaved?.broker||{office_name:'',city:'',office_logo_url:'',phone:'',license_number:''});
   const [venue,setVenue]=useState(validSaved?.venue||{
     name:'',city:'',description:'',images:[],youtube_urls:[''],
@@ -112,9 +116,9 @@ export default function CompleteProfile() {
     setFetchingReviews(false);
   };
 
-  const saveBroker=async()=>{setSaving(true);try{await base44.auth.updateMe({...broker,business_type:role});clearState();setSuccess({type:'broker'});}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveBroker=async()=>{setSaving(true);try{await base44.auth.updateMe({...broker,business_type:role});const successData={type:'broker',theme:'classic'};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
-  const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const created=await base44.entities.Venue.create({...venue,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});await base44.auth.updateMe({business_type:role,office_name:venue.name,phone:venue.whatsapp});const finalSlug=created?.slug||slug;clearState();setSuccess({type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme});}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const created=await base44.entities.Venue.create({...venue,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});await base44.auth.updateMe({business_type:role,office_name:venue.name,phone:venue.whatsapp});const finalSlug=created?.slug||slug;const successData={type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
   const next=()=>{
     if(step===0.5){setStep(1);return;}
@@ -128,28 +132,87 @@ export default function CompleteProfile() {
   };
 
   if(success){
-    const isRoyal=success.theme==='royal';
+    const isBroker=success.type==='broker';
+    const dashboardPath=isBroker?'/':'/venue';
+    const goDashboard=()=>{clearSuccess();clearState();window.location.href=dashboardPath;};
+    const goSubscriptions=()=>{window.location.href='/subscriptions';};
     return(
-      <div dir="rtl" className={`min-h-screen flex flex-col items-center justify-center p-6 text-center relative overflow-hidden ${isRoyal?'bg-[#0a0e1a]':'bg-gradient-to-b from-[#1a1a1a] to-[#2d2d2d]'}`}>
-        <style dangerouslySetInnerHTML={{__html:`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700;800&display=swap');*{font-family:'IBM Plex Sans Arabic',sans-serif;}@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}`}}/>
-        <div className="absolute top-10 right-10 w-40 h-40 rounded-full blur-3xl opacity-10 bg-white"/>
-        <div className="relative z-10 max-w-sm w-full">
-          <div className="mb-8" style={{animation:'pop 0.6s cubic-bezier(0.16,1,0.3,1)'}}>
-            <div className="w-28 h-28 rounded-full mx-auto flex items-center justify-center shadow-2xl bg-white">
-              <PartyPopper className="w-14 h-14 text-[#2d2d2d]"/>
+      <div dir="rtl" className="min-h-screen bg-[#f4f7fb] flex items-center justify-center px-4 py-10 relative overflow-hidden"
+        style={{backgroundImage:'radial-gradient(at 0% 0%, hsla(225,39%,30%,0.08) 0px, transparent 45%), radial-gradient(at 100% 0%, hsla(40,45%,61%,0.10) 0px, transparent 45%)',backgroundAttachment:'fixed'}}>
+        <style dangerouslySetInnerHTML={{__html:`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');*{font-family:'IBM Plex Sans Arabic',sans-serif;}@keyframes floatUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}@keyframes pop{0%{transform:scale(.75);opacity:0}70%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}`}}/>
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#15317E]/10 blur-3xl"/>
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#c9a96e]/20 blur-3xl"/>
+
+        <div className="w-full max-w-5xl grid lg:grid-cols-[1.05fr_.95fr] gap-6 items-stretch relative z-10">
+          <section className="bg-white rounded-[2.25rem] shadow-[0_25px_70px_-30px_rgba(21,49,126,.25)] border border-white p-6 md:p-10 overflow-hidden relative" style={{animation:'floatUp .55s ease-out both'}}>
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-l from-[#15317E] via-[#c9a96e] to-[#15317E]"/>
+            <div className="w-24 h-24 rounded-[2rem] bg-[#15317E] text-white flex items-center justify-center shadow-xl shadow-[#15317E]/20 mb-7" style={{animation:'pop .6s cubic-bezier(.16,1,.3,1) both'}}>
+              <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/><path d="M3 12l4 4L21 2" opacity=".35"/></svg>
             </div>
-          </div>
-          <div style={{animation:'fadeUp 0.6s ease-out 0.2s both'}}>
-            <h1 className="text-3xl font-black mb-3 text-white">🎉 مبروك!</h1>
-            <p className="text-white/70 text-base mb-2">تم إنشاء حسابك بنجاح</p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-8 bg-white/10 text-white border border-white/20">
-              <Sparkles className="w-4 h-4"/> معك تجربة مجانية ١٤ يوم
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#15317E]/5 text-[#15317E] text-xs font-extrabold mb-4">
+              <Sparkles className="w-4 h-4"/> تم تجهيز حسابك
+            </span>
+            <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight mb-4">مبروك! صفحتك صارت جاهزة 🎉</h1>
+            <p className="text-slate-500 text-base md:text-lg leading-relaxed mb-8">
+              {isBroker?'تم إكمال ملف الوسيط العقاري بنجاح. تقدر الآن تدخل لوحة التحكم وتبدأ إضافة عقاراتك وإدارة بياناتك.':'تم إنشاء صفحة مكانك بنجاح. تقدر تشارك الرابط مع عملائك، أو تدخل لوحة التحكم لإدارة الصور والأسعار والحجوزات.'}
+            </p>
+
+            <div className="grid sm:grid-cols-3 gap-3 mb-8">
+              <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#15317E] flex items-center justify-center mb-3 shadow-sm">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>
+                </div>
+                <h3 className="font-extrabold text-slate-800 text-sm">صفحة جاهزة</h3>
+                <p className="text-xs text-slate-400 mt-1">رابط مستقل لعملائك</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#15317E] flex items-center justify-center mb-3 shadow-sm">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v18M3 12h18"/><path d="M7 7h10v10H7z"/></svg>
+                </div>
+                <h3 className="font-extrabold text-slate-800 text-sm">إدارة سهلة</h3>
+                <p className="text-xs text-slate-400 mt-1">أسعار وصور ومميزات</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#15317E] flex items-center justify-center mb-3 shadow-sm">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a4 4 0 01-4 4H7l-4 3V7a4 4 0 014-4h10a4 4 0 014 4z"/><path d="M8 9h8M8 13h5"/></svg>
+                </div>
+                <h3 className="font-extrabold text-slate-800 text-sm">جاهز للحجوزات</h3>
+                <p className="text-xs text-slate-400 mt-1">واتساب وتواصل مباشر</p>
+              </div>
             </div>
-          </div>
-          <div className="space-y-3" style={{animation:'fadeUp 0.6s ease-out 0.4s both'}}>
-            {success.url&&(<button onClick={()=>window.open(success.url,'_blank')} className="w-full py-4 rounded-2xl font-bold text-base shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 bg-white text-[#1a1a1a] hover:bg-slate-100"><Eye className="w-5 h-5"/> عرض صفحتي</button>)}
-            <button onClick={()=>{window.location.href=success.type==='broker'?'/':'/venue';}} className="w-full py-4 rounded-2xl font-bold text-base border transition-all flex items-center justify-center gap-2 active:scale-95 bg-white/10 text-white border-white/20 hover:bg-white/20"><LayoutDashboard className="w-5 h-5"/> الدخول إلى لوحة التحكم</button>
-          </div>
+
+            <div className="space-y-3">
+              {success.url&&(<button type="button" onClick={()=>window.open(success.url,'_blank')} className="w-full py-4 rounded-2xl font-extrabold text-base shadow-xl shadow-[#15317E]/20 transition-all flex items-center justify-center gap-2 active:scale-95 bg-[#15317E] text-white hover:bg-[#0d1e4c]"><Eye className="w-5 h-5"/> مشاهدة صفحتي</button>)}
+              <button type="button" onClick={goDashboard} className="w-full py-4 rounded-2xl font-extrabold text-base border transition-all flex items-center justify-center gap-2 active:scale-95 bg-white text-slate-800 border-slate-200 hover:border-[#15317E] hover:text-[#15317E]"><LayoutDashboard className="w-5 h-5"/> الدخول إلى لوحة التحكم</button>
+              <button type="button" onClick={goSubscriptions} className="w-full py-3.5 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 active:scale-95 bg-[#c9a96e]/12 text-[#8a6d35] hover:bg-[#c9a96e]/20">
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>
+                صفحة الاشتراكات
+              </button>
+            </div>
+          </section>
+
+          <aside className="bg-[#15317E] rounded-[2.25rem] p-6 md:p-8 text-white shadow-[0_25px_70px_-30px_rgba(21,49,126,.45)] relative overflow-hidden" style={{animation:'floatUp .65s ease-out .08s both'}}>
+            <div className="absolute -top-20 -left-20 w-56 h-56 rounded-full bg-white/10 blur-3xl"/>
+            <div className="absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-[#c9a96e]/25 blur-3xl"/>
+            <div className="relative z-10 h-full flex flex-col justify-between">
+              <div>
+                <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center mb-6">
+                  <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+                </div>
+                <h2 className="text-2xl font-black mb-3">وش تسوي بعدين؟</h2>
+                <div className="space-y-4 text-sm text-white/75 leading-relaxed">
+                  <p>١. عاين صفحتك وتأكد أن الصور والمعلومات ظاهرة بالشكل المطلوب.</p>
+                  <p>٢. ارجع هنا واضغط لوحة التحكم لإدارة بياناتك وإكمال أي تفاصيل لاحقًا.</p>
+                  <p>٣. زر الاشتراكات موجود الآن كتجهيز، وتقدر تربطه بصفحة الاشتراكات بعد ما تسويها.</p>
+                </div>
+              </div>
+              <div className="mt-8 rounded-3xl bg-white/10 border border-white/15 p-5">
+                <p className="text-sm font-bold text-white/90">تجربتك المجانية</p>
+                <p className="text-3xl font-black mt-1">١٤ يوم</p>
+                <p className="text-xs text-white/60 mt-2">ابدأ بإدارة صفحتك بدون تعقيد.</p>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     );
