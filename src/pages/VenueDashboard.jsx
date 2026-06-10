@@ -28,7 +28,7 @@ const VerifiedBadge = () => (
   <span className="relative group inline-flex items-center align-middle">
     <svg
       viewBox="0 0 24 24"
-      className="w-4.5 h-4.5 sm:w-5 sm:h-5"
+      className="w-[18px] h-[18px] sm:w-5 sm:h-5 shrink-0"
       aria-label="مشترك"
       role="img"
     >
@@ -307,8 +307,8 @@ export default function VenueDashboard() {
 
                 <div className="min-w-0">
                   <p className="text-[11px] sm:text-xs font-black text-zinc-400 mb-0.5">مرحباً بك</p>
-                  <h1 className="text-lg sm:text-xl font-black text-zinc-950 truncate flex items-center gap-1.5">
-                    <span className="truncate">{user?.full_name || user?.office_name || 'المالك'}</span>
+                  <h1 className="text-lg sm:text-xl font-black text-zinc-950 flex items-center gap-1.5 min-w-0">
+                    <span className="truncate min-w-0">{user?.full_name || user?.office_name || 'المالك'}</span>
                     {isSubscribed && <VerifiedBadge />}
                   </h1>
                 </div>
@@ -398,7 +398,7 @@ export default function VenueDashboard() {
           <div className="flex justify-end">
             <Link
               to="/venue/add"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-black text-white px-6 py-3.5 text-sm font-black shadow-[0_14px_30px_rgba(0,0,0,0.16)] hover:-translate-y-0.5 transition-all active:scale-[0.98]"
+              className="inline-flex w-auto min-w-[150px] items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-black text-white px-5 py-3 text-sm font-black shadow-[0_14px_30px_rgba(0,0,0,0.16)] hover:-translate-y-0.5 transition-all active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               إضافة شاليه
