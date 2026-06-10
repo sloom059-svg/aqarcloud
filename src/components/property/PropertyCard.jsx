@@ -15,6 +15,16 @@ import {
   FileText,
   CheckCircle2,
   MapPinned,
+  Car,
+  Waves,
+  Trees,
+  Utensils,
+  Wind,
+  DoorOpen,
+  ShieldCheck,
+  Wifi,
+  Plug,
+  Snowflake,
 } from "lucide-react";
 import { motion } from 'framer-motion';
 
@@ -25,6 +35,21 @@ const toEn = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0)
 const formatPrice = (price) => {
   if (!price) return '—';
   return toEn(price) + ' ر.س';
+};
+
+
+const getFeatureIcon = (feature = '') => {
+  if (feature.includes('موقف') || feature.includes('سيارة')) return Car;
+  if (feature.includes('مسبح')) return Waves;
+  if (feature.includes('حديقة') || feature.includes('أشجار') || feature.includes('نخيل') || feature.includes('حوش')) return Trees;
+  if (feature.includes('مطبخ') || feature.includes('مطعم')) return Utensils;
+  if (feature.includes('تكييف') || feature.includes('تبريد')) return Wind;
+  if (feature.includes('مدخل') || feature.includes('بوابة') || feature.includes('واجهة') || feature.includes('زجاج')) return DoorOpen;
+  if (feature.includes('حارس') || feature.includes('أمن') || feature.includes('حراسة')) return ShieldCheck;
+  if (feature.includes('انترنت')) return Wifi;
+  if (feature.includes('كهرباء') || feature.includes('عداد')) return Plug;
+  if (feature.includes('تبريد')) return Snowflake;
+  return CheckCircle2;
 };
 
 const item = (Icon, label, value) => {
@@ -160,14 +185,17 @@ export default function PropertyCard({ property, index = 0 }) {
 
           {property.features?.length > 0 && (
             <div className="flex flex-wrap gap-1.5 pt-2">
-              {property.features.slice(0, 5).map((feature) => (
-                <span key={feature} className="inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 px-2.5 py-1 text-[11px] font-black text-[#FF385C]">
-                  <CheckCircle2 className="w-3 h-3" />
-                  {feature}
-                </span>
-              ))}
+              {property.features.slice(0, 5).map((feature) => {
+                const FeatureIcon = getFeatureIcon(feature);
+                return (
+                  <span key={feature} className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1 text-[11px] font-bold text-zinc-500">
+                    <FeatureIcon className="w-3 h-3" style={{ color: AIRBNB }} />
+                    {feature}
+                  </span>
+                );
+              })}
               {property.features.length > 5 && (
-                <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-black text-zinc-500">
+                <span className="rounded-full bg-zinc-100 border border-zinc-200 px-2.5 py-1 text-[11px] font-bold text-zinc-500">
                   +{toEn(property.features.length - 5)}
                 </span>
               )}

@@ -19,6 +19,16 @@ import {
   Home,
   FileText,
   CalendarClock,
+  Car,
+  Waves,
+  Trees,
+  Utensils,
+  Wind,
+  DoorOpen,
+  ShieldCheck,
+  Wifi,
+  Plug,
+  Snowflake,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -26,6 +36,21 @@ const AIRBNB = '#FF385C';
 const toEn = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
 const formatPrice = (p) => p ? toEn(p) : '';
 const periodLabel = (p) => ({ سنوي: 'سنوياً', شهري: 'شهرياً', يومي: 'يومياً' }[p] || '');
+
+
+const getFeatureIcon = (feature = '') => {
+  if (feature.includes('موقف') || feature.includes('سيارة')) return Car;
+  if (feature.includes('مسبح')) return Waves;
+  if (feature.includes('حديقة') || feature.includes('أشجار') || feature.includes('نخيل') || feature.includes('حوش')) return Trees;
+  if (feature.includes('مطبخ') || feature.includes('مطعم')) return Utensils;
+  if (feature.includes('تكييف') || feature.includes('تبريد')) return Wind;
+  if (feature.includes('مدخل') || feature.includes('بوابة') || feature.includes('واجهة') || feature.includes('زجاج')) return DoorOpen;
+  if (feature.includes('حارس') || feature.includes('أمن') || feature.includes('حراسة')) return ShieldCheck;
+  if (feature.includes('انترنت')) return Wifi;
+  if (feature.includes('كهرباء') || feature.includes('عداد')) return Plug;
+  if (feature.includes('تبريد')) return Snowflake;
+  return CheckCircle2;
+};
 
 function InfoBox({ icon: Icon, label, value }) {
   if (!value && value !== 0) return null;
@@ -292,14 +317,21 @@ export default function PropertyCardExport({ property, agent, onClose }) {
         .feature-chip {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
-          background: #fff;
-          border: 1px solid #e4e4e7;
-          color: #3f3f46;
+          gap: 6px;
+          background: #fafafa;
+          border: 1px solid #eeeeee;
+          color: #71717a;
           border-radius: 999px;
           padding: 7px 10px;
           font-size: 12px;
-          font-weight: 900;
+          font-weight: 800;
+        }
+
+        .feature-chip svg {
+          width: 13px;
+          height: 13px;
+          color: #FF385C;
+          flex-shrink: 0;
         }
 
         .nearby-row {
@@ -477,12 +509,15 @@ export default function PropertyCardExport({ property, agent, onClose }) {
               أبرز المزايا
             </div>
             <div className="feature-list">
-              {features.map((feature) => (
-                <span key={feature} className="feature-chip">
-                  <CheckCircle2 style={{ width: 12, height: 12, color: AIRBNB }} />
-                  {feature}
-                </span>
-              ))}
+              {features.map((feature) => {
+                const FeatureIcon = getFeatureIcon(feature);
+                return (
+                  <span key={feature} className="feature-chip">
+                    <FeatureIcon />
+                    {feature}
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}
