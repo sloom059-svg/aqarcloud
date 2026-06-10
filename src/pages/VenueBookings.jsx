@@ -419,8 +419,8 @@ export default function VenueBookings() {
 
       {/* Modal تعديل */}
       {editBooking && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm" onClick={() => setEditBooking(null)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-900/60 backdrop-blur-sm overflow-y-auto" onClick={() => setEditBooking(null)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden my-4" onClick={e => e.stopPropagation()}>
             <div className="bg-zinc-50 p-4 border-b border-zinc-100 flex items-center justify-between">
               <h3 className="font-bold text-zinc-950 flex items-center gap-2">
                 <Edit3 className="w-4 h-4" /> تعديل تفاصيل الحجز
@@ -464,8 +464,8 @@ export default function VenueBookings() {
 
       {/* Modal حجز يدوي */}
       {showManual && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm" onClick={() => setShowManual(false)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-900/60 backdrop-blur-sm overflow-y-auto" onClick={() => setShowManual(false)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden my-4" onClick={e => e.stopPropagation()}>
             <div className="bg-zinc-50 p-4 border-b border-zinc-100 flex items-center justify-between">
               <h3 className="font-bold text-zinc-950 flex items-center gap-2">
                 <div className="bg-[#FF385C]/10 p-1.5 rounded-lg"><Plus className="w-4 h-4 text-zinc-950" /></div>
@@ -473,7 +473,7 @@ export default function VenueBookings() {
               </h3>
               <button onClick={() => { setShowManual(false); setManualForm(EMPTY_MANUAL); }} className="p-1.5 bg-zinc-200 text-zinc-500 rounded-full hover:bg-zinc-300"><X className="w-4 h-4" /></button>
             </div>
-            <form onSubmit={handleManualSubmit} className="p-5 space-y-4">
+            <form onSubmit={handleManualSubmit} className="p-4 sm:p-5 space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-500">اسم العميل *</Label>
                 <Input value={manualForm.client_name} onChange={e => setManualForm(p => ({ ...p, client_name: e.target.value }))} placeholder="محمد عبدالله" required className="h-11 rounded-xl text-sm" />
@@ -482,14 +482,39 @@ export default function VenueBookings() {
                 <Label className="text-xs font-bold text-zinc-500">رقم الجوال *</Label>
                 <Input value={manualForm.client_phone} dir="ltr" onChange={e => setManualForm(p => ({ ...p, client_phone: e.target.value }))} placeholder="05xxxxxxxx" required className="h-11 rounded-xl text-sm" />
               </div>
-              <div className="flex gap-3">
-                <div className="flex-1 space-y-1.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5 min-w-0">
                   <Label className="text-xs font-bold text-zinc-500">تاريخ الدخول *</Label>
-                  <Input type="date" value={manualForm.check_in} onChange={e => setManualForm(p => ({ ...p, check_in: e.target.value }))} required className="h-11 rounded-xl text-sm" />
+                  <Input
+                    type="date"
+                    value={manualForm.check_in}
+                    onChange={e => {
+                      const selectedDate = e.target.value;
+                      setManualForm(p => ({
+                        ...p,
+                        check_in: selectedDate,
+                        check_out: p.check_out || selectedDate
+                      }));
+                    }}
+                    required
+                    className="h-11 rounded-xl text-sm w-full min-w-0"
+                  />
                 </div>
-                <div className="flex-1 space-y-1.5">
+                <div className="space-y-1.5 min-w-0">
                   <Label className="text-xs font-bold text-zinc-500">تاريخ الخروج *</Label>
-                  <Input type="date" value={manualForm.check_out} onChange={e => setManualForm(p => ({ ...p, check_out: e.target.value }))} required className="h-11 rounded-xl text-sm" />
+                  <Input
+                    type="date"
+                    value={manualForm.check_out || manualForm.check_in}
+                    min={manualForm.check_in || undefined}
+                    onFocus={() => {
+                      if (manualForm.check_in && !manualForm.check_out) {
+                        setManualForm(p => ({ ...p, check_out: p.check_in }));
+                      }
+                    }}
+                    onChange={e => setManualForm(p => ({ ...p, check_out: e.target.value }))}
+                    required
+                    className="h-11 rounded-xl text-sm w-full min-w-0"
+                  />
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -780,8 +805,8 @@ export default function VenueBookings() {
 
       {/* ══════════ مودال إصدار السند ══════════ */}
       {receiptBooking && !showReceiptPreview && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm" onClick={() => setReceiptBooking(null)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-900/60 backdrop-blur-sm overflow-y-auto" onClick={() => setReceiptBooking(null)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden my-4" onClick={e => e.stopPropagation()}>
             <div className="bg-zinc-50 p-4 border-b border-zinc-100 flex items-center justify-between">
               <h3 className="font-bold text-zinc-950 flex items-center gap-2 text-sm">
                 <div className="bg-amber-100 p-1 rounded-lg"><FileText className="w-4 h-4 text-amber-600" /></div>
@@ -844,7 +869,7 @@ export default function VenueBookings() {
       {/* ══ مودال تعديل شروط السند ══ */}
       {showEditTerms && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden my-4">
             <div className="bg-zinc-50 p-4 border-b border-zinc-100 flex items-center justify-between">
               <h3 className="font-bold text-zinc-950 flex items-center gap-2 text-sm">
                 <FileText className="w-4 h-4" /> شروط هذا السند
