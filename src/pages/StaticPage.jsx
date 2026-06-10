@@ -4,7 +4,7 @@ import { ArrowRight, Mail, ShieldCheck, FileText, Info, Headphones, Clock, Check
 import SiteFooter, { SUPPORT_EMAIL, SUPPORT_WHATSAPP, WhatsAppIcon, getWhatsappHref } from '@/components/layout/SiteFooter';
 import logo from '@/aqar-cloud-logo.png';
 
-const OFFICIAL_FONT = { fontFamily: "'Tajawal', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" };
+const OFFICIAL_FONT = { fontFamily: "'IBM Plex Sans Arabic', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" };
 
 const pages = {
   terms: {
@@ -149,10 +149,6 @@ export default function StaticPage({ type = 'about' }) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-3 min-w-0">
             <img src={logo} alt="عقار كلاود" className="h-10 sm:h-12 w-auto object-contain shrink-0" />
-            <span className="min-w-0">
-              <span className="block text-sm font-bold text-zinc-900">عقار كلاود</span>
-              <span className="block text-[11px] sm:text-xs font-medium text-zinc-500 truncate">الصفحات الرسمية</span>
-            </span>
           </Link>
           <Link to="/" className="inline-flex items-center gap-2 h-10 px-3 sm:px-4 rounded-full bg-white border border-zinc-200 text-xs sm:text-sm font-bold text-zinc-800 hover:bg-zinc-50 transition-colors shadow-sm">
             <ArrowRight className="w-4 h-4" />
