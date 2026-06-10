@@ -1,32 +1,180 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 import {
-  MapPin, BedDouble, Bath, Maximize, Phone, MessageCircle, Share2,
-  Building, CheckCircle2, X, Map, Sofa, Compass, Download, QrCode,
-  BadgeCheck, Loader2, ChevronLeft, ChevronRight
+  MapPin,
+  Building2,
+  BadgeCheck,
+  MessageCircle,
+  Share2,
+  Loader2,
+  Search,
+  Compass,
+  Maximize,
+  BedDouble,
+  Bath,
+  Sofa,
+  Ruler,
+  Layers,
+  CheckCircle2,
+  Car,
+  Waves,
+  Trees,
+  Utensils,
+  Wind,
+  DoorOpen,
+  ShieldCheck,
+  Wifi,
+  Plug,
+  Phone,
 } from 'lucide-react';
 
-const formatPrice = (p) => p ? new Intl.NumberFormat('en-US').format(p) : '';
+const AIRBNB = '#FF385C';
+const toEn = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
+const formatPrice = (p) => p ? `${toEn(p)} ر.س` : '—';
+
 const formatWa = (phone) => {
   if (!phone) return '';
-  let p = phone.replace(/\D/g, '');
+  let p = String(phone).replace(/\D/g, '');
   if (p.startsWith('05')) return '966' + p.substring(1);
   if (p.startsWith('5') && p.length === 9) return '966' + p;
   return p;
 };
 
-const ARABIC = { بيع: 'للبيع', إيجار: 'للإيجار' };
-const periodLabel = (p) => ({ سنوي: 'سنوياً', شهري: 'شهرياً', يومي: 'يومياً' }[p] || 'ريال');
+const getFeatureIcon = (feature = '') => {
+  if (feature.includes('موقف') || feature.includes('سيارة')) return Car;
+  if (feature.includes('مسبح')) return Waves;
+  if (feature.includes('حديقة') || feature.includes('أشجار') || feature.includes('نخيل') || feature.includes('حوش')) return Trees;
+  if (feature.includes('مطبخ') || feature.includes('مطعم')) return Utensils;
+  if (feature.includes('تكييف') || feature.includes('تبريد')) return Wind;
+  if (feature.includes('مدخل') || feature.includes('بوابة') || feature.includes('واجهة') || feature.includes('زجاج')) return DoorOpen;
+  if (feature.includes('حارس') || feature.includes('أمن') || feature.includes('حراسة')) return ShieldCheck;
+  if (feature.includes('انترنت')) return Wifi;
+  if (feature.includes('كهرباء') || feature.includes('عداد')) return Plug;
+  return CheckCircle2;
+};
+
+function SpecPill({ icon: Icon, children }) {
+  if (!children) return null;
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-600">
+      <Icon className="w-3.5 h-3.5 text-zinc-400" />
+      {children}
+    </span>
+  );
+}
+
+function PropertyPublicCard({ property }) {
+  const image = property.images?.[0];
+  const location = [property.neighborhood, property.city].filter(Boolean).join('، ');
+  const isLand = property.type === 'أرض';
+  const price = property.price_on_request
+    ? 'السعر عند الطلب'
+    : property.price_negotiable
+    ? 'السعر قابل للتفاوض'
+    : formatPrice(property.price);
+
+  return (
+    <Link
+      to={`/property/${property.id}`}
+      className="group block bg-white rounded-[1.8rem] overflow-hidden border border-zinc-100 shadow-sm hover:shadow-2xl hover:shadow-zinc-200/70 transition-all duration-500"
+    >
+      <div className="relative aspect-[4/3] overflow-hidden bg-zinc-100">
+        {image ? (
+          <img src={image} alt={property.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100">
+            <Building2 className="w-14 h-14 text-zinc-300" />
+          </div>
+        )}
+
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/35 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/60 to-transparent" />
+
+        <div className="absolute top-3 right-3 flex gap-2">
+          {property.listing_type && (
+            <span className="rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-950 shadow-sm">
+              {property.listing_type}
+            </span>
+          )}
+          {property.type && (
+            <span className="rounded-full bg-zinc-950/85 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white shadow-sm">
+              {property.type}
+            </span>
+          )}
+        </div>
+
+        <div className="absolute bottom-3 right-3 left-3 flex items-end justify-between gap-3">
+          <div className="rounded-2xl bg-white px-3 py-2 shadow-lg">
+            <p className="text-[10px] font-black text-zinc-400 mb-0.5">السعر</p>
+            <p className="text-base font-black leading-none" style={{ color: AIRBNB }}>{price}</p>
+          </div>
+
+          <div className="flex flex-col items-end gap-1.5">
+            {property.facade && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm">
+                <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                واجهة {property.facade}
+              </span>
+            )}
+            {property.area && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white">
+                <Maximize className="w-3.5 h-3.5" />
+                {toEn(property.area)} م²
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 space-y-3">
+        <div>
+          <h3 className="font-black text-zinc-950 text-base leading-snug line-clamp-2 group-hover:text-[#FF385C] transition-colors">
+            {property.title || 'عقار مميز'}
+          </h3>
+          {location && (
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-bold text-zinc-500">
+              <MapPin className="w-3.5 h-3.5" />
+              <span className="line-clamp-1">{location}</span>
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-zinc-100">
+          <SpecPill icon={Layers}>{property.listing_type}</SpecPill>
+          <SpecPill icon={Building2}>{property.type}</SpecPill>
+          {property.street_width && <SpecPill icon={Ruler}>شارع {toEn(property.street_width)} م</SpecPill>}
+          {!isLand && property.bedrooms && <SpecPill icon={BedDouble}>{toEn(property.bedrooms)} غرف</SpecPill>}
+          {!isLand && property.bathrooms && <SpecPill icon={Bath}>{toEn(property.bathrooms)} دورات</SpecPill>}
+          {!isLand && property.halls && <SpecPill icon={Sofa}>{toEn(property.halls)} صالات</SpecPill>}
+        </div>
+
+        {property.features?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {property.features.slice(0, 4).map((feature) => {
+              const Icon = getFeatureIcon(feature);
+              return (
+                <span key={feature} className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1 text-[11px] font-bold text-zinc-500">
+                  <Icon className="w-3 h-3" style={{ color: AIRBNB }} />
+                  {feature}
+                </span>
+              );
+            })}
+            {property.features.length > 4 && (
+              <span className="rounded-full bg-zinc-100 border border-zinc-200 px-2.5 py-1 text-[11px] font-bold text-zinc-500">
+                +{toEn(property.features.length - 4)}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}
 
 export default function AgentProfile() {
   const agentId = window.location.pathname.split('/').pop();
-  const [selected, setSelected] = useState(null);
-  const [promoCard, setPromoCard] = useState(null);
-  const [galleryIndex, setGalleryIndex] = useState(0);
-  const [lightbox, setLightbox] = useState(false);
-  const cardRef = useRef(null);
 
   const { data: agent, isLoading: agentLoading } = useQuery({
     queryKey: ['agent-profile', agentId],
@@ -41,487 +189,139 @@ export default function AgentProfile() {
   });
 
   const officeName = agent?.office_name || agent?.full_name || 'مكتب عقاري';
-  const officeLogo = agent?.office_logo_url || agent?.avatar_url;
+  const officeLogo = agent?.office_logo_url || agent?.avatar_url || agent?.profile_image_url;
   const waNumber = formatWa(agent?.whatsapp || agent?.phone);
 
-  const shareProperty = (e, prop) => {
-    e?.stopPropagation();
-    const url = `${window.location.origin}/property/${prop.id}`;
-    navigator.clipboard.writeText(url);
-    toast.success('تم نسخ رابط العقار');
-  };
-
-  const downloadCard = async () => {
-    if (!cardRef.current) return;
-    try {
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-      const link = document.createElement('a');
-      link.download = `${promoCard.title || 'عقار'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      toast.success('تم حفظ البطاقة');
-      setPromoCard(null);
-    } catch (_) {
-      toast.error('تعذر حفظ البطاقة');
+  const shareProfile = async () => {
+    const url = window.location.href;
+    const data = { title: officeName, text: `تصفح عقارات ${officeName}`, url };
+    if (navigator.share) {
+      try { await navigator.share(data); return; } catch (_) {}
     }
-  };
-
-  // ── معطيات عرض العقار ──
-  const isLand = (p) => p.type === 'أرض';
-  const priceText = (p) => p.price_negotiable ? 'على السوم' : (p.price ? formatPrice(p.price) : '—');
-  const priceDetail = (p) => p.price_negotiable ? '' : (p.listing_type === 'إيجار' ? periodLabel(p.rental_period) : 'ريال');
-  const dims = (p) => (p.length_street && p.length_depth) ? `${p.length_street} × ${p.length_depth}` : (p.street_width ? `شارع ${p.street_width}م` : null);
-
-  // المواصفات اللي تطلع بأسفل البطاقة — فقط الموجود
-  const cardStats = (p) => {
-    const s = [];
-    if (p.area) s.push({ icon: Maximize, value: `${p.area} م²` });
-    if (isLand(p)) {
-      const d = dims(p);
-      if (d) s.push({ icon: Map, value: d });
-      if (p.facade) s.push({ icon: Compass, value: p.facade });
-    } else {
-      if (p.bedrooms) s.push({ icon: BedDouble, value: `${p.bedrooms} غرف` });
-      if (p.bathrooms) s.push({ icon: Bath, value: `${p.bathrooms} حمامات` });
-    }
-    return s;
-  };
-
-  // مواصفات النافذة التفصيلية — فقط الموجود
-  const modalStats = (p) => {
-    const s = [];
-    if (p.area) s.push({ icon: Maximize, label: 'المساحة', value: `${p.area} م²` });
-    if (isLand(p)) {
-      const d = dims(p);
-      if (d) s.push({ icon: Map, label: 'الأبعاد', value: d });
-      if (p.street_width) s.push({ icon: Maximize, label: 'عرض الشارع', value: `${p.street_width}م` });
-      if (p.facade) s.push({ icon: Compass, label: 'الواجهة', value: p.facade });
-    } else {
-      if (p.bedrooms) s.push({ icon: BedDouble, label: 'غرف النوم', value: p.bedrooms });
-      if (p.bathrooms) s.push({ icon: Bath, label: 'دورات مياه', value: p.bathrooms });
-      if (p.halls) s.push({ icon: Sofa, label: 'الصالات', value: p.halls });
-    }
-    return s;
+    await navigator.clipboard.writeText(url);
   };
 
   if (agentLoading) return (
-    <div dir="rtl" className="min-h-screen flex justify-center items-center bg-[#F8FAFC]"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
+    <div dir="rtl" className="min-h-screen flex justify-center items-center bg-[#F7F7F7]">
+      <div className="w-9 h-9 rounded-full border-[3px] border-zinc-100 border-t-[#FF385C] animate-spin" />
+    </div>
   );
+
   if (!agent) return (
-    <div dir="rtl" className="min-h-screen flex flex-col items-center justify-center bg-[#F8FAFC]">
-      <Building className="w-12 h-12 text-slate-300 mb-3" /><p className="text-slate-500 text-lg font-bold">الوسيط غير موجود</p>
+    <div dir="rtl" className="min-h-screen flex flex-col items-center justify-center bg-[#F7F7F7]">
+      <Building2 className="w-12 h-12 text-zinc-300 mb-3" />
+      <p className="text-zinc-500 text-lg font-black">الوسيط غير موجود</p>
     </div>
   );
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-24">
+    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-20 relative overflow-x-hidden">
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
       `}} />
 
-      {/* الهيدر */}
-      <header className="bg-[#15317E] text-white shadow-lg sticky top-0 z-40 rounded-b-[2rem]">
-        <div className="max-w-md mx-auto px-5 h-24 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border-2 border-white/20 shadow-sm overflow-hidden flex-shrink-0">
-              {officeLogo ? <img src={officeLogo} alt="شعار" className="w-full h-full object-cover" /> : <Building className="w-6 h-6 text-[#15317E]" />}
-            </div>
-            <div className="flex flex-col justify-center">
-              <h1 className="text-base font-black tracking-wide leading-tight">{officeName}</h1>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                {agent.city && (
-                  <p className="text-[10px] text-white/90 flex items-center gap-1 font-medium"><MapPin className="w-3 h-3" /> {agent.city}</p>
-                )}
-                {agent.license_number && (
-                  <>
-                    <div className="w-1 h-1 bg-white/40 rounded-full" />
-                    <p className="text-[10px] text-white/90 flex items-center gap-1 font-medium">
-                      <BadgeCheck className="w-3.5 h-3.5 text-emerald-400" /> رخصة فال: {agent.license_number}
-                    </p>
-                  </>
+      <div className="absolute inset-x-0 top-0 h-[240px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
+      <div className="absolute -top-32 -right-28 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ backgroundColor: AIRBNB }} />
+      <div className="absolute top-28 left-[-90px] w-72 h-72 rounded-full bg-zinc-900/5 blur-3xl pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 pt-4 sm:pt-6">
+        <header className="rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-4 sm:p-5">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.7rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)] flex-shrink-0">
+                {officeLogo ? (
+                  <img src={officeLogo} alt={officeName} className="w-full h-full object-cover" />
+                ) : (
+                  <Building2 className="w-9 h-9 text-zinc-700" />
                 )}
               </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {waNumber && (
-              <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer" className="p-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full transition-all border border-white/10 shadow-sm" title="مراسلة واتساب">
-                <MessageCircle className="w-5 h-5 text-white" />
-              </a>
-            )}
-            {agent.phone && (
-              <a href={`tel:${agent.phone}`} className="p-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full transition-all border border-white/10 shadow-sm" title="اتصال">
-                <Phone className="w-5 h-5 text-white" />
-              </a>
-            )}
-          </div>
-        </div>
-      </header>
 
-      <div className="relative z-10 max-w-md mx-auto pt-6">
-        <main className="px-4 space-y-5">
-          {propsLoading ? (
-            <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
-          ) : properties.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-[1.5rem] border border-slate-100 shadow-sm">
-              <Building className="w-12 h-12 text-slate-300 mb-3 mx-auto" />
-              <p className="text-slate-500 font-bold">لا توجد عقارات حالياً</p>
-            </div>
-          ) : properties.map((property) => (
-            <div key={property.id} onClick={() => { setSelected(property); setGalleryIndex(0); }}
-              className="bg-white rounded-[1.5rem] p-2.5 shadow-xl shadow-slate-200/50 border border-slate-100 cursor-pointer transform transition-transform hover:-translate-y-1">
-              <div className="relative h-56 rounded-[1.2rem] overflow-hidden">
-                <img src={property.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'} alt={property.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#15317E]/90 via-[#15317E]/20 to-transparent" />
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-xs font-black text-zinc-400 mb-1">صفحة الوسيط العقاري</p>
+                <h1 className="text-2xl sm:text-4xl font-black text-zinc-950 leading-tight truncate">{officeName}</h1>
 
-                <div className="absolute top-3 right-3">
-                  <span className="px-4 py-1.5 rounded-lg text-xs font-bold text-[#15317E] bg-white/95 backdrop-blur-md shadow-sm">
-                    {ARABIC[property.listing_type] || property.listing_type || 'للبيع'}
+                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                  {agent.city && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500">
+                      <MapPin className="w-3.5 h-3.5" />
+                      {agent.city}
+                    </span>
+                  )}
+
+                  {agent.license_number && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500">
+                      <BadgeCheck className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                      رخصة موثوق: <span dir="ltr">{agent.license_number}</span>
+                    </span>
+                  )}
+
+                  <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500">
+                    <Building2 className="w-3.5 h-3.5" />
+                    {toEn(properties.length)} عقار
                   </span>
                 </div>
 
-                <div className="absolute top-3 left-3 flex gap-2">
-                  <button onClick={(e) => { e.stopPropagation(); setPromoCard(property); }} className="p-2 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-lg transition-colors border border-white/20" title="تنزيل كبطاقة إعلانية">
-                    <Download className="w-4 h-4" />
-                  </button>
-                  <button onClick={(e) => shareProperty(e, property)} className="p-2 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-lg transition-colors border border-white/20" title="نسخ الرابط">
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <div className="flex justify-between items-end">
-                    <div className="flex flex-col justify-end mt-1">
-                      <h3 className="text-xl font-bold mb-1.5">{property.title}</h3>
-                      <p className="text-xs text-white/80 flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5" /> {property.city}{property.neighborhood ? `، ${property.neighborhood}` : ''}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="text-left">
-                        <p className="text-xl font-black leading-none">{priceText(property)}</p>
-                        {priceDetail(property) && <p className="text-[10px] text-white/70">{priceDetail(property)}</p>}
-                      </div>
-                      {isLand(property) && property.facade && (
-                        <span className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white bg-black/40 backdrop-blur-md shadow-sm flex items-center gap-1.5 border border-white/20">
-                          <Compass className="w-3.5 h-3.5" /> واجهة {property.facade}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {cardStats(property).length > 0 && (
-                <div className="flex items-center justify-around px-4 py-3.5 bg-slate-50 mt-2.5 rounded-[1rem]">
-                  {cardStats(property).map((s, idx) => (
-                    <React.Fragment key={idx}>
-                      {idx > 0 && <div className="w-px h-6 bg-slate-200" />}
-                      <div className="flex items-center gap-1.5 text-slate-700">
-                        <s.icon className="w-4 h-4 text-[#15317E]" />
-                        <span className="text-xs font-bold">{s.value}</span>
-                      </div>
-                    </React.Fragment>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </main>
-      </div>
-
-      {/* النافذة التفصيلية */}
-      {selected && !promoCard && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-[#15317E]/80 backdrop-blur-md animate-in fade-in">
-          <div className="bg-white w-full sm:w-[450px] h-[92vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10">
-            {/* المعرض */}
-            <div className="relative h-64 flex-shrink-0 bg-black cursor-pointer" onClick={() => setLightbox(true)}>
-              <img
-                src={(selected.images?.[galleryIndex]) || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'}
-                alt={selected.title}
-                className="w-full h-full object-contain"
-              />
-              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#15317E]/90 to-transparent pointer-events-none" />
-
-              {/* أسهم التنقل */}
-              {selected.images?.length > 1 && (
-                <>
-                  <button onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i > 0 ? i - 1 : selected.images.length - 1); }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i < selected.images.length - 1 ? i + 1 : 0); }}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition">
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  {/* النقاط */}
-                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 pointer-events-none">
-                    {selected.images.map((_, i) => (
-                      <div key={i} className={`h-1.5 rounded-full transition-all ${i === galleryIndex ? 'bg-white w-5' : 'bg-white/50 w-1.5'}`} />
-                    ))}
-                  </div>
-                  {/* عداد */}
-                  <div className="absolute top-4 left-4 bg-black/40 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" dir="ltr">
-                    {galleryIndex + 1}/{selected.images.length}
-                  </div>
-                </>
-              )}
-
-              <button onClick={(e) => { e.stopPropagation(); setSelected(null); }}
-                className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="absolute bottom-4 right-5 left-5 text-white pointer-events-none">
-                <span className="inline-block px-3 py-1 rounded-lg text-[11px] font-bold mb-2 shadow-sm bg-white/20 backdrop-blur-sm">{ARABIC[selected.listing_type] || selected.listing_type || 'للبيع'}</span>
-                <h2 className="text-2xl font-black leading-tight mb-1">{selected.title}</h2>
-                <p className="text-sm text-white/80 flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {selected.city}{selected.neighborhood ? `، ${selected.neighborhood}` : ''}</p>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6 pb-28">
-              <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
-                <div>
-                  <p className="text-sm text-slate-500 font-medium mb-1">السعر المطلوب</p>
-                  <p className="text-3xl font-black text-[#15317E]">{priceText(selected)} {priceDetail(selected) && <span className="text-sm font-normal text-slate-500">{priceDetail(selected)}</span>}</p>
-                </div>
-                <div className="flex flex-col items-end gap-3">
-                  <button onClick={(e) => shareProperty(e, selected)} className="p-3.5 bg-slate-50 text-[#15317E] rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
-                    <Share2 className="w-5 h-5" />
-                  </button>
-                  {isLand(selected) && selected.facade && (
-                    <span className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-[#15317E] bg-slate-50 border border-slate-200 flex items-center gap-1.5">
-                      <Compass className="w-4 h-4" /> واجهة {selected.facade}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className={`grid gap-2 sm:gap-3 mb-8 ${modalStats(selected).length >= 4 ? 'grid-cols-4' : modalStats(selected).length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
-                {modalStats(selected).map((s, i) => (
-                  <div key={i} className="bg-slate-50 p-2 sm:p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100">
-                    <s.icon className="w-5 h-5 text-[#15317E] mb-2" />
-                    <span className="text-[10px] text-slate-500 font-bold mb-0.5">{s.label}</span>
-                    <span className="text-xs sm:text-sm font-black text-slate-900">{s.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              {selected.features?.length > 0 && (
-                <>
-                  <h3 className="text-lg font-bold text-[#15317E] mb-4 flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-[#15317E]" /> مواصفات العقار</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                    {selected.features.map((f, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-white border border-slate-200 p-3.5 rounded-xl text-sm font-bold text-slate-700 shadow-sm">
-                        <div className="text-[#15317E] bg-slate-50 p-2 rounded-lg"><CheckCircle2 className="w-4 h-4" /></div>
-                        {f}
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {selected.description && (
-                <>
-                  <h3 className="text-lg font-bold text-[#15317E] mb-3">الوصف</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed mb-8 bg-slate-50 rounded-xl p-4 border border-slate-100">{selected.description}</p>
-                </>
-              )}
-
-              {selected.nearby_places?.length > 0 && (
-                <>
-                  <h3 className="text-lg font-bold text-[#15317E] mb-4 flex items-center gap-2"><Map className="w-5 h-5 text-[#15317E]" /> الموقع وأقرب الخدمات</h3>
-                  <div className="space-y-3">
-                    {selected.nearby_places.map((perk, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                        <div className="text-[#15317E] bg-white p-2 rounded-lg shadow-sm border border-slate-100"><MapPin className="w-4 h-4" /></div>
-                        <span className="text-sm font-medium text-slate-700">{perk.label} · {perk.distance_label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-xl border-t border-slate-100 flex gap-3">
-              {waNumber && (
-                <a href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`أهلاً، أستفسر عن عقار: ${selected.title}`)}`} target="_blank" rel="noreferrer" className="flex-1 bg-[#15317E] hover:bg-[#0d1e4c] text-white flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-sm transition-all shadow-md">
-                  <MessageCircle className="w-5 h-5" /> مراسلة واتساب
-                </a>
-              )}
-              {agent.phone && (
-                <a href={`tel:${agent.phone}`} className="flex items-center justify-center px-6 bg-slate-100 hover:bg-slate-200 text-[#15317E] border border-slate-200 rounded-xl transition-all">
-                  <Phone className="w-5 h-5" />
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* البطاقة الإعلانية */}
-      {promoCard && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#15317E]/90 backdrop-blur-sm animate-in fade-in overflow-y-auto">
-          <div className="w-full max-w-[400px] flex flex-col items-center my-auto py-4">
-            <div ref={cardRef} className="bg-white w-full rounded-3xl overflow-hidden shadow-2xl relative">
-              <div className="h-48 relative">
-                <img src={promoCard.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'} alt="عقار" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#15317E]/80 to-transparent" />
-                <div className="absolute top-4 right-4">
-                  <div className="bg-white text-[#15317E] px-3 py-1 rounded-lg text-xs font-bold shadow-md">{ARABIC[promoCard.listing_type] || promoCard.listing_type || 'للبيع'}</div>
-                </div>
-              </div>
-
-              <div className="p-5 text-center">
-                <h2 className="text-xl font-black text-[#15317E] mb-1.5">{promoCard.title}</h2>
-                <p className="text-[11px] font-bold text-slate-500 flex items-center justify-center gap-1 mb-4">
-                  <MapPin className="w-3.5 h-3.5 text-[#15317E]" /> {promoCard.city}{promoCard.neighborhood ? `، ${promoCard.neighborhood}` : ''}
-                </p>
-                <div className="inline-flex flex-col bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 mb-5 shadow-sm">
-                  <span className="text-[10px] text-slate-500 font-bold mb-1">السعر المطلوب</span>
-                  <span className="text-2xl font-black text-[#15317E]">{priceText(promoCard)} {priceDetail(promoCard) && <span className="text-[11px] font-normal text-slate-500">{priceDetail(promoCard)}</span>}</span>
-                  {isLand(promoCard) && promoCard.facade && (
-                    <div className="mt-2 flex items-center justify-center gap-1.5 text-[#15317E] bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">
-                      <Compass className="w-3.5 h-3.5" /> واجهة {promoCard.facade}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-center gap-4 sm:gap-6 mb-5">
-                  <div className="flex flex-col items-center gap-1.5">
-                    <Maximize className="w-5 h-5 text-[#15317E]" />
-                    <span className="text-[11px] font-bold text-slate-700">{promoCard.area ? promoCard.area + ' م²' : ''}</span>
-                  </div>
-                  <div className="w-px h-6 bg-slate-200" />
-                  {isLand(promoCard) ? (
-                    <>
-                      <div className="flex flex-col items-center gap-1.5">
-                        <Map className="w-5 h-5 text-[#15317E]" />
-                        <span className="text-[11px] font-bold text-slate-700">{dims(promoCard)}</span>
-                      </div>
-                      <div className="w-px h-6 bg-slate-200" />
-                      <div className="flex flex-col items-center gap-1.5">
-                        <Compass className="w-5 h-5 text-[#15317E]" />
-                        <span className="text-[11px] font-bold text-slate-700">{promoCard.facade || ''}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex flex-col items-center gap-1.5">
-                        <BedDouble className="w-5 h-5 text-[#15317E]" />
-                        <span className="text-[11px] font-bold text-slate-700">{promoCard.bedrooms || 0} نوم</span>
-                      </div>
-                      <div className="w-px h-6 bg-slate-200" />
-                      <div className="flex flex-col items-center gap-1.5">
-                        <Bath className="w-5 h-5 text-[#15317E]" />
-                        <span className="text-[11px] font-bold text-slate-700">{promoCard.bathrooms || 0} حمامات</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {(promoCard.features?.length > 0 || promoCard.nearby_places?.length > 0) && (
-                  <div className="bg-slate-50/80 rounded-2xl p-4 text-right border border-slate-100">
-                    <div className="flex flex-col gap-4">
-                      {promoCard.features?.length > 0 && (
-                        <div>
-                          <p className="text-[11px] font-black text-[#15317E] mb-2 flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> أبرز المواصفات</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {promoCard.features.map((f, i) => (
-                              <div key={i} className="flex items-center gap-1 bg-white border border-slate-200 px-2 py-1.5 rounded-lg text-[10px] font-bold text-slate-600 shadow-sm">
-                                <CheckCircle2 className="w-3 h-3 text-[#15317E]" /> <span>{f}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {promoCard.nearby_places?.length > 0 && (
-                        <>
-                          <div className="w-full h-px bg-slate-200/60" />
-                          <div>
-                            <p className="text-[11px] font-black text-[#15317E] mb-2 flex items-center gap-1.5"><Map className="w-4 h-4" /> الموقع والخدمات</p>
-                            <div className="flex flex-col gap-2">
-                              {promoCard.nearby_places.map((perk, i) => (
-                                <div key={i} className="flex items-start gap-2 text-[10px] font-bold text-slate-600">
-                                  <MapPin className="w-3 h-3 text-[#15317E] flex-shrink-0 mt-0.5" /> <span className="leading-tight">{perk.label} · {perk.distance_label}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
+                {agent.bio && (
+                  <p className="mt-3 text-sm font-bold text-zinc-500 leading-7 max-w-2xl">{agent.bio}</p>
                 )}
               </div>
-
-              <div className="bg-[#15317E] p-5 flex items-center justify-between text-white">
-                <div>
-                  <p className="text-[10px] text-white/80 font-medium mb-1">{officeName}</p>
-                  {(agent.whatsapp || agent.phone) && (
-                    <div className="flex items-center gap-2">
-                      <MessageCircle className="w-5 h-5 text-white/90" />
-                      <span className="text-2xl font-black tracking-wider" dir="ltr">{agent.whatsapp || agent.phone}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="bg-white p-1.5 rounded-xl shadow-inner">
-                  <QrCode className="w-12 h-12 text-[#15317E]" />
-                </div>
-              </div>
             </div>
 
-            <div className="mt-5 flex w-full gap-3">
-              <button onClick={downloadCard} className="flex-1 bg-white text-[#15317E] py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg">
-                <Download className="w-5 h-5" /> حفظ كصورة
-              </button>
-              <button onClick={() => setPromoCard(null)} className="p-3.5 bg-white/10 text-white rounded-xl border border-white/20 hover:bg-white/20">
-                <X className="w-5 h-5" />
+            <div className="flex gap-2 md:flex-col lg:flex-row">
+              {waNumber && (
+                <a
+                  href={`https://wa.me/${waNumber}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white px-5 py-3 rounded-2xl text-sm font-black shadow-sm transition-all"
+                >
+                  <MessageCircle className="w-4 h-4" style={{ color: '#25D366' }} />
+                  واتساب
+                </a>
+              )}
+
+              <button
+                onClick={shareProfile}
+                className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-800 px-5 py-3 rounded-2xl text-sm font-black shadow-sm transition-all"
+              >
+                <Share2 className="w-4 h-4" />
+                مشاركة
               </button>
             </div>
           </div>
-        </div>
-      )}
-      {/* Lightbox — عرض الصورة بالمقاس الحقيقي */}
-      {lightbox && selected && (
-        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center" onClick={() => setLightbox(false)}>
-          <button onClick={() => setLightbox(false)}
-            className="absolute top-5 left-5 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10">
-            <X className="w-6 h-6" />
-          </button>
+        </header>
 
-          <img
-            src={(selected.images?.[galleryIndex]) || ''}
-            alt={selected.title}
-            className="max-w-full max-h-full object-contain"
-            onClick={e => e.stopPropagation()}
-          />
+        <section className="mt-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-zinc-950">العقارات المتاحة</h2>
+            <p className="text-sm font-bold text-zinc-400 mt-1">اضغط على أي عقار لعرض الصور والتفاصيل الكاملة</p>
+          </div>
 
-          {selected.images?.length > 1 && (
-            <>
-              <button onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i > 0 ? i - 1 : selected.images.length - 1); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
-                <ChevronRight className="w-6 h-6" />
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); setGalleryIndex(i => i < selected.images.length - 1 ? i + 1 : 0); }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <div className="absolute top-5 right-5 text-white/80 text-sm font-bold bg-white/10 px-3 py-1 rounded-full" dir="ltr">
-                {galleryIndex + 1} / {selected.images.length}
-              </div>
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                {selected.images.map((_, i) => (
-                  <button key={i} onClick={(e) => { e.stopPropagation(); setGalleryIndex(i); }}
-                    className={`h-2 rounded-full transition-all ${i === galleryIndex ? 'bg-white w-8' : 'bg-white/40 w-2'}`} />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
+          <div className="inline-flex items-center gap-2 rounded-2xl bg-white border border-zinc-100 px-4 py-3 text-sm font-bold text-zinc-500 shadow-sm">
+            <Search className="w-4 h-4" style={{ color: AIRBNB }} />
+            {toEn(properties.length)} نتيجة
+          </div>
+        </section>
+
+        {propsLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: AIRBNB }} />
+          </div>
+        ) : properties.length === 0 ? (
+          <div className="mt-6 text-center py-16 bg-white rounded-[2rem] border border-zinc-100 shadow-sm">
+            <Building2 className="w-12 h-12 text-zinc-300 mb-3 mx-auto" />
+            <h3 className="font-black text-base text-zinc-700 mb-1">لا توجد عقارات منشورة حالياً</h3>
+            <p className="text-sm text-zinc-400 font-bold">سيتم عرض العقارات هنا عند توفرها.</p>
+          </div>
+        ) : (
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 items-start">
+            {properties.map((property) => (
+              <PropertyPublicCard key={property.id} property={property} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

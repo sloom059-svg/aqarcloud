@@ -1,24 +1,81 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
-  MapPin, BedDouble, Bath, Maximize, Phone, MessageCircle, Share2,
-  Building, CheckCircle2, Map, Sofa, Compass, ChevronLeft, ChevronRight,
-  Loader2, ArrowRight, Ruler, X
+  MapPin,
+  BedDouble,
+  Bath,
+  Maximize,
+  MessageCircle,
+  Share2,
+  Building2,
+  CheckCircle2,
+  Map,
+  Sofa,
+  Compass,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  ArrowRight,
+  Ruler,
+  X,
+  Layers,
+  Home,
+  FileText,
+  CalendarClock,
+  Car,
+  Waves,
+  Trees,
+  Utensils,
+  Wind,
+  DoorOpen,
+  ShieldCheck,
+  Wifi,
+  Plug,
+  Phone,
 } from 'lucide-react';
 
-const formatPrice = (p) => p ? new Intl.NumberFormat('en-US').format(p) : '';
+const AIRBNB = '#FF385C';
+const toEn = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
+const formatPrice = (p) => p ? `${toEn(p)} ر.س` : '';
+
 const formatWa = (phone) => {
   if (!phone) return '';
-  let p = phone.replace(/\D/g, '');
+  let p = String(phone).replace(/\D/g, '');
   if (p.startsWith('05')) return '966' + p.substring(1);
   if (p.startsWith('5') && p.length === 9) return '966' + p;
   return p;
 };
-const ARABIC = { بيع: 'للبيع', إيجار: 'للإيجار' };
-const periodLabel = (p) => ({ سنوي: 'سنوياً', شهري: 'شهرياً', يومي: 'يومياً' }[p] || 'ريال');
+
+const periodLabel = (p) => ({ سنوي: 'سنوياً', شهري: 'شهرياً', يومي: 'يومياً' }[p] || '');
+
+const getFeatureIcon = (feature = '') => {
+  if (feature.includes('موقف') || feature.includes('سيارة')) return Car;
+  if (feature.includes('مسبح')) return Waves;
+  if (feature.includes('حديقة') || feature.includes('أشجار') || feature.includes('نخيل') || feature.includes('حوش')) return Trees;
+  if (feature.includes('مطبخ') || feature.includes('مطعم')) return Utensils;
+  if (feature.includes('تكييف') || feature.includes('تبريد')) return Wind;
+  if (feature.includes('مدخل') || feature.includes('بوابة') || feature.includes('واجهة') || feature.includes('زجاج')) return DoorOpen;
+  if (feature.includes('حارس') || feature.includes('أمن') || feature.includes('حراسة')) return ShieldCheck;
+  if (feature.includes('انترنت')) return Wifi;
+  if (feature.includes('كهرباء') || feature.includes('عداد')) return Plug;
+  return CheckCircle2;
+};
+
+function InfoCard({ icon: Icon, label, value }) {
+  if (!value && value !== 0) return null;
+  return (
+    <div className="rounded-3xl bg-white border border-zinc-100 p-4 shadow-sm">
+      <div className="flex items-center gap-1.5 text-xs font-black text-zinc-400 mb-2">
+        <Icon className="w-4 h-4" style={{ color: AIRBNB }} />
+        {label}
+      </div>
+      <p className="text-base font-black text-zinc-950 leading-tight">{value}</p>
+    </div>
+  );
+}
 
 export default function PropertyDetail() {
   const navigate = useNavigate();
@@ -39,213 +96,250 @@ export default function PropertyDetail() {
   });
 
   if (isLoading) return (
-    <div dir="rtl" className="min-h-screen flex justify-center items-center bg-[#F8FAFC]"><Loader2 className="w-8 h-8 animate-spin text-[#15317E]" /></div>
+    <div dir="rtl" className="min-h-screen flex justify-center items-center bg-[#F7F7F7]">
+      <div className="w-9 h-9 rounded-full border-[3px] border-zinc-100 border-t-[#FF385C] animate-spin" />
+    </div>
   );
+
   if (!property) return (
-    <div dir="rtl" className="min-h-screen flex flex-col items-center justify-center bg-[#F8FAFC]">
-      <Building className="w-12 h-12 text-slate-300 mb-3" /><p className="text-slate-500 text-lg font-bold">العقار غير موجود</p>
+    <div dir="rtl" className="min-h-screen flex flex-col items-center justify-center bg-[#F7F7F7]">
+      <Building2 className="w-12 h-12 text-zinc-300 mb-3" />
+      <p className="text-zinc-500 text-lg font-black">العقار غير موجود</p>
     </div>
   );
 
   const isLand = property.type === 'أرض';
-  const images = property.images?.length ? property.images : ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'];
-  const priceText = property.price_negotiable ? 'على السوم' : (property.price ? formatPrice(property.price) : '');
-  const priceDetail = property.price_negotiable ? '' : (property.listing_type === 'إيجار' ? periodLabel(property.rental_period) : 'ريال');
-  const dims = (property.length_street && property.length_depth) ? `${property.length_street} × ${property.length_depth}` : null;
+  const images = property.images?.length ? property.images : ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'];
+  const priceText = property.price_on_request
+    ? 'السعر عند الطلب'
+    : property.price_negotiable
+    ? 'السعر قابل للتفاوض'
+    : formatPrice(property.price);
+  const priceDetail = property.price_on_request || property.price_negotiable
+    ? ''
+    : property.listing_type === 'إيجار'
+    ? periodLabel(property.rental_period)
+    : '';
+  const dims = property.length_street && property.length_depth ? `${toEn(property.length_street)} × ${toEn(property.length_depth)} م` : '';
   const waNumber = formatWa(agent?.whatsapp || agent?.phone);
-  const officeName = agent?.office_name || agent?.full_name || '';
+  const officeName = agent?.office_name || agent?.full_name || 'مكتب عقاري';
+  const officeLogo = agent?.office_logo_url || agent?.avatar_url || agent?.profile_image_url;
+  const location = [property.neighborhood, property.city].filter(Boolean).join('، ');
 
-  const shareProperty = () => {
+  const shareProperty = async () => {
     const url = window.location.href;
     if (navigator.share) {
-      navigator.share({ title: property.title, url }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success('تم نسخ الرابط');
+      try { await navigator.share({ title: property.title, url }); return; } catch (_) {}
     }
+    await navigator.clipboard.writeText(url);
+    toast.success('تم نسخ الرابط');
   };
 
-  // المواصفات الرقمية (تظهر فقط لو لها قيمة)
-  const stats = [];
-  if (property.area) stats.push({ icon: Maximize, label: 'المساحة', value: `${property.area} م²` });
-  if (isLand) {
-    if (dims) stats.push({ icon: Map, label: 'الأبعاد', value: dims });
-    if (property.street_width) stats.push({ icon: Ruler, label: 'عرض الشارع', value: `${property.street_width}م` });
-    if (property.facade) stats.push({ icon: Compass, label: 'الواجهة', value: property.facade });
-  } else {
-    if (property.bedrooms) stats.push({ icon: BedDouble, label: 'غرف النوم', value: property.bedrooms });
-    if (property.bathrooms) stats.push({ icon: Bath, label: 'دورات مياه', value: property.bathrooms });
-    if (property.halls) stats.push({ icon: Sofa, label: 'الصالات', value: property.halls });
-  }
-
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-28">
+    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-28 relative overflow-x-hidden">
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
       `}} />
 
-      <div className="max-w-md mx-auto">
-        {/* الصورة + المعرض */}
-        <div className="relative h-72 bg-black">
-          <img
-            src={images[currentImage]}
-            alt={property.title}
-            className="w-full h-full object-contain cursor-pointer"
-            onClick={() => setLightbox(true)}
-          />
+      <div className="absolute inset-x-0 top-0 h-[220px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
+      <div className="absolute -top-32 -right-28 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ backgroundColor: AIRBNB }} />
 
-          {/* تدرج خفيف فقط أسفل الصورة للنص */}
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 pt-4 sm:pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_0.85fr] gap-5 items-start">
+          <section className="rounded-[2rem] overflow-hidden bg-white border border-zinc-100 shadow-sm">
+            <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/9] bg-black">
+              <img
+                src={images[currentImage]}
+                alt={property.title}
+                className="w-full h-full object-cover cursor-pointer"
+                onClick={() => setLightbox(true)}
+              />
 
-          <button onClick={() => navigate(-1)} className="absolute top-5 right-5 p-2 bg-black/30 hover:bg-black/50 backdrop-blur-md text-white rounded-full transition-colors">
-            <ArrowRight className="w-5 h-5" />
-          </button>
-          <button onClick={shareProperty} className="absolute top-5 left-5 p-2 bg-black/30 hover:bg-black/50 backdrop-blur-md text-white rounded-full transition-colors">
-            <Share2 className="w-5 h-5" />
-          </button>
+              <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/55 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/55 to-transparent" />
 
-          {images.length > 1 && (
-            <>
-              <button onClick={() => setCurrentImage(p => p > 0 ? p - 1 : images.length - 1)} className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition">
-                <ChevronRight className="w-5 h-5" />
+              <button onClick={() => navigate(-1)} className="absolute top-4 right-4 h-11 w-11 rounded-2xl bg-white/95 backdrop-blur text-zinc-950 flex items-center justify-center shadow-sm hover:bg-white transition">
+                <ArrowRight className="w-5 h-5" />
               </button>
-              <button onClick={() => setCurrentImage(p => p < images.length - 1 ? p + 1 : 0)} className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition">
-                <ChevronLeft className="w-5 h-5" />
+
+              <button onClick={shareProperty} className="absolute top-4 left-4 h-11 w-11 rounded-2xl bg-white/95 backdrop-blur text-zinc-950 flex items-center justify-center shadow-sm hover:bg-white transition">
+                <Share2 className="w-5 h-5" />
               </button>
-              <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {images.map((_, i) => (
-                  <button key={i} onClick={() => setCurrentImage(i)} className={`h-1.5 rounded-full transition-all ${i === currentImage ? 'bg-white w-6' : 'bg-white/50 w-1.5'}`} />
+
+              {images.length > 1 && (
+                <>
+                  <button onClick={() => setCurrentImage(p => p > 0 ? p - 1 : images.length - 1)} className="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-2xl bg-white/90 text-zinc-950 flex items-center justify-center shadow-sm hover:bg-white transition">
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => setCurrentImage(p => p < images.length - 1 ? p + 1 : 0)} className="absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-2xl bg-white/90 text-zinc-950 flex items-center justify-center shadow-sm hover:bg-white transition">
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+
+              <div className="absolute bottom-4 right-4 left-4 flex items-end justify-between gap-3">
+                <div className="rounded-[1.4rem] bg-white px-4 py-3 shadow-xl">
+                  <p className="text-[11px] font-black text-zinc-400 mb-1">السعر</p>
+                  <p className="text-2xl font-black leading-none" style={{ color: AIRBNB }}>{priceText}</p>
+                  {priceDetail && <p className="text-[11px] font-bold text-zinc-400 mt-1">{priceDetail}</p>}
+                </div>
+
+                <div className="flex flex-col items-end gap-2">
+                  {property.facade && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-2 text-xs font-black text-zinc-800 shadow-sm">
+                      <Compass className="w-4 h-4" style={{ color: AIRBNB }} />
+                      واجهة {property.facade}
+                    </span>
+                  )}
+                  {property.area && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur px-3 py-2 text-xs font-black text-white">
+                      <Maximize className="w-4 h-4" />
+                      {toEn(property.area)} م²
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {images.length > 1 && (
+              <div className="p-3 flex gap-2 overflow-x-auto">
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentImage(i)}
+                    className={`w-20 h-16 rounded-2xl overflow-hidden border-2 flex-shrink-0 ${i === currentImage ? 'border-[#FF385C]' : 'border-transparent'}`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
                 ))}
               </div>
-            </>
-          )}
-
-          <div className="absolute bottom-4 right-5 left-5 text-white">
-            <span className="inline-block px-3 py-1 rounded-lg text-[11px] font-bold mb-1.5 shadow-sm bg-white/20 backdrop-blur-sm">{ARABIC[property.listing_type] || property.listing_type || 'للبيع'}</span>
-            <h2 className="text-2xl font-black leading-tight mb-1">{property.title}</h2>
-            {(property.city || property.neighborhood) && (
-              <p className="text-sm text-white/80 flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {[property.neighborhood, property.city].filter(Boolean).join('، ')}</p>
             )}
-          </div>
+          </section>
+
+          <aside className="lg:sticky lg:top-5 space-y-4">
+            <div className="rounded-[2rem] bg-white border border-zinc-100 shadow-sm p-5">
+              <div className="flex items-center gap-2 flex-wrap mb-3">
+                {property.listing_type && <span className="rounded-full bg-zinc-950 text-white px-3 py-1.5 text-xs font-black">{property.listing_type}</span>}
+                {property.type && <span className="rounded-full bg-zinc-50 border border-zinc-100 text-zinc-700 px-3 py-1.5 text-xs font-black">{property.type}</span>}
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-black text-zinc-950 leading-tight">{property.title}</h1>
+
+              {location && (
+                <p className="mt-3 flex items-center gap-1.5 text-sm font-bold text-zinc-500">
+                  <MapPin className="w-4 h-4" />
+                  {location}
+                </p>
+              )}
+
+              {property.description && (
+                <p className="mt-4 text-sm font-medium text-zinc-500 leading-8">{property.description}</p>
+              )}
+            </div>
+
+            <div className="rounded-[2rem] bg-white border border-zinc-100 shadow-sm p-5">
+              <p className="text-sm font-black text-zinc-950 mb-4">بيانات المكتب</p>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200 overflow-hidden flex items-center justify-center">
+                  {officeLogo ? <img src={officeLogo} alt={officeName} className="w-full h-full object-cover" /> : <Building2 className="w-6 h-6 text-zinc-600" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-black text-zinc-950 truncate">{officeName}</p>
+                  {agent?.license_number && (
+                    <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-zinc-500">
+                      <CheckCircle2 className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                      رخصة موثوق: <span dir="ltr">{agent.license_number}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-2">
+                {waNumber && (
+                  <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer" className="w-full inline-flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white px-4 py-3 rounded-2xl text-sm font-black transition">
+                    <MessageCircle className="w-4 h-4" style={{ color: '#25D366' }} />
+                    تواصل واتساب
+                  </a>
+                )}
+                {agent?.phone && (
+                  <a href={`tel:${agent.phone}`} className="w-full inline-flex items-center justify-center gap-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-800 px-4 py-3 rounded-2xl text-sm font-black transition">
+                    <Phone className="w-4 h-4" />
+                    اتصال
+                  </a>
+                )}
+              </div>
+            </div>
+          </aside>
         </div>
 
-        <div className="px-5 pt-6">
-          {/* السعر + الواجهة */}
-          <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
-            <div>
-              <p className="text-sm text-slate-500 font-medium mb-1">السعر المطلوب</p>
-              <p className="text-3xl font-black text-[#15317E]">{priceText} {priceDetail && <span className="text-sm font-normal text-slate-500">{priceDetail}</span>}</p>
-            </div>
-            {isLand && property.facade && (
-              <span className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-[#15317E] bg-slate-50 border border-slate-200 flex items-center gap-1.5">
-                <Compass className="w-4 h-4" /> واجهة {property.facade}
-              </span>
-            )}
+        <section className="mt-5">
+          <h2 className="text-xl font-black text-zinc-950 mb-3">تفاصيل العقار</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+            <InfoCard icon={Building2} label="نوع العقار" value={property.type} />
+            <InfoCard icon={Layers} label="نوع العرض" value={property.listing_type} />
+            <InfoCard icon={Maximize} label="المساحة" value={property.area ? `${toEn(property.area)} م²` : ''} />
+            <InfoCard icon={Ruler} label="عرض الشارع" value={property.street_width ? `${toEn(property.street_width)} م` : ''} />
+            {isLand && <InfoCard icon={Compass} label="الواجهة" value={property.facade} />}
+            {isLand && <InfoCard icon={Map} label="الأبعاد" value={dims} />}
+            {!isLand && <InfoCard icon={BedDouble} label="غرف النوم" value={property.bedrooms ? toEn(property.bedrooms) : ''} />}
+            {!isLand && <InfoCard icon={Bath} label="دورات المياه" value={property.bathrooms ? toEn(property.bathrooms) : ''} />}
+            {!isLand && <InfoCard icon={Sofa} label="الصالات" value={property.halls ? toEn(property.halls) : ''} />}
+            {!isLand && <InfoCard icon={Home} label="عمر العقار" value={property.property_age ? `${toEn(property.property_age)} سنة` : ''} />}
+            <InfoCard icon={FileText} label="رقم المخطط" value={property.plot_number} />
+            <InfoCard icon={FileText} label="رقم القطعة" value={property.parcel_number} />
+            <InfoCard icon={CalendarClock} label="مدة الإيجار" value={property.rental_period} />
           </div>
+        </section>
 
-          {/* المواصفات الرقمية */}
-          {stats.length > 0 && (
-            <div className={`grid gap-2 sm:gap-3 mb-8 ${stats.length === 4 ? 'grid-cols-4' : stats.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
-              {stats.map((s, i) => (
-                <div key={i} className="bg-slate-50 p-3 rounded-2xl flex flex-col items-center justify-center text-center border border-slate-100">
-                  <s.icon className="w-5 h-5 text-[#15317E] mb-2" />
-                  <span className="text-[10px] text-slate-500 font-bold mb-0.5">{s.label}</span>
-                  <span className="text-xs sm:text-sm font-black text-slate-900">{s.value}</span>
+        {property.features?.length > 0 && (
+          <section className="mt-5 rounded-[2rem] bg-white border border-zinc-100 shadow-sm p-5">
+            <h2 className="text-xl font-black text-zinc-950 mb-4">أبرز المزايا</h2>
+            <div className="flex flex-wrap gap-2">
+              {property.features.map((feature) => {
+                const Icon = getFeatureIcon(feature);
+                return (
+                  <span key={feature} className="inline-flex items-center gap-1.5 rounded-full bg-zinc-50 border border-zinc-100 px-3 py-2 text-sm font-bold text-zinc-500">
+                    <Icon className="w-4 h-4" style={{ color: AIRBNB }} />
+                    {feature}
+                  </span>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {property.nearby_places?.length > 0 && (
+          <section className="mt-5 rounded-[2rem] bg-white border border-zinc-100 shadow-sm p-5">
+            <h2 className="text-xl font-black text-zinc-950 mb-4">المواقع والخدمات القريبة</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {property.nearby_places.map((place, i) => (
+                <div key={i} className="flex items-center justify-between gap-3 rounded-3xl bg-zinc-50 border border-zinc-100 p-4">
+                  <span className="font-black text-zinc-700">{place.label}</span>
+                  <span className="font-bold text-zinc-400">{place.distance_label}</span>
                 </div>
               ))}
             </div>
-          )}
-
-          {/* المميزات — تنزل كلها */}
-          {property.features?.length > 0 && (
-            <>
-              <h3 className="text-lg font-bold text-[#15317E] mb-4 flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-[#15317E]" /> مواصفات العقار</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                {property.features.map((f, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-white border border-slate-200 p-3.5 rounded-xl text-sm font-bold text-slate-700 shadow-sm">
-                    <div className="text-[#15317E] bg-slate-50 p-2 rounded-lg"><CheckCircle2 className="w-4 h-4" /></div>
-                    {f}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* الوصف */}
-          {property.description && (
-            <>
-              <h3 className="text-lg font-bold text-[#15317E] mb-3">الوصف</h3>
-              <p className="text-sm text-slate-600 leading-relaxed mb-8 bg-slate-50 rounded-xl p-4 border border-slate-100">{property.description}</p>
-            </>
-          )}
-
-          {/* الموقع والخدمات */}
-          {property.nearby_places?.length > 0 && (
-            <>
-              <h3 className="text-lg font-bold text-[#15317E] mb-4 flex items-center gap-2"><Map className="w-5 h-5 text-[#15317E]" /> الموقع وأقرب الخدمات</h3>
-              <div className="space-y-3 mb-8">
-                {property.nearby_places.map((perk, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                    <div className="text-[#15317E] bg-white p-2 rounded-lg shadow-sm border border-slate-100"><MapPin className="w-4 h-4" /></div>
-                    <span className="text-sm font-medium text-slate-700">{perk.label} · {perk.distance_label}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+          </section>
+        )}
       </div>
 
-      {/* شريط التواصل السفلي */}
-      {(waNumber || agent?.phone) && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-xl border-t border-slate-100 z-40">
-          <div className="max-w-md mx-auto flex gap-3">
-            {waNumber && (
-              <a href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`أهلاً، أستفسر عن عقار: ${property.title}`)}`} target="_blank" rel="noreferrer" className="flex-1 bg-[#15317E] hover:bg-[#0d1e4c] text-white flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-sm transition-all shadow-md">
-                <MessageCircle className="w-5 h-5" /> مراسلة واتساب
-              </a>
-            )}
-            {agent?.phone && (
-              <a href={`tel:${agent.phone}`} className="flex items-center justify-center px-6 bg-slate-100 hover:bg-slate-200 text-[#15317E] border border-slate-200 rounded-xl transition-all">
-                <Phone className="w-5 h-5" />
-              </a>
-            )}
-          </div>
-        </div>
-      )}
-      {/* عارض الصور بملء الشاشة */}
       {lightbox && (
-        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center" onClick={() => setLightbox(false)}>
-          <button onClick={() => setLightbox(false)} className="absolute top-5 left-5 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-10">
+        <div className="fixed inset-0 bg-black z-[100] flex items-center justify-center">
+          <button onClick={() => setLightbox(false)} className="absolute top-5 right-5 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full">
             <X className="w-6 h-6" />
           </button>
-
-          <img
-            src={images[currentImage]}
-            alt={property.title}
-            className="max-w-full max-h-full object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-
           {images.length > 1 && (
             <>
-              <button onClick={(e) => { e.stopPropagation(); setCurrentImage(p => p > 0 ? p - 1 : images.length - 1); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+              <button onClick={() => setCurrentImage(p => p > 0 ? p - 1 : images.length - 1)} className="absolute right-5 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full">
                 <ChevronRight className="w-6 h-6" />
               </button>
-              <button onClick={(e) => { e.stopPropagation(); setCurrentImage(p => p < images.length - 1 ? p + 1 : 0); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+              <button onClick={() => setCurrentImage(p => p < images.length - 1 ? p + 1 : 0)} className="absolute left-5 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full">
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, i) => (
-                  <button key={i} onClick={(e) => { e.stopPropagation(); setCurrentImage(i); }} className={`h-2 rounded-full transition-all ${i === currentImage ? 'bg-white w-8' : 'bg-white/40 w-2'}`} />
-                ))}
-              </div>
-              <div className="absolute top-6 right-6 text-white/80 text-sm font-bold bg-white/10 px-3 py-1 rounded-full" dir="ltr">
-                {currentImage + 1} / {images.length}
-              </div>
             </>
           )}
+          <img src={images[currentImage]} alt="" className="max-w-full max-h-full object-contain" />
         </div>
       )}
     </div>
