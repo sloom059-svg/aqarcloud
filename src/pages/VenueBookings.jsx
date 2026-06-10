@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import VenueCalendar from '@/components/venue/VenueCalendar';
+import aqarCloudLogo from '@/aqar-cloud-logo.png';
 
 const AIRBNB = '#FF385C';
 
@@ -934,7 +935,7 @@ export default function VenueBookings() {
                 <div className="bg-white rounded-[2rem] border border-zinc-200 shadow-[0_18px_50px_rgba(0,0,0,0.06)] p-5 mb-8">
                   <div className="flex items-start justify-between gap-8">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-16 h-16 rounded-[1.4rem] bg-zinc-950 flex items-center justify-center text-white shadow-lg overflow-hidden ring-4 ring-[#FF385C]/10 flex-shrink-0">
+                      <div className="w-16 h-16 rounded-[1.4rem] bg-zinc-950 flex items-center justify-center text-white shadow-lg overflow-hidden flex-shrink-0">
                         {user?.office_logo_url ? (
                           <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -942,7 +943,6 @@ export default function VenueBookings() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[11px] font-black text-[#FF385C] mb-1 tracking-wide">Aqar Cloud Receipt</p>
                         <h1 className="text-2xl font-black text-zinc-950 leading-tight max-w-[330px] whitespace-normal break-words">{venue?.name || 'المنشأة'}</h1>
                         <div className="mt-2 flex items-center gap-2 text-xs font-bold text-zinc-500">
                           {venue?.city && (
@@ -1094,7 +1094,7 @@ export default function VenueBookings() {
 
                   <div className="pt-4 border-t border-zinc-950/5 flex items-center justify-center gap-3 text-center">
                     <img
-                      src="/aqar-cloud-logo.png"
+                      src={aqarCloudLogo}
                       alt="Aqar Cloud"
                       className="h-8 w-auto object-contain"
                     />
