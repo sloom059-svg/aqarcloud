@@ -99,7 +99,7 @@ const getBookingRef = (id) => {
 const STATUS_MAP = {
   'جديد':      { border: 'bg-[#FF385C]',    select: 'bg-[#FF385C]/10 text-[#FF385C] border-[#FF385C]/20',         statBg: 'bg-[#FF385C]/10',    statText: 'text-[#FF385C]',    statIcon: Inbox },
   'بالانتظار': { border: 'bg-amber-500',   select: 'bg-amber-50 text-amber-700 border-amber-200',       statBg: 'bg-amber-50',   statText: 'text-amber-500',   statIcon: Clock },
-  'مؤكد':      { border: 'bg-[#FF385C]/100', select: 'bg-[#FF385C]/10 text-emerald-700 border-[#FF385C]/20', statBg: 'bg-[#FF385C]/10', statText: 'text-[#FF385C]', statIcon: CheckCircle2 },
+  'مؤكد':      { border: 'bg-emerald-500', select: 'bg-emerald-50 text-emerald-700 border-emerald-200', statBg: 'bg-emerald-50', statText: 'text-emerald-600', statIcon: CheckCircle2 },
   'ملغي':      { border: 'bg-rose-500',    select: 'bg-rose-50 text-rose-700 border-rose-200',          statBg: 'bg-rose-50',    statText: 'text-rose-500',    statIcon: XCircle },
 };
 
@@ -554,7 +554,7 @@ export default function VenueBookings() {
                     {user?.office_logo_url ? (
                       <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-xl font-black text-zinc-950">
+                      <span className="text-lg font-black text-zinc-950">
                         {(venue?.name || 'ش')[0]}
                       </span>
                     )}
@@ -564,7 +564,7 @@ export default function VenueBookings() {
                 <div className="min-w-0">
                   <p className="text-[11px] sm:text-xs font-black text-zinc-400 leading-none mb-1">إدارة الحجوزات</p>
                   {venue && (
-                    <h1 className="text-[15px] sm:text-xl font-black text-zinc-950 truncate leading-tight max-w-[125px] sm:max-w-[420px] lg:max-w-none">
+                    <h1 className="text-[15px] sm:text-lg font-black text-zinc-950 truncate leading-tight max-w-[125px] sm:max-w-[420px] lg:max-w-none">
                       {venue.name}
                     </h1>
                   )}
@@ -626,7 +626,7 @@ export default function VenueBookings() {
                   {showRevenue && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
                       <p className="text-[11px] text-zinc-500 font-bold mb-1">إيرادات الشهر المؤكدة</p>
-                      <p className="text-xl font-black text-zinc-950" dir="ltr">
+                      <p className="text-lg font-black text-zinc-950" dir="ltr">
                         {monthlyRevenue.toLocaleString('en-US')} <span className="text-[10px] font-bold text-zinc-400">ر.س</span>
                       </p>
                     </div>
@@ -908,7 +908,7 @@ export default function VenueBookings() {
 
       {/* ══════════ معاينة السند PDF ══════════ */}
       {showReceiptPreview && receiptBooking && (
-        <div className="fixed inset-0 z-[200] bg-zinc-950/85 backdrop-blur-md overflow-auto flex flex-col items-center py-6 px-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+        <div className="fixed inset-0 z-[200] bg-zinc-950/85 backdrop-blur-md overflow-auto flex flex-col items-center py-6 px-2" >
           <div className="sticky top-2 z-50 flex items-center gap-2 bg-white/95 backdrop-blur-xl p-2 rounded-3xl shadow-2xl border border-zinc-100 mb-4">
             <button onClick={downloadReceipt} disabled={downloadingReceipt} className="flex items-center gap-2 bg-[#FF385C] text-white px-5 py-2.5 rounded-2xl font-black text-xs hover:bg-[#E31C5F] transition-all shadow-sm disabled:opacity-60 active:scale-[0.98]">
               {downloadingReceipt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} تنزيل السند
@@ -920,7 +920,7 @@ export default function VenueBookings() {
 
           {/* غلاف للتصغير على الجوال */}
           <div className="receipt-scale-wrap">
-            <div ref={receiptRef} dir="rtl" className="receipt-page w-[210mm] min-h-[297mm] shrink-0 bg-[#FAFAFA] text-zinc-950 relative shadow-2xl flex flex-col rounded-[22px] overflow-hidden" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+            <div ref={receiptRef} dir="rtl" className="receipt-page font-sans w-[210mm] min-h-[297mm] shrink-0 bg-[#FAFAFA] text-zinc-950 relative shadow-2xl flex flex-col rounded-[22px] overflow-hidden" >
               {/* زخرفة خفيفة */}
               <div className="absolute -top-28 -right-24 w-80 h-80 rounded-full opacity-[0.08]" style={{ backgroundColor: AIRBNB }} />
               <div className="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-zinc-950 opacity-[0.04]" />
@@ -943,7 +943,7 @@ export default function VenueBookings() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-[11px] font-black text-[#FF385C] mb-1 tracking-wide">Aqar Cloud Receipt</p>
-                        <h1 className="text-2xl font-black text-zinc-950 leading-tight truncate">{venue?.name || 'المنشأة'}</h1>
+                        <h1 className="text-2xl font-black text-zinc-950 leading-tight max-w-[330px] whitespace-normal break-words">{venue?.name || 'المنشأة'}</h1>
                         <div className="mt-2 flex items-center gap-2 text-xs font-bold text-zinc-500">
                           {venue?.city && (
                             <span className="inline-flex items-center gap-1">
@@ -962,7 +962,7 @@ export default function VenueBookings() {
                         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
                         <span className="text-[11px] font-black text-[#FF385C]">سند رسمي</span>
                       </div>
-                      <h2 className="text-3xl font-black text-zinc-950 leading-none">سند استلام</h2>
+                      <h2 className="text-2xl font-black text-zinc-950 leading-none">سند استلام</h2>
                       <p className="text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-[0.25em]">Receipt Voucher</p>
                       <p className="mt-4 text-xs font-black text-zinc-600">
                         رقم المرجع:
@@ -973,19 +973,20 @@ export default function VenueBookings() {
                 </div>
 
                 {/* Amount hero */}
-                <div className="rounded-[2rem] bg-zinc-950 text-white p-6 mb-7 shadow-[0_18px_45px_rgba(0,0,0,0.15)] relative overflow-hidden">
-                  <div className="absolute -left-16 -top-16 w-52 h-52 rounded-full opacity-20" style={{ backgroundColor: AIRBNB }} />
+                <div className="rounded-[2rem] bg-white border border-[#FF385C]/15 p-6 mb-7 shadow-[0_18px_45px_rgba(255,56,92,0.08)] relative overflow-hidden">
+                  <div className="absolute -left-16 -top-16 w-52 h-52 rounded-full opacity-10" style={{ backgroundColor: AIRBNB }} />
+                  <div className="absolute bottom-0 right-0 left-0 h-1.5" style={{ backgroundColor: AIRBNB }} />
                   <div className="relative z-10 flex items-center justify-between gap-6">
                     <div>
-                      <p className="text-xs font-black text-white/50 mb-2">المبلغ المستلم</p>
+                      <p className="text-xs font-black text-zinc-400 mb-2">المبلغ المستلم</p>
                       <div className="flex items-end gap-2">
-                        <span className="text-5xl font-black tracking-tight">{receiptForm.amount || '0'}</span>
-                        <span className="text-sm font-black text-white/60 mb-1.5">ريال سعودي</span>
+                        <span className="text-4xl font-black tracking-tight text-zinc-950">{receiptForm.amount || '0'}</span>
+                        <span className="text-sm font-black text-zinc-500 mb-1.5">ريال سعودي</span>
                       </div>
                     </div>
                     <div className="text-left">
-                      <p className="text-xs font-black text-white/50 mb-2">نوع السند</p>
-                      <span className="inline-flex rounded-2xl bg-white/10 border border-white/10 px-4 py-2 text-sm font-black">
+                      <p className="text-xs font-black text-zinc-400 mb-2">نوع السند</p>
+                      <span className="inline-flex rounded-2xl bg-[#FF385C]/10 border border-[#FF385C]/15 px-4 py-2 text-sm font-black text-[#FF385C]">
                         {receiptTypeLabel(receiptForm.type)}
                       </span>
                     </div>
@@ -996,7 +997,7 @@ export default function VenueBookings() {
                 <div className="grid grid-cols-2 gap-4 mb-7">
                   <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
                     <p className="text-[11px] font-black text-zinc-400 mb-2">استلمنا من</p>
-                    <p className="text-xl font-black text-zinc-950 leading-tight">{receiptBooking.client_name}</p>
+                    <p className="text-lg font-black text-zinc-950 leading-tight">{receiptBooking.client_name}</p>
                     {receiptBooking.client_phone && receiptBooking.client_phone !== '000' && (
                       <p dir="ltr" className="mt-2 text-xs font-bold text-zinc-500 text-right">{receiptBooking.client_phone}</p>
                     )}
