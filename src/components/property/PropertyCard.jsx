@@ -1,28 +1,79 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Badge } from "@/components/ui/badge";
-import { MapPin, BedDouble, Bath, Maximize, Building2 } from "lucide-react";
+import {
+  MapPin,
+  BedDouble,
+  Bath,
+  Maximize,
+  Building2,
+  Home,
+  Ruler,
+  Compass,
+  Layers,
+  Tag,
+  Sofa,
+  CalendarClock,
+  FileText,
+  CheckCircle2,
+  MapPinned,
+} from "lucide-react";
 import { motion } from 'framer-motion';
+
+const AIRBNB = '#FF385C';
 
 const formatPrice = (price) => {
   if (!price) return '—';
   return new Intl.NumberFormat('ar-SA').format(price) + ' ر.س';
 };
 
+const item = (Icon, label, value) => {
+  if (value === undefined || value === null || value === '' || value === 0) return null;
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-600">
+      <Icon className="w-3.5 h-3.5 text-zinc-400" />
+      <span className="text-zinc-400">{label}</span>
+      <span className="text-zinc-800">{value}</span>
+    </span>
+  );
+};
+
 export default function PropertyCard({ property, index = 0 }) {
   const mainImage = property.images?.[0];
+  const location = [property.neighborhood, property.city].filter(Boolean).join('، ');
+  const priceText = property.price_on_request
+    ? 'السعر عند الطلب'
+    : property.price_negotiable
+    ? 'السعر قابل للتفاوض'
+    : formatPrice(property.price);
+
+  const specs = [
+    item(Building2, 'النوع', property.type),
+    item(Layers, 'العرض', property.listing_type),
+    property.rental_period ? item(CalendarClock, 'الإيجار', property.rental_period) : null,
+    property.area ? item(Maximize, 'المساحة', `${property.area} م²`) : null,
+    property.street_width ? item(Ruler, 'الشارع', `${property.street_width} م`) : null,
+    property.facade ? item(Compass, 'الواجهة', property.facade) : null,
+    property.bedrooms ? item(BedDouble, 'غرف', property.bedrooms) : null,
+    property.bathrooms ? item(Bath, 'دورات', property.bathrooms) : null,
+    property.halls ? item(Sofa, 'صالات', property.halls) : null,
+    property.property_age ? item(Home, 'العمر', `${property.property_age} سنة`) : null,
+    property.length_street ? item(Ruler, 'على الشارع', `${property.length_street} م`) : null,
+    property.length_depth ? item(Ruler, 'العمق', `${property.length_depth} م`) : null,
+    property.plot_number ? item(FileText, 'المخطط', property.plot_number) : null,
+    property.parcel_number ? item(FileText, 'القطعة', property.parcel_number) : null,
+  ].filter(Boolean);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+      transition={{ duration: 0.35, delay: index * 0.04 }}
     >
       <Link
         to={`/property/${property.id}`}
-        className="group block bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl hover:shadow-primary/5 transition-all duration-500"
+        className="group block bg-white rounded-[1.7rem] overflow-hidden border border-zinc-100 shadow-sm hover:shadow-2xl hover:shadow-zinc-200/70 transition-all duration-500"
       >
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <div className="relative aspect-[4/3] overflow-hidden bg-zinc-100">
           {mainImage ? (
             <img
               src={mainImage}
@@ -30,65 +81,87 @@ export default function PropertyCard({ property, index = 0 }) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Building2 className="w-12 h-12 text-muted-foreground/30" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100">
+              <Building2 className="w-14 h-14 text-zinc-300" />
             </div>
           )}
-          <div className="absolute top-3 right-3 flex gap-2">
-            <Badge className="bg-primary text-primary-foreground shadow-lg text-xs">
-              {property.listing_type}
-            </Badge>
+
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
+
+          <div className="absolute top-3 right-3 flex gap-2 flex-wrap">
+            {property.listing_type && (
+              <span className="rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-950 shadow-sm">
+                {property.listing_type}
+              </span>
+            )}
+            {property.type && (
+              <span className="rounded-full bg-zinc-950/85 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white shadow-sm">
+                {property.type}
+              </span>
+            )}
           </div>
+
           {property.status && property.status !== 'نشط' && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <Badge variant="secondary" className="text-sm px-4 py-1">{property.status}</Badge>
+            <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
+              <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-zinc-950">{property.status}</span>
             </div>
           )}
+
+          <div className="absolute bottom-3 right-3 left-3">
+            <p className="inline-flex rounded-2xl bg-white px-3 py-2 text-sm font-black shadow-sm" style={{ color: AIRBNB }}>
+              {priceText}
+            </p>
+          </div>
         </div>
 
         <div className="p-4 space-y-3">
           <div>
-            <p className="text-primary font-bold text-lg">{formatPrice(property.price)}</p>
-            <h3 className="font-heading font-semibold text-foreground mt-1 line-clamp-1 group-hover:text-primary transition-colors">
-              {property.title}
+            <h3 className="font-black text-zinc-950 text-base leading-snug line-clamp-2 group-hover:text-[#FF385C] transition-colors">
+              {property.title || 'عقار بدون عنوان'}
             </h3>
+
+            {location && (
+              <div className="mt-2 flex items-center gap-1.5 text-zinc-500 text-xs font-bold">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                <span className="line-clamp-1">{location}</span>
+              </div>
+            )}
           </div>
 
-          {(property.city || property.neighborhood) && (
-            <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
-              <MapPin className="w-3.5 h-3.5 shrink-0" />
-              <span className="line-clamp-1">
-                {[property.neighborhood, property.city].filter(Boolean).join('، ')}
-              </span>
+          {property.description && (
+            <p className="text-xs font-medium text-zinc-500 leading-6 line-clamp-2">
+              {property.description}
+            </p>
+          )}
+
+          {specs.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-3 border-t border-zinc-100">
+              {specs.slice(0, 10)}
             </div>
           )}
 
-          <div className="flex items-center gap-4 text-muted-foreground text-xs pt-2 border-t border-border">
-            {property.type && (
-              <span className="flex items-center gap-1">
-                <Building2 className="w-3.5 h-3.5" />
-                {property.type}
-              </span>
-            )}
-            {property.bedrooms > 0 && (
-              <span className="flex items-center gap-1">
-                <BedDouble className="w-3.5 h-3.5" />
-                {property.bedrooms}
-              </span>
-            )}
-            {property.bathrooms > 0 && (
-              <span className="flex items-center gap-1">
-                <Bath className="w-3.5 h-3.5" />
-                {property.bathrooms}
-              </span>
-            )}
-            {property.area > 0 && (
-              <span className="flex items-center gap-1">
-                <Maximize className="w-3.5 h-3.5" />
-                {property.area} م²
-              </span>
-            )}
-          </div>
+          {property.features?.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {property.features.slice(0, 5).map((feature) => (
+                <span key={feature} className="inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 px-2.5 py-1 text-[11px] font-black text-[#FF385C]">
+                  <CheckCircle2 className="w-3 h-3" />
+                  {feature}
+                </span>
+              ))}
+              {property.features.length > 5 && (
+                <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-black text-zinc-500">
+                  +{property.features.length - 5}
+                </span>
+              )}
+            </div>
+          )}
+
+          {property.nearby_places?.length > 0 && (
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-400 pt-2">
+              <MapPinned className="w-3.5 h-3.5" />
+              {property.nearby_places.length} موقع قريب مضاف
+            </div>
+          )}
         </div>
       </Link>
     </motion.div>

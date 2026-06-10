@@ -13,6 +13,8 @@ import {
 // ───────────────────────────────────────────
 const CITIES = ["الرياض","جدة","مكة المكرمة","المدينة المنورة","الدمام","الخبر","الطائف","تبوك","بريدة","حائل","أبها","خميس مشيط","جازان","نجران","ينبع","الجبيل","الأحساء","القطيف","الرس","عنيزة","الزلفي","المجمعة","شقراء","الدوادمي","الأفلاج","وادي الدواسر","سكاكا","القريات","عرعر","رفحاء","طريف","الوجه","أملج","ضباء","البدع","بيشة","محايل عسير","صبيا","أبو عريش","صامطة","الليث","رابغ","القنفذة","الباحة","بلجرشي","المندق","مدينة الملك عبدالله الاقتصادية"];
 
+const AIRBNB = '#FF385C';
+
 const FACADES = ["شمالية","جنوبية","شرقية","غربية","شمالية شرقية","شمالية غربية","جنوبية شرقية","جنوبية غربية"];
 
 // أنواع العقارات مع الأيقونات
@@ -59,17 +61,20 @@ function StepHeader({ step, total, onBack, title }) {
     <div className="mb-6">
       <div className="flex items-center mb-4">
         {onBack ? (
-          <button type="button" onClick={onBack} className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all flex items-center justify-center text-slate-600">
+          <button type="button" onClick={onBack} className="w-10 h-10 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-2xl transition-all flex items-center justify-center text-zinc-700">
             <ArrowRight className="w-4 h-4" />
           </button>
-        ) : <div className="w-9 h-9" />}
-        <h2 className="flex-1 text-center text-base font-bold text-[#15317E]">{title}</h2>
-        <div className="w-9 h-9" />
+        ) : <div className="w-10 h-10" />}
+        <div className="flex-1 text-center">
+          <h2 className="text-base font-black text-zinc-950">{title}</h2>
+          <p className="text-[11px] font-bold text-zinc-400 mt-1">الخطوة {step + 1} من {total}</p>
+        </div>
+        <div className="w-10 h-10" />
       </div>
       <div className="flex items-center gap-1.5 px-2">
         {Array.from({ length: total }).map((_, i) => (
-          <div key={i} className="flex-1 h-1.5 rounded-full overflow-hidden bg-slate-100">
-            <div className="h-full rounded-full bg-[#15317E] transition-all duration-500" style={{ width: i < step ? '100%' : '0%' }} />
+          <div key={i} className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-100">
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: i <= step ? '100%' : '0%', backgroundColor: AIRBNB }} />
           </div>
         ))}
       </div>
@@ -81,23 +86,23 @@ function StepHeader({ step, total, onBack, title }) {
 function Field({ label, icon: Icon, children, optional }) {
   return (
     <div>
-      <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 mb-2">
-        {Icon && <Icon className="w-3.5 h-3.5 text-[#15317E]" />}
+      <label className="flex items-center gap-1.5 text-xs font-black text-zinc-600 mb-2">
+        {Icon && <Icon className="w-3.5 h-3.5" style={{ color: AIRBNB }} />}
         {label}
-        {optional && <span className="text-[10px] font-medium text-slate-400">(اختياري)</span>}
+        {optional && <span className="text-[10px] font-bold text-zinc-400">(اختياري)</span>}
       </label>
       {children}
     </div>
   );
 }
 
-const inputClass = "w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:border-[#15317E] focus:ring-1 focus:ring-[#15317E] outline-none transition-all text-sm font-medium shadow-sm";
+const inputClass = "w-full px-4 py-3 bg-white border border-zinc-200 rounded-2xl focus:border-[#FF385C] focus:ring-1 focus:ring-[#FF385C] outline-none transition-all text-sm font-bold shadow-sm text-zinc-800 placeholder:text-zinc-400";
 
 // زر التالي
 function NextButton({ onClick, disabled, label = "التالي" }) {
   return (
     <button type="button" onClick={onClick} disabled={disabled}
-      className="w-full mt-6 py-4 bg-[#15317E] text-white rounded-2xl font-bold text-base shadow-lg shadow-[#15317E]/20 disabled:opacity-50 transition-all">
+      className="w-full mt-6 py-4 bg-zinc-950 hover:bg-black text-white rounded-2xl font-black text-base shadow-lg disabled:opacity-50 transition-all active:scale-[0.99]">
       {label}
     </button>
   );
@@ -107,7 +112,7 @@ function NextButton({ onClick, disabled, label = "التالي" }) {
 function Chip({ active, onClick, label }) {
   return (
     <button type="button" onClick={onClick}
-      className={`px-3 py-2 rounded-xl text-sm font-bold border transition-all ${active ? 'bg-[#15317E] text-white border-[#15317E] shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-[#15317E]/40'}`}>
+      className={`px-3 py-2 rounded-2xl text-sm font-black border transition-all ${active ? 'bg-[#FF385C] text-white border-[#FF385C] shadow-sm' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40 hover:bg-[#FF385C]/5'}`}>
       {label}
     </button>
   );
@@ -120,7 +125,7 @@ function NumberPicker({ label, icon, value, onChange, max = 10 }) {
       <div className="flex flex-wrap gap-1.5">
         {Array.from({ length: max }, (_, i) => i + 1).map(n => (
           <button key={n} type="button" onClick={() => onChange(value === n ? '' : n)}
-            className={`w-9 h-9 rounded-xl text-sm font-bold border transition-all ${value === n ? 'bg-[#15317E] text-white border-[#15317E]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#15317E]/40'}`}>
+            className={`w-9 h-9 rounded-2xl text-sm font-black border transition-all ${value === n ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40 hover:bg-[#FF385C]/5'}`}>
             {n}
           </button>
         ))}
@@ -281,35 +286,35 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
       <div className="text-center py-6">
         <Style />
         <div className="relative mb-6 inline-block">
-          <div className="absolute inset-0 bg-[#15317E] rounded-full blur-2xl opacity-20 animate-pulse" />
-          <div className="w-24 h-24 bg-[#15317E] rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white mx-auto">
+          <div className="absolute inset-0 bg-[#FF385C] rounded-full blur-2xl opacity-20 animate-pulse" />
+          <div className="w-24 h-24 bg-[#FF385C] rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white mx-auto">
             <PartyPopper className="w-11 h-11 text-white" />
           </div>
         </div>
-        <h1 className="text-2xl font-black text-[#15317E] mb-2">تم إضافة العقار بنجاح</h1>
-        <p className="text-slate-500 text-sm mb-8 max-w-[280px] mx-auto leading-relaxed">
-          تم نشر <span className="font-bold text-[#15317E]">{successData.title || 'عقارك'}</span> في صفحتك. يمكنك مشاركته مع عملائك الآن.
+        <h1 className="text-2xl font-black text-[#FF385C] mb-2">تم إضافة العقار بنجاح</h1>
+        <p className="text-zinc-500 text-sm mb-8 max-w-[280px] mx-auto leading-relaxed">
+          تم نشر <span className="font-bold text-[#FF385C]">{successData.title || 'عقارك'}</span> في صفحتك. يمكنك مشاركته مع عملائك الآن.
         </p>
         <div className="w-full space-y-3 max-w-sm mx-auto">
           {url && (
             <button onClick={() => window.open(url, '_blank')}
-              className="w-full py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#15317E]/30 transition-all flex items-center justify-center gap-2">
+              className="w-full py-4 bg-[#FF385C] hover:bg-[#E31C5F] text-white rounded-2xl font-bold text-sm shadow-xl shadow-zinc-950/20 transition-all flex items-center justify-center gap-2">
               <Eye className="w-5 h-5" /> مشاهدة صفحة العقار
             </button>
           )}
           <button onClick={() => { if (url) navigator.clipboard.writeText(url); }}
-            className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+            className="w-full py-4 bg-white border border-zinc-200 hover:border-[#FF385C] hover:text-[#FF385C] text-zinc-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
             <Share2 className="w-5 h-5" /> نسخ رابط العقار
           </button>
           {successData.onDownloadCard && (
             <button onClick={successData.onDownloadCard}
-              className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+              className="w-full py-4 bg-white border border-zinc-200 hover:border-[#FF385C] hover:text-[#FF385C] text-zinc-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
               <Download className="w-5 h-5" /> تنزيل بطاقة النشر
             </button>
           )}
           {onReset && (
             <button onClick={() => { try { sessionStorage.removeItem(DRAFT_KEY); } catch {} onReset(); }}
-              className="w-full py-3 text-slate-400 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all">
+              className="w-full py-3 text-zinc-400 hover:text-[#FF385C] rounded-2xl font-bold text-sm transition-all">
               إضافة عقار آخر
             </button>
           )}
@@ -324,23 +329,23 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
       <div>
         <Style />
         <div className="mb-5">
-          <h2 className="text-xl font-bold text-[#15317E] mb-1">نوع العقار</h2>
-          <p className="text-slate-500 text-xs">اختر نوع العقار الذي تريد إضافته</p>
+          <h2 className="text-xl font-bold text-[#FF385C] mb-1">نوع العقار</h2>
+          <p className="text-zinc-500 text-xs">اختر نوع العقار الذي تريد إضافته</p>
         </div>
         <div className="space-y-2.5">
           {PROPERTY_TYPES.map(t => (
             <button key={t.id} type="button"
               onClick={() => { handleChange('type', t.id); setStep(1); }}
               className={`w-full relative p-4 rounded-2xl border-2 text-right transition-all flex items-center gap-4 shadow-sm
-                ${form.type === t.id ? 'border-[#15317E] bg-[#15317E]/5' : 'border-slate-100 bg-white hover:border-[#15317E]/40 hover:bg-slate-50'}`}>
-              <div className={`p-2.5 rounded-xl ${form.type === t.id ? 'bg-[#15317E] text-white' : 'bg-slate-100 text-slate-500'}`}>
+                ${form.type === t.id ? 'border-[#FF385C] bg-[#FF385C]/5' : 'border-zinc-100 bg-white hover:border-[#FF385C]/40 hover:bg-zinc-50'}`}>
+              <div className={`p-2.5 rounded-xl ${form.type === t.id ? 'bg-[#FF385C] text-white' : 'bg-zinc-100 text-zinc-500'}`}>
                 <t.Icon className="w-5 h-5" />
               </div>
               <div className="flex-1">
-                <h3 className={`font-bold text-base ${form.type === t.id ? 'text-[#15317E]' : 'text-slate-700'}`}>{t.id}</h3>
-                <p className="text-xs text-slate-500">{t.desc}</p>
+                <h3 className={`font-bold text-base ${form.type === t.id ? 'text-[#FF385C]' : 'text-zinc-700'}`}>{t.id}</h3>
+                <p className="text-xs text-zinc-500">{t.desc}</p>
               </div>
-              {form.type === t.id && <CheckCircle2 className="w-5 h-5 text-[#15317E]" />}
+              {form.type === t.id && <CheckCircle2 className="w-5 h-5 text-[#FF385C]" />}
             </button>
           ))}
         </div>
@@ -357,7 +362,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
         <StepHeader step={1} total={TOTAL_STEPS} onBack={() => isEdit ? null : setStep(0)} title={`إضافة ${form.type}`} />
         <div className="space-y-4">
           <div className="mb-1">
-            <h2 className="text-lg font-bold text-[#15317E]">المعلومات الأساسية</h2>
+            <h2 className="text-lg font-bold text-[#FF385C]">المعلومات الأساسية</h2>
           </div>
 
           <Field label="عنوان العقار" icon={Tag}>
@@ -370,14 +375,14 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
               <div className="flex gap-2">
                 {['بيع', 'إيجار'].map(lt => (
                   <button key={lt} type="button" onClick={() => handleChange('listing_type', lt)}
-                    className={`flex-1 py-3 rounded-2xl text-sm font-bold border transition-all ${form.listing_type === lt ? 'bg-[#15317E] text-white border-[#15317E]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#15317E]/40'}`}>
+                    className={`flex-1 py-3 rounded-2xl text-sm font-bold border transition-all ${form.listing_type === lt ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40'}`}>
                     {lt}
                   </button>
                 ))}
               </div>
             </Field>
           ) : (
-            <div className="bg-[#15317E]/5 border border-[#15317E]/10 rounded-2xl px-4 py-3 text-sm font-bold text-[#15317E] flex items-center gap-2">
+            <div className="bg-[#FF385C]/5 border border-[#FF385C]/10 rounded-2xl px-4 py-3 text-sm font-bold text-[#FF385C] flex items-center gap-2">
               <Tag className="w-4 h-4" /> الأرض للبيع فقط
             </div>
           )}
@@ -387,7 +392,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
               <div className="flex gap-2">
                 {RENTAL_PERIODS.map(rp => (
                   <button key={rp} type="button" onClick={() => handleChange('rental_period', rp)}
-                    className={`flex-1 py-3 rounded-2xl text-sm font-bold border transition-all ${form.rental_period === rp ? 'bg-[#15317E] text-white border-[#15317E]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#15317E]/40'}`}>
+                    className={`flex-1 py-3 rounded-2xl text-sm font-bold border transition-all ${form.rental_period === rp ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40'}`}>
                     {rp}
                   </button>
                 ))}
@@ -420,7 +425,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
         <Style />
         <StepHeader step={2} total={TOTAL_STEPS} onBack={() => setStep(1)} title={`تفاصيل ${form.type}`} />
         <div className="space-y-4">
-          <div className="mb-1"><h2 className="text-lg font-bold text-[#15317E]">تفاصيل العقار</h2></div>
+          <div className="mb-1"><h2 className="text-lg font-bold text-[#FF385C]">تفاصيل العقار</h2></div>
 
           {/* المساحة - للجميع ماعدا لا أحد، الكل يحتاج مساحة */}
           <Field label="المساحة (م²)" icon={Maximize} optional={isUnit || isRest}>
@@ -443,13 +448,13 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
               </Field>
 
               {/* الأطوال اختياري */}
-              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-2xl border border-slate-200 bg-white hover:border-[#15317E]/40 transition-colors">
-                <input type="checkbox" checked={form.has_lengths} onChange={e => handleChange('has_lengths', e.target.checked)} className="w-4 h-4 accent-[#15317E]" />
-                <span className="text-sm font-bold text-slate-600">إضافة الأطوال</span>
-                <span className="text-[10px] font-medium text-slate-400">(اختياري)</span>
+              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-2xl border border-zinc-200 bg-white hover:border-[#FF385C]/40 transition-colors">
+                <input type="checkbox" checked={form.has_lengths} onChange={e => handleChange('has_lengths', e.target.checked)} className="w-4 h-4 accent-[#FF385C]" />
+                <span className="text-sm font-bold text-zinc-600">إضافة الأطوال</span>
+                <span className="text-[10px] font-medium text-zinc-400">(اختياري)</span>
               </label>
               {form.has_lengths && (
-                <div className="grid grid-cols-2 gap-3 pr-2 border-r-2 border-[#15317E]/10">
+                <div className="grid grid-cols-2 gap-3 pr-2 border-r-2 border-[#FF385C]/10">
                   <Field label="على الشارع (م)">
                     <input type="number" dir="ltr" value={form.length_street} onChange={e => handleChange('length_street', e.target.value)} placeholder="25" className={inputClass} />
                   </Field>
@@ -460,13 +465,13 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
               )}
 
               {/* رقم المخطط والقطعة اختياري */}
-              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-2xl border border-slate-200 bg-white hover:border-[#15317E]/40 transition-colors">
-                <input type="checkbox" checked={form.has_plot_info} onChange={e => handleChange('has_plot_info', e.target.checked)} className="w-4 h-4 accent-[#15317E]" />
-                <span className="text-sm font-bold text-slate-600">رقم المخطط والقطعة</span>
-                <span className="text-[10px] font-medium text-slate-400">(اختياري)</span>
+              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-2xl border border-zinc-200 bg-white hover:border-[#FF385C]/40 transition-colors">
+                <input type="checkbox" checked={form.has_plot_info} onChange={e => handleChange('has_plot_info', e.target.checked)} className="w-4 h-4 accent-[#FF385C]" />
+                <span className="text-sm font-bold text-zinc-600">رقم المخطط والقطعة</span>
+                <span className="text-[10px] font-medium text-zinc-400">(اختياري)</span>
               </label>
               {form.has_plot_info && (
-                <div className="grid grid-cols-2 gap-3 pr-2 border-r-2 border-[#15317E]/10">
+                <div className="grid grid-cols-2 gap-3 pr-2 border-r-2 border-[#FF385C]/10">
                   <Field label="رقم المخطط">
                     <input value={form.plot_number} onChange={e => handleChange('plot_number', e.target.value)} placeholder="1234" className={inputClass} />
                   </Field>
@@ -524,19 +529,19 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
         <Style />
         <StepHeader step={3} total={TOTAL_STEPS} onBack={() => setStep(2)} title="الموقع" />
         <div className="space-y-4">
-          <div className="mb-1"><h2 className="text-lg font-bold text-[#15317E]">الموقع والخدمات</h2></div>
+          <div className="mb-1"><h2 className="text-lg font-bold text-[#FF385C]">الموقع والخدمات</h2></div>
 
           <Field label="رابط الموقع (Google Maps)" icon={MapPin} optional>
             <div className="flex gap-2">
               <input dir="ltr" value={form.maps_url} onChange={e => handleChange('maps_url', e.target.value)}
                 placeholder="https://maps.google.com/..." className={inputClass + ' flex-1'} />
               <button type="button" onClick={fetchNearbyPlaces} disabled={!form.maps_url || fetchingPlaces}
-                className="px-4 bg-[#15317E] text-white rounded-2xl font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 transition-all whitespace-nowrap shadow-sm shadow-[#15317E]/20">
+                className="px-4 bg-zinc-950 text-white rounded-2xl font-black text-xs flex items-center gap-1.5 disabled:opacity-50 transition-all whitespace-nowrap shadow-sm shadow-zinc-950/10">
                 {fetchingPlaces ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                 سحب
               </button>
             </div>
-            <p className="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1">
+            <p className="text-[10px] text-zinc-400 mt-1.5 flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> جلب الخدمات القريبة بالذكاء الاصطناعي
             </p>
           </Field>
@@ -544,12 +549,12 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
           {placesError && <p className="text-xs text-rose-500 font-medium">{placesError}</p>}
 
           {form.nearby_places?.length > 0 && (
-            <div className="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm">
-              <p className="text-xs font-bold text-[#15317E] mb-2">الخدمات القريبة:</p>
+            <div className="bg-white border border-zinc-100 rounded-2xl p-3 shadow-sm">
+              <p className="text-xs font-bold text-[#FF385C] mb-2">الخدمات القريبة:</p>
               <div className="flex flex-wrap gap-2">
                 {form.nearby_places.map((p, i) => (
-                  <span key={i} className="flex items-center gap-1 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600">
-                    <MapPin className="w-3 h-3 text-[#15317E]" /> {p.label} · {p.distance_label}
+                  <span key={i} className="flex items-center gap-1 bg-zinc-50 border border-zinc-100 px-2.5 py-1 rounded-lg text-[11px] font-medium text-zinc-600">
+                    <MapPin className="w-3 h-3 text-[#FF385C]" /> {p.label} · {p.distance_label}
                   </span>
                 ))}
               </div>
@@ -570,8 +575,8 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
         <StepHeader step={4} total={TOTAL_STEPS} onBack={() => setStep(3)} title="المميزات" />
         <div className="space-y-4">
           <div className="mb-1">
-            <h2 className="text-lg font-bold text-[#15317E]">مميزات العقار</h2>
-            <p className="text-slate-500 text-xs">اختر ما ينطبق على عقارك</p>
+            <h2 className="text-lg font-bold text-[#FF385C]">مميزات العقار</h2>
+            <p className="text-zinc-500 text-xs">اختر ما ينطبق على عقارك</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {availableFeatures.map(f => (
@@ -599,13 +604,13 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
         <Style />
         <StepHeader step={5} total={TOTAL_STEPS} onBack={() => setStep(4)} title="الصور والسعر" />
         <div className="space-y-5">
-          <div className="mb-1"><h2 className="text-lg font-bold text-[#15317E]">الصور والسعر</h2></div>
+          <div className="mb-1"><h2 className="text-lg font-bold text-[#FF385C]">الصور والسعر</h2></div>
 
           {/* الصور */}
           <Field label="صور العقار" icon={ImageIcon}>
             <div className="grid grid-cols-3 gap-2">
               {form.images.map((img, i) => (
-                <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border border-zinc-200 shadow-sm">
                   <img src={img} className="w-full h-full object-cover" />
                   <button type="button" onClick={() => removeImage(i)}
                     className="absolute top-1 left-1 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
@@ -614,8 +619,8 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
                 </div>
               ))}
               {form.images.length < MAX_IMAGES && (
-                <label className="aspect-square rounded-2xl border-2 border-dashed border-[#15317E]/30 bg-[#15317E]/5 flex flex-col items-center justify-center cursor-pointer hover:border-[#15317E]/50 hover:bg-[#15317E]/10 transition">
-                  {uploading ? <Loader2 className="w-6 h-6 animate-spin text-[#15317E]" /> : <><Upload className="w-5 h-5 text-[#15317E]" /><span className="text-xs text-[#15317E] mt-1 font-medium">إضافة</span></>}
+                <label className="aspect-square rounded-2xl border-2 border-dashed border-[#FF385C]/30 bg-[#FF385C]/5 flex flex-col items-center justify-center cursor-pointer hover:border-[#FF385C]/50 hover:bg-[#FF385C]/10 transition">
+                  {uploading ? <Loader2 className="w-6 h-6 animate-spin text-[#FF385C]" /> : <><Upload className="w-5 h-5 text-[#FF385C]" /><span className="text-xs text-[#FF385C] mt-1 font-medium">إضافة</span></>}
                   <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={uploading} />
                 </label>
               )}
@@ -624,8 +629,8 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
 
           {/* السعر */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 mb-2">
-              <Tag className="w-3.5 h-3.5 text-[#15317E]" /> السعر
+            <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-600 mb-2">
+              <Tag className="w-3.5 h-3.5 text-[#FF385C]" /> السعر
             </label>
 
             {!form.price_negotiable && (
@@ -637,21 +642,21 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
               <div className="flex gap-2 mt-2">
                 <button type="button"
                   onClick={() => { handleChange('price_negotiable', !form.price_negotiable); if (!form.price_negotiable) handleChange('price', ''); }}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all ${form.price_negotiable ? 'bg-[#15317E] text-white border-[#15317E]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#15317E]/40'}`}>
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all ${form.price_negotiable ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40'}`}>
                   على السوم
                 </button>
               </div>
             )}
 
             {form.price && !form.price_negotiable && (
-              <p className="text-sm font-bold text-[#15317E] bg-[#15317E]/5 rounded-xl px-3 py-2 mt-2">
+              <p className="text-sm font-bold text-[#FF385C] bg-[#FF385C]/5 rounded-xl px-3 py-2 mt-2">
                 {Number(form.price).toLocaleString('en-US')} ر.س
               </p>
             )}
           </div>
 
           <button type="button" onClick={submit} disabled={!canSubmit || isLoading}
-            className="w-full mt-4 py-4 bg-[#15317E] text-white rounded-2xl font-bold text-base shadow-lg shadow-[#15317E]/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
+            className="w-full mt-4 py-4 bg-zinc-950 text-white rounded-2xl font-black text-base shadow-lg shadow-zinc-950/10 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
             {isLoading ? <><Loader2 className="w-5 h-5 animate-spin" />جاري النشر...</> : <><CheckCircle2 className="w-5 h-5" />{isEdit ? 'حفظ التعديلات' : 'نشر العقار'}</>}
           </button>
         </div>
