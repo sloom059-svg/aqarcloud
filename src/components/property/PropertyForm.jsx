@@ -272,6 +272,8 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
       plot_number: form.has_plot_info ? form.plot_number : undefined,
       parcel_number: form.has_plot_info ? form.parcel_number : undefined,
     };
+    // استبعاد حقول النظام حتى لا تُرسل ضمن قيم التحديث (تسبب فشل/تجاهل الحفظ)
+    ['id', 'created_date', 'updated_date', 'created_at', 'updated_at', 'created_by', 'created_by_id', 'owner_id'].forEach(k => delete data[k]);
     onSubmit(data);
   };
 
