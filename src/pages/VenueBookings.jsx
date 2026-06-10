@@ -1085,14 +1085,14 @@ export default function VenueBookings() {
                           value={`${window.location.origin}/place/${venue?.slug || venue?.id || 'venue'}`}
                           size={58}
                           bgColor="#ffffff"
-                          fgColor="#212121"
+                          fgColor="#000000"
                           level="M"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-4 flex items-center justify-center gap-3 text-center">
+                  <div className="flex items-center justify-center gap-3 text-center">
                     <img
                       src={aqarCloudLogo}
                       alt="Aqar Cloud"
@@ -1101,14 +1101,14 @@ export default function VenueBookings() {
                     <div className="text-right">
                       <p className="text-[12px] font-black text-zinc-950 leading-tight">صدر هذا السند عبر منصة عقار كلاود</p>
                       <p className="text-[10px] font-bold text-zinc-500 mt-1">
-                        لإدارة الشاليهات و الحجوزات والعقارات
+                        لإدارة الحجوزات والعقارات
                       </p>
                     </div>
                   </div>
                 </div>
 
                 {venue?.social && (venue.social.instagram || venue.social.tiktok || venue.social.x || venue.social.snapchat) && (
-                  <div className="mt-5 flex justify-center items-center gap-6 pt-4 border-t border-zinc-950/5">
+                  <div className="mt-5 flex justify-center items-center gap-6 pt-2">
                     {venue.social.instagram && (
                       <div className="flex items-center gap-1.5 text-zinc-950">
                         <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.instagram}</span>
