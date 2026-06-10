@@ -958,10 +958,6 @@ export default function VenueBookings() {
                     </div>
 
                     <div className="text-left flex-shrink-0">
-                      <div className="inline-flex items-center gap-2 rounded-full bg-[#FF385C]/10 px-3 py-1.5 mb-3">
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
-                        <span className="text-[11px] font-black text-[#FF385C]">سند رسمي</span>
-                      </div>
                       <h2 className="text-2xl font-black text-zinc-950 leading-none">سند استلام</h2>
                       <p className="text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-[0.25em]">Receipt Voucher</p>
                       <p className="mt-4 text-xs font-black text-zinc-600">
@@ -1059,38 +1055,64 @@ export default function VenueBookings() {
                   })()}
                 </div>
 
-                <div className="mt-auto grid grid-cols-[1fr_auto] gap-5 items-end">
-                  <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
-                    <p className="text-[11px] font-black text-zinc-400 mb-3">بيانات التواصل</p>
-                    <div className="space-y-2">
-                      {(user?.phone || receiptBooking.client_phone) && (
-                        <p className="text-zinc-950 font-black text-sm flex items-center gap-2">
-                          <Phone className="w-4 h-4 text-[#FF385C]" />
-                          <span dir="ltr">{user?.phone || receiptBooking.client_phone}</span>
-                        </p>
-                      )}
-                      {venue?.city && (
-                        <p className="text-zinc-500 font-bold text-xs flex items-center gap-2">
-                          <MapPin className="w-3.5 h-3.5" />
-                          {venue.city}
-                        </p>
-                      )}
+                <div className="mt-auto space-y-5">
+                  <div className="grid grid-cols-[1fr_auto] gap-5 items-end">
+                    <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
+                      <p className="text-[11px] font-black text-zinc-400 mb-3">بيانات التواصل</p>
+                      <div className="space-y-2">
+                        {(user?.phone || receiptBooking.client_phone) && (
+                          <p className="text-zinc-950 font-black text-sm flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-[#FF385C]" />
+                            <span dir="ltr">{user?.phone || receiptBooking.client_phone}</span>
+                          </p>
+                        )}
+                        {venue?.city && (
+                          <p className="text-zinc-500 font-bold text-xs flex items-center gap-2">
+                            <MapPin className="w-3.5 h-3.5" />
+                            {venue.city}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-4 shadow-sm flex items-center gap-3">
+                      <div className="text-left">
+                        <span className="block text-xs font-black text-zinc-950">امسح الرمز</span>
+                        <span className="block text-[10px] font-bold text-zinc-500">لزيارة صفحة {venue?.name || 'المنشأة'}</span>
+                      </div>
+                      <div className="bg-white p-1.5 rounded-2xl border border-zinc-100 shadow-sm">
+                        <QRCodeSVG
+                          value={`${window.location.origin}/place/${venue?.slug || venue?.id || 'venue'}`}
+                          size={58}
+                          bgColor="#ffffff"
+                          fgColor="#FF385C"
+                          level="M"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-4 shadow-sm flex items-center gap-3">
-                    <div className="text-left">
-                      <span className="block text-xs font-black text-zinc-950">امسح الرمز</span>
-                      <span className="block text-[10px] font-bold text-zinc-500">لزيارة صفحة {venue?.name || 'المنشأة'}</span>
+                  <div className="rounded-[1.6rem] bg-white border border-zinc-200 shadow-sm px-5 py-4 flex items-center justify-between gap-5">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-11 h-11 rounded-2xl bg-zinc-950 flex items-center justify-center text-white shadow-sm overflow-hidden flex-shrink-0">
+                        {user?.office_logo_url ? (
+                          <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-sm font-black">AC</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-black text-zinc-950 leading-tight">Aqar Cloud</p>
+                        <p className="text-[11px] font-bold text-zinc-500 mt-1">تم إصدار هذا السند إلكترونياً عبر منصة عقار كلاود</p>
+                      </div>
                     </div>
-                    <div className="bg-white p-1.5 rounded-2xl border border-zinc-100 shadow-sm">
-                      <QRCodeSVG
-                        value={`${window.location.origin}/place/${venue?.slug || venue?.id || 'venue'}`}
-                        size={58}
-                        bgColor="#ffffff"
-                        fgColor="#FF385C"
-                        level="M"
-                      />
+
+                    <div className="text-left flex-shrink-0">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C]/10 px-3 py-1.5 text-[10px] font-black text-[#FF385C]">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        موثق إلكترونياً
+                      </span>
+                      <p className="text-[10px] font-bold text-zinc-400 mt-2">Official Digital Receipt</p>
                     </div>
                   </div>
                 </div>
