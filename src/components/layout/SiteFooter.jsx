@@ -6,7 +6,7 @@ const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || 'support@aqarcloud.c
 const SUPPORT_WHATSAPP = (import.meta.env.VITE_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
 const SUPPORT_X = import.meta.env.VITE_SUPPORT_X || '';
 
-const OFFICIAL_FONT = { fontFamily: "'Tajawal', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" };
+const OFFICIAL_FONT = { fontFamily: "'IBM Plex Sans Arabic', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" };
 
 const footerLinks = [
   { to: '/terms', label: 'الشروط والأحكام' },
