@@ -11,7 +11,6 @@ import {
   Share2,
   CalendarCheck,
   ShieldCheck,
-  Sparkles,
   ArrowLeft,
   CheckCircle2,
 } from 'lucide-react';
@@ -30,16 +29,16 @@ const GoogleIcon = ({ className }) => (
 );
 
 const CardLogo = ({ imageError, setImageError }) => (
-  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-[1.65rem] border border-zinc-200 bg-white shadow-[0_18px_45px_rgba(0,0,0,0.08)] overflow-hidden">
+  <div className="mx-auto mb-4 flex h-28 w-28 items-center justify-center">
     {!imageError ? (
       <img
         src={logo}
         alt="Aqar Cloud Logo"
-        className="h-full w-full object-contain p-3"
+        className="h-full w-full object-contain"
         onError={() => setImageError(true)}
       />
     ) : (
-      <Building2 className="w-8 h-8 text-zinc-950" />
+      <Building2 className="w-12 h-12 text-zinc-950" />
     )}
   </div>
 );
@@ -110,15 +109,8 @@ export default function Login() {
           <div className="w-full max-w-[430px] animate-login-up">
             <div className="rounded-[2.1rem] bg-white border border-zinc-200 shadow-[0_30px_80px_rgba(0,0,0,0.08)] p-5 sm:p-7">
               <CardLogo imageError={imageError} setImageError={setImageError} />
-              <div className="mb-7 text-center">
-                <span
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-black text-white shadow-[0_12px_28px_rgba(255,56,92,0.25)]"
-                  style={{ backgroundColor: AIRBNB }}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  أهلًا برجعتك
-                </span>
-                <h1 className="mt-4 text-2xl sm:text-3xl font-black tracking-tight text-zinc-950">
+              <div className="mb-5 text-center">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950">
                   سجّل دخولك لحسابك
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium max-w-xs mx-auto">
@@ -196,7 +188,7 @@ export default function Login() {
                 </button>
               </form>
 
-              <div className="flex items-center gap-4 my-5 opacity-70">
+              <div className="flex items-center gap-3 my-3 opacity-70">
                 <div className="flex-1 h-px bg-zinc-200" />
                 <span className="text-[11px] font-black text-zinc-400">أو</span>
                 <div className="flex-1 h-px bg-zinc-200" />
