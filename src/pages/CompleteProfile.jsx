@@ -25,7 +25,7 @@ const IconMen=(p)=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const IconWomen=(p)=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="7" r="4"/><path d="M12 11v10M9 18h6"/></svg>;
 const IconKitchen=(p)=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M7 3v6M12 3v6M17 3v6"/></svg>;
 const IconStar=(p)=><svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>;
-const IconGoogle=(p)=><svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>;
+const IconGoogleMapsMaps=(p)=><svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" fill="#EA4335"/><path d="M12 2c1.93 0 3.68.78 4.95 2.05L14 7c-.52-.63-1.25-1-2-1-1.38 0-2.5 1.12-2.5 2.5 0 .54.17 1.04.45 1.45L7.05 12.9A6.98 6.98 0 015 9c0-3.87 3.13-7 7-7z" fill="#4285F4"/><path d="M12 16c-.87 0-1.69-.16-2.45-.45l-2.5 3.06A10.96 10.96 0 0012 20c2.5 0 4.81-.84 6.66-2.24l-2.51-3.08A6.97 6.97 0 0112 16z" fill="#34A853"/><path d="M19 9c0 1.86-.73 3.55-1.92 4.8l2.5 3.06A10.93 10.93 0 0021 9c0-1.56-.33-3.04-.92-4.38l-3.08 2.51C17.63 7.77 19 8.31 19 9z" fill="#FBBC05"/></svg>;
 const TikTokIcon=(p)=><svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.41-.02-.34-.02-.68-.02-1.02.13-1.6.82-3.08 1.94-4.21 1.52-1.52 3.8-2.26 5.86-1.92V14.3c-1.11-.27-2.31-.1-3.29.41-.85.45-1.46 1.25-1.63 2.21-.07.39-.07.79-.02 1.18.17 1.25 1.05 2.34 2.19 2.81 1.29.54 2.8.46 4.02-.2 1.19-.65 1.95-1.9 2.05-3.26.2-2.9.06-5.82.09-8.73z"/></svg>;
 const XIcon=(p)=><svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>;
 const SnapchatIcon=(p)=><svg viewBox="0 0 448 512" fill="currentColor" {...p}><path d="M424.2 263.8c-2.4-10.6-20.2-13.1-34.4-11-20.2 2.9-46.7 9-61.1 5.9-9.1-2-12.7-10.1-10.6-20.9 2-10.2 10.1-26.6 15.8-37.5 44-84.3 13.3-145-38.3-177.3C268.4 6 226.5-.4 191 1.7c-47.5 2.8-82 17.5-104.9 51.5-17.7 26.2-22.1 63.3-10.1 94.6 7.6 19.8 23 48.2 24.3 64.9 1.1 13.7-8.1 20.3-19.1 23-14.7 3.6-43.2-3.1-61.9-5.5-13.7-1.7-27.1 2-30.7 13.1-4 12.3 8.9 25 15.5 29.8 17.3 12.5 40 24.1 64.1 36.8 6.5 3.5 12.1 12 11.2 21.6-1 10.5-6.8 19.3-15.1 24.8-14.6 9.8-33.1 15.1-49.8 18.2-15.6 2.9-32.9 2.5-44.5 11.2C-5.5 391-2.9 405.3 6 414.2c16 16.1 41 18.9 62.1 22.1 19.1 2.9 38.6 3.6 57 8.3 16 4.1 30.6 11 41.5 23.3 7 7.9 13.9 17.8 24.4 23.4 12 6.5 26.7 8.7 39.5 8.7 12.5 0 25.5-2 37.2-7.8 10.7-5.3 17.8-15.5 24.9-23.7 11-12.7 25.9-19.8 42-23.9 18.6-4.8 38.3-5.3 57.6-8.2 21.2-3.2 46.5-6.1 62.6-22.4 8.7-8.8 11.5-23.4 5.2-32.2z"/></svg>;
@@ -116,7 +116,11 @@ export default function CompleteProfile() {
   const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const created=await base44.entities.Venue.create({...venue,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});await base44.auth.updateMe({business_type:role,office_name:venue.name,phone:venue.whatsapp});await refreshUser();clearState();const finalSlug=created?.slug||slug;setSuccess({type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme});}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
   const next=()=>setStep(s=>Math.min(s+1,totalSteps));
-  const prev=()=>{if(step>1)setStep(s=>s-1);else setStep(0);};
+  const prev=()=>{
+    if(step===0.5){setStep(0);setMainRole('');}
+    else if(step>1)setStep(s=>s-1);
+    else setStep(0);
+  };
 
   if(success){
     const isRoyal=success.theme==='royal';
@@ -154,7 +158,7 @@ export default function CompleteProfile() {
 
         {/* شريط التقدم */}
         <div className="mb-6 px-2 flex justify-between items-center">
-          <button onClick={prev} className={`w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-700 transition-all ${step===0||step===0.5?'opacity-0 pointer-events-none':''}`}>
+          <button onClick={prev} className={`w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-700 transition-all ${step===0?'opacity-0 pointer-events-none':''}`}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M9 18l6-6-6-6"/></svg>
           </button>
           <div className="flex-1 px-6">
@@ -194,7 +198,7 @@ export default function CompleteProfile() {
             {step===0.5&&(
               <div>
                 <div className="text-center mb-8 mt-2">
-                  <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-3">الخطوة ١</span>
+                  
                   <h2 className="text-2xl md:text-3xl font-bold text-slate-800">وش نوع المكان اللي بتضيفه؟</h2>
                   <p className="text-slate-500 mt-2 text-sm">اختر النوع المناسب عشان نجهز لك الخيارات الصح.</p>
                 </div>
@@ -213,7 +217,7 @@ export default function CompleteProfile() {
             {/* ══ وسيط: خطوة ١ ══ */}
             {!isVenue&&role&&step===1&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ١</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">اسم مكتبك؟</h2>
                 <p className="text-slate-500 text-sm mb-8">الاسم اللي راح يظهر للعملاء</p>
                 <input value={broker.office_name} onChange={e=>setBroker(p=>({...p,office_name:e.target.value}))} placeholder="مثال: مكتب النخبة العقاري"
@@ -222,7 +226,7 @@ export default function CompleteProfile() {
             )}
             {!isVenue&&role&&step===2&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٢</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">في أي مدينة؟</h2>
                 <div className="relative mt-8">
                   <IconPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"/>
@@ -233,7 +237,7 @@ export default function CompleteProfile() {
             )}
             {!isVenue&&role&&step===3&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٣</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">شعار المكتب</h2>
                 <p className="text-slate-500 text-sm mb-8">اختياري</p>
                 <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={uploadLogo}/>
@@ -251,7 +255,7 @@ export default function CompleteProfile() {
             )}
             {!isVenue&&role&&step===4&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٤</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">بيانات التواصل</h2>
                 <p className="text-slate-500 text-sm mb-8">اختياري — تقدر تكملها لاحقاً</p>
                 <div className="space-y-4">
@@ -270,7 +274,7 @@ export default function CompleteProfile() {
             {/* ══ شاليه: خطوة ١ — الاسم ══ */}
             {isVenue&&step===1&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ١</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">أهلاً بك! وش اسم {role}ك؟</h2>
                 <p className="text-slate-500 mt-1 text-sm mb-8">اكتب الاسم اللي راح يظهر للعملاء.</p>
                 <input value={venue.name} onChange={e=>setV('name',e.target.value)} placeholder={`مثال: ${role} الريم الفاخر`}
@@ -282,7 +286,7 @@ export default function CompleteProfile() {
             {/* خطوة ٢ — الرابط المخصص */}
             {isVenue&&step===2&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٢</span>
+                
                 <div className="text-center mb-8 mt-2">
                   <div className="w-14 h-14 bg-slate-50 rounded-2xl mx-auto flex items-center justify-center mb-4">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
@@ -290,11 +294,11 @@ export default function CompleteProfile() {
                   <h2 className="text-2xl md:text-3xl font-bold text-slate-800">اختر رابطك المخصص</h2>
                   <p className="text-slate-500 mt-2 text-sm">هذا الرابط اللي بتشاركه مع عملائك — اختياري، إنجليزي فقط</p>
                 </div>
-                <div className="flex items-center w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-2 focus-within:border-slate-700 focus-within:ring-4 focus-within:ring-slate-700/10 transition-all">
-                  <span className="pl-3 pr-4 text-slate-400 font-mono text-xs border-l border-slate-200" dir="ltr">aqacloud.com/place/</span>
+                <div className="flex items-center w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-2 focus-within:border-slate-700 focus-within:ring-4 focus-within:ring-slate-700/10 transition-all" dir="ltr">
                   <input value={venue.slug} onChange={e=>setV('slug',e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'').replace(/--+/g,'-'))}
-                    placeholder="my-chalet" dir="ltr"
+                    placeholder="my-chalet"
                     className="flex-1 bg-transparent border-none outline-none font-mono text-lg text-slate-700 font-bold p-2"/>
+                  <span className="pr-3 pl-4 text-slate-400 font-mono text-xs border-r border-slate-200">aqacloud.com/place/</span>
                 </div>
                 <p className="text-xs text-slate-400 mt-4 text-center">تقدر تتخطى هذه الخطوة وسنولّد لك رابط تلقائياً</p>
               </div>
@@ -303,7 +307,7 @@ export default function CompleteProfile() {
             {/* خطوة ٣ — المدينة */}
             {isVenue&&step===3&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٣</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">في أي مدينة؟</h2>
                 <p className="text-slate-500 text-sm mb-8">اكتب اسم المدينة اللي فيها {role}ك</p>
                 <div className="relative">
@@ -317,7 +321,7 @@ export default function CompleteProfile() {
             {/* خطوة ٤ — الوصف */}
             {isVenue&&step===4&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٤</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">وش يميّز مكانك؟</h2>
                 <p className="text-slate-500 text-sm mb-2">وصف جميل يجذب العملاء — يمكن إعداده لاحقاً</p>
                 <textarea value={venue.description} onChange={e=>setV('description',e.target.value)} rows={5}
@@ -329,7 +333,7 @@ export default function CompleteProfile() {
             {/* خطوة ٥ — الصور */}
             {isVenue&&step===5&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٥</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">الصور تجذب العملاء! 📸</h2>
                 <p className="text-slate-500 text-sm mb-4">ارفع أجمل صور {role}ك — حتى ١٠ صور</p>
                 <div className="flex items-center gap-2 mb-5">
@@ -357,13 +361,31 @@ export default function CompleteProfile() {
                     </button>
                   )}
                 </div>
+                {/* حسابات التواصل — اختيارية */}
+                <div className="mt-5 pt-4 border-t border-slate-100">
+                  <p className="text-xs font-bold text-slate-400 mb-3">حسابات التواصل الاجتماعي — اختياري، يمكن إعدادها لاحقاً</p>
+                  <div className="space-y-3">
+                    <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-100 focus-within:border-slate-400 transition-all flex items-center gap-3">
+                      <InstagramIcon className="w-5 h-5 text-slate-500 flex-shrink-0"/>
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-bold text-slate-400 mb-0.5">انستقرام</label>
+                        <input value={venue.social.instagram||''} onChange={e=>setV('social',{...venue.social,instagram:e.target.value})} placeholder="@yourname" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-sm text-slate-700"/>
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-100 focus-within:border-slate-400 transition-all flex items-center gap-3">
+                      <TikTokIcon className="w-5 h-5 text-slate-500 flex-shrink-0"/>
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-bold text-slate-400 mb-0.5">تيك توك</label>
+                        <input value={venue.social.tiktok||''} onChange={e=>setV('social',{...venue.social,tiktok:e.target.value})} placeholder="@yourname" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-sm text-slate-700"/>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
-
-            {/* خطوة ٦ — الفيديو */}
             {isVenue&&step===6&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٦</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">جولة فيديو للمكان</h2>
                 <p className="text-slate-500 text-sm mb-8">حتى ٥ روابط يوتيوب — اختياري</p>
                 <div className="space-y-3">
@@ -385,11 +407,11 @@ export default function CompleteProfile() {
             {/* خطوة ٧ — الثيم */}
             {isVenue&&step===7&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٧</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">كيف تبي شكل صفحتك؟ 🎨</h2>
                 <p className="text-slate-500 text-sm mb-6">اختر الثيم اللي يناسب هوية مكانك.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <button onClick={()=>{setV('page_theme','classic');setTimeout(next,280);}}
+                  <button onClick={()=>setV('page_theme','classic')}
                     className={`choice-card relative bg-white border-2 rounded-[2rem] p-6 text-right overflow-hidden transition-all ${venue.page_theme==='classic'?'border-slate-700':'border-slate-100'}`}>
                     <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-blue-400 to-emerald-400"/>
                     <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-4"><Sun className="w-6 h-6 text-amber-500"/></div>
@@ -418,7 +440,7 @@ export default function CompleteProfile() {
             {/* خطوة ٨ — الأسعار */}
             {isVenue&&step===8&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٨</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">الأسعار والمواعيد 💰</h2>
                 <p className="text-slate-500 text-sm mb-6">حدد أسعارك المبدئية، وتقدر تعدلها بأي وقت لاحقاً بكل سهولة.</p>
                 <div className="space-y-4">
@@ -465,7 +487,7 @@ export default function CompleteProfile() {
             {/* خطوة ٩ — المميزات */}
             {isVenue&&step===9&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ٩</span>
+                
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">أخيراً، وش يتميز فيه مكانك؟ ✨</h2>
                 <p className="text-slate-500 text-sm mb-6">اختر المرافق المتوفرة عشان تظهر للعملاء بشكل أيقونات جميلة.</p>
                 <div className="flex flex-wrap gap-2.5">
@@ -482,19 +504,19 @@ export default function CompleteProfile() {
             {/* خطوة ١٠ — تقييمات Google */}
             {isVenue&&step===10&&(
               <div>
-                <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-4">الخطوة ١٠</span>
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">تقييمات عملائك من Google</h2>
-                <p className="text-slate-500 text-sm mb-3 leading-relaxed">أدخل اسم مكانك بالضبط كما يظهر في Google Maps ليتم جلب أفضل التقييمات الإيجابية وعرضها في صفحتك تلقائياً بالذكاء الاصطناعي</p>
+                
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">اجلب تقييمات عملائك من Google Maps</h2>
+                <p className="text-slate-500 text-sm mb-3 leading-relaxed">أدخل اسم مكانك بالضبط كما يظهر في Google Maps ليتم جلب أفضل التقييمات الإيجابية وعرضها في صفحتك تلقائياً</p>
                 <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2 mb-5 border border-slate-100">
                   <div className={`w-2 h-2 rounded-full ${reviewsLeft>1?'bg-emerald-400':reviewsLeft===1?'bg-amber-400':'bg-red-400'}`}/>
-                  <span className="text-xs font-bold text-slate-500">متبقي {reviewsLeft} {reviewsLeft===1?'محاولة':'محاولات'}</span>
+                  <span className="text-xs font-bold text-slate-500">لديك {reviewsLeft} {reviewsLeft===1?'محاولة':'محاولات'}</span>
                 </div>
                 {reviewsLeft>0?(
                   <>
                     <div className="flex gap-2 mb-4">
                       <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 flex items-center gap-3 focus-within:border-slate-700 transition-all">
-                        <IconGoogle className="w-5 h-5 flex-shrink-0"/>
-                        <input value={reviewsQuery} onChange={e=>setReviewsQuery(e.target.value)} placeholder={`مثال: ${venue.name||role} الرياض`} className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700"/>
+                        <IconGoogleMaps className="w-5 h-5 flex-shrink-0"/>
+                        <input value={reviewsQuery} onChange={e=>setReviewsQuery(e.target.value)} placeholder={`مثال: شاليه الواحة جدة`} className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700"/>
                       </div>
                       <button onClick={fetchGoogleReviews} disabled={fetchingReviews||!reviewsQuery.trim()} className={`px-4 py-3 rounded-2xl font-bold text-sm ${BTN} disabled:opacity-40 flex items-center gap-2 transition-all`}>
                         {fetchingReviews?<Loader2 className="w-4 h-4 animate-spin"/>:<Sparkles className="w-4 h-4"/>} جلب
@@ -536,7 +558,7 @@ export default function CompleteProfile() {
                 <button onClick={saveBroker} disabled={saving||!broker.office_name.trim()} className={`px-8 py-3.5 rounded-full font-bold ${BTN} shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-60`}>
                   {saving?<><Loader2 className="w-4 h-4 animate-spin"/>جاري الحفظ...</>:<>ابدأ <Check className="w-4 h-4"/></>}
                 </button>
-              ):step!==7?(
+              ):step!==99?(
                 <button onClick={next} disabled={isVenue&&step===1&&!venue.name.trim()}
                   className={`px-8 py-3.5 rounded-full font-bold ${BTN} shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed`}>
                   متابعة <ArrowLeft className="w-4 h-4"/>
