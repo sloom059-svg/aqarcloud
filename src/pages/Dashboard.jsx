@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -11,38 +10,69 @@ import {
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Plus, Building2, Pencil, Trash2, Share2, Home, Download, Eye,
-  Bell, Wallet, LogOut, User, ChevronDown, Loader2, CheckCircle
+  Plus,
+  Building2,
+  Pencil,
+  Trash2,
+  Share2,
+  Home,
+  Download,
+  Eye,
+  Bell,
+  Wallet,
+  LogOut,
+  User,
+  ChevronDown,
+  Loader2,
+  CheckCircle,
+  BadgeCheck,
+  MapPin,
+  Phone,
 } from "lucide-react";
 import PropertyCard from '@/components/property/PropertyCard';
 import PropertyCardExport from '@/components/property/PropertyCardExport';
+
+const AIRBNB = '#FF385C';
 
 // ── Dropdown الملف الشخصي / الخروج ──
 function ProfileMenu({ onLogout }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white flex items-center gap-1"
+        className="h-9 w-9 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]"
+        title="القائمة"
       >
         <LogOut className="w-4 h-4" />
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
+
       {open && (
-        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-          <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium">
-            <User className="w-4 h-4 text-[#15317E]" /> الملف الشخصي
+        <div className="absolute left-0 top-full mt-3 w-48 bg-white rounded-3xl shadow-2xl border border-zinc-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+          <Link
+            to="/profile"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-4 py-3.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors font-bold"
+          >
+            <User className="w-4 h-4" style={{ color: AIRBNB }} />
+            الملف الشخصي
           </Link>
-          <div className="h-px bg-slate-100" />
-          <button onClick={() => { setOpen(false); onLogout(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-medium">
-            <LogOut className="w-4 h-4" /> تسجيل الخروج
+          <div className="h-px bg-zinc-100" />
+          <button
+            onClick={() => { setOpen(false); onLogout(); }}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-bold"
+          >
+            <LogOut className="w-4 h-4" />
+            تسجيل الخروج
           </button>
         </div>
       )}
@@ -108,10 +138,9 @@ export default function Dashboard() {
         await navigator.share(shareData);
         return;
       } catch (_) {
-        return; // المستخدم ألغى المشاركة
+        return;
       }
     }
-    // احتياطي: نسخ الرابط
     try {
       await navigator.clipboard.writeText(url);
       showToast('تم نسخ رابط البروفايل');
@@ -120,11 +149,12 @@ export default function Dashboard() {
     }
   };
 
-  // إيرادات وهمية (الوسيط ما عنده bookings — نعرض عدد العقارات النشطة كمؤشر)
   const totalActive = activeProperties.length;
+  const logoUrl = user?.office_logo_url || user?.profile_image_url;
+  const officeName = user?.office_name || 'مكتبي العقاري';
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-20 relative">
+    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-20 relative overflow-x-hidden text-zinc-950">
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
@@ -132,128 +162,187 @@ export default function Dashboard() {
 
       {/* Toast */}
       {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[150] bg-[#15317E] text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[#0d1e4c]">
-          <CheckCircle className="w-5 h-5 text-emerald-400" />
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[150] bg-zinc-950 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10">
+          <CheckCircle className="w-5 h-5" style={{ color: AIRBNB }} />
           <span className="text-sm font-bold tracking-wide">{toastMessage}</span>
         </div>
       )}
 
-      {/* الخلفية الزرقاء العلوية */}
-      <div className="absolute top-0 left-0 right-0 h-[190px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
+      {/* خلفية خفيفة مثل لوحة تحكم الشاليهات */}
+      <div className="absolute inset-x-0 top-0 h-[180px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
+      <div className="absolute -top-32 -right-28 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ backgroundColor: AIRBNB }} />
+      <div className="absolute top-24 left-[-90px] w-72 h-72 rounded-full bg-zinc-900/5 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 max-w-md mx-auto">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
 
-        {/* ══════════════ الهيدر ══════════════ */}
-        <header className="px-5 pt-8 pb-6 flex items-center justify-between text-white">
+        {/* هيدر موحّد مع لوحة تحكم الشاليه */}
+        <header className="pt-4 sm:pt-6 pb-4">
+          <div className="rounded-[1.6rem] sm:rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-3 sm:gap-5">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <div className="relative flex-shrink-0">
+                  <div className="w-[58px] h-[58px] sm:w-[68px] sm:h-[68px] rounded-[1.35rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                    {logoUrl ? (
+                      <img src={logoUrl} alt="شعار المكتب" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xl sm:text-2xl font-black text-zinc-950">
+                        {officeName[0]}
+                      </span>
+                    )}
+                  </div>
+                </div>
 
-          {/* بيانات المالك */}
-          <div className="flex items-center gap-3">
-            <div className="relative flex-shrink-0">
-              <div className="w-12 h-12 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
-                {user?.office_logo_url || user?.profile_image_url ? (
-                  <img src={user.office_logo_url || user.profile_image_url} alt="شعار" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-xl font-bold text-white">
-                    {(user?.office_name || 'م')[0]}
-                  </span>
-                )}
+                <div className="min-w-0">
+                  <p className="text-[11px] sm:text-xs font-black text-zinc-400 leading-none mb-1">مرحباً بك</p>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <h1 className="text-[15px] sm:text-xl font-black text-zinc-950 truncate leading-tight max-w-[150px] sm:max-w-[420px] lg:max-w-none">
+                      {officeName}
+                    </h1>
+                  </div>
+
+                  <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+                    {user?.city && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2 py-1 text-[10px] sm:text-[11px] font-bold text-zinc-500">
+                        <MapPin className="w-3 h-3" />
+                        {user.city}
+                      </span>
+                    )}
+
+                    {user?.license_number && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 border border-[#FF385C]/15 px-2 py-1 text-[10px] sm:text-[11px] font-black text-[#FF385C]">
+                        <BadgeCheck className="w-3.5 h-3.5" />
+                        رخصة فال / موثوق: <span dir="ltr">{user.license_number}</span>
+                      </span>
+                    )}
+
+                    {user?.phone && (
+                      <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2 py-1 text-[11px] font-bold text-zinc-500">
+                        <Phone className="w-3 h-3" />
+                        <span dir="ltr">{user.phone}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
-            </div>
-            <div>
-              <p className="text-[11px] text-white/70 mb-0.5 tracking-wider">مرحباً بك،</p>
-              <h1 className="text-base font-bold">{user?.office_name || 'مكتبي العقاري'}</h1>
-            </div>
-          </div>
 
-          {/* أيقونات التحكم */}
-          <div className="flex items-center gap-2">
-
-            {/* الإشعارات */}
-            <div className="relative" ref={notifsRef}>
-              <button
-                onClick={() => setShowNotifs(!showNotifs)}
-                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white'}`}
-              >
-                <Bell className="w-4 h-4" />
-              </button>
-              {showNotifs && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                  <div className="px-4 py-3 bg-[#15317E] text-white">
-                    <span className="text-sm font-bold">الإشعارات</span>
-                  </div>
-                  <div className="px-4 py-6 text-center">
-                    <p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p>
-                  </div>
+              <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-nowrap shrink-0">
+                {/* الإشعارات */}
+                <div className="relative" ref={notifsRef}>
+                  <button
+                    onClick={() => setShowNotifs(!showNotifs)}
+                    className={`relative h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    title="الإشعارات"
+                  >
+                    <Bell className="w-4 h-4" />
+                  </button>
+                  {showNotifs && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[270px] sm:w-80 max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="px-3.5 py-2.5 bg-zinc-950 text-white">
+                        <span className="text-sm font-black">الإشعارات</span>
+                      </div>
+                      <div className="px-4 py-5 text-center">
+                        <p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* المحفظة */}
-            <div className="relative" ref={revenueRef}>
-              <button
-                onClick={() => setShowRevenue(!showRevenue)}
-                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}
-              >
-                <Wallet className="w-4 h-4" />
-              </button>
-              {showRevenue && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
-                  <p className="text-[11px] text-slate-500 font-medium mb-1">العقارات النشطة</p>
-                  <p className="text-xl font-bold text-[#15317E]">{totalActive} <span className="text-[10px] font-normal text-slate-400">عقار</span></p>
+                {/* المحفظة */}
+                <div className="relative" ref={revenueRef}>
+                  <button
+                    onClick={() => setShowRevenue(!showRevenue)}
+                    className={`h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    title="العقارات النشطة"
+                  >
+                    <Wallet className="w-4 h-4" />
+                  </button>
+                  {showRevenue && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
+                      <p className="text-[11px] text-zinc-500 font-bold mb-1">العقارات النشطة</p>
+                      <p className="text-xl font-black text-zinc-950">
+                        {totalActive} <span className="text-[10px] font-bold text-zinc-400">عقار</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* زر الخروج */}
-            <ProfileMenu onLogout={handleLogout} />
+                <ProfileMenu onLogout={handleLogout} />
+              </div>
+            </div>
           </div>
         </header>
 
-        {/* ══════════════ المحتوى ══════════════ */}
-        <main className="px-4 space-y-6">
+        {/* المحتوى */}
+        <main className="space-y-6 pb-6">
 
           {/* كروت الإحصائيات */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#15317E]/10 flex items-center justify-center flex-shrink-0">
-                <Building2 className="w-5 h-5 text-[#15317E]" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-white rounded-3xl p-4 shadow-sm border border-zinc-100 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0">
+                <Building2 className="w-5 h-5" style={{ color: AIRBNB }} />
               </div>
               <div>
-                <p className="text-xs text-slate-500 font-medium">إجمالي العقارات</p>
-                <p className="text-2xl font-black text-[#15317E] leading-none mt-0.5">{properties.length}</p>
+                <p className="text-xs text-zinc-500 font-bold">إجمالي العقارات</p>
+                <p className="text-2xl font-black text-zinc-950 leading-none mt-0.5">{properties.length}</p>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+
+            <div className="bg-white rounded-3xl p-4 shadow-sm border border-zinc-100 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
                 <Home className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 font-medium">عقارات نشطة</p>
+                <p className="text-xs text-zinc-500 font-bold">عقارات نشطة</p>
                 <p className="text-2xl font-black text-emerald-600 leading-none mt-0.5">{activeProperties.length}</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-3xl p-4 shadow-sm border border-zinc-100 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-zinc-100 flex items-center justify-center flex-shrink-0">
+                <BadgeCheck className="w-5 h-5 text-zinc-700" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-zinc-500 font-bold">رخصة فال / موثوق</p>
+                <p className="text-sm font-black text-zinc-950 leading-none mt-1 truncate" dir="ltr">{user?.license_number || 'غير مضافة'}</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-3xl p-4 shadow-sm border border-zinc-100 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-zinc-100 flex items-center justify-center flex-shrink-0">
+                <Share2 className="w-5 h-5 text-zinc-700" />
+              </div>
+              <div>
+                <p className="text-xs text-zinc-500 font-bold">صفحة الوسيط</p>
+                <p className="text-sm font-black text-zinc-950 leading-none mt-1">جاهزة للمشاركة</p>
               </div>
             </div>
           </div>
 
           {/* عنوان القسم + الأزرار */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-[#15317E]">عقاراتي</h2>
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-black text-zinc-950">عقاراتي</h2>
+              <p className="text-xs font-bold text-zinc-400 mt-1">إدارة عقارات مكتبك ومشاركة صفحتك العامة</p>
+            </div>
+
+            <div className="flex flex-wrap gap-2 justify-start sm:justify-end">
               <button
                 onClick={() => window.open(`${window.location.origin}/agent/${user.id}`, '_blank')}
-                className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
+                className="inline-flex items-center justify-center gap-1.5 bg-white text-zinc-800 px-4 py-2.5 rounded-2xl text-xs font-black shadow-sm border border-zinc-200 hover:bg-zinc-50 transition-all active:scale-[0.98]"
               >
                 <Eye className="w-3.5 h-3.5" /> عرض صفحتي
               </button>
+
               <button
                 onClick={copyProfileLink}
-                className="flex items-center gap-1.5 bg-white text-[#15317E] px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
+                className="inline-flex items-center justify-center gap-1.5 bg-white text-zinc-800 px-4 py-2.5 rounded-2xl text-xs font-black shadow-sm border border-zinc-200 hover:bg-zinc-50 transition-all active:scale-[0.98]"
               >
                 <Share2 className="w-3.5 h-3.5" /> شارك
               </button>
+
               <button
                 onClick={() => navigate('/add-property')}
-                className="flex items-center gap-1.5 bg-[#15317E] text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm hover:bg-[#0d1e4c] transition-all"
+                className="inline-flex items-center justify-center gap-1.5 bg-zinc-950 text-white px-4 py-2.5 rounded-2xl text-xs font-black shadow-sm hover:bg-black transition-all active:scale-[0.98]"
               >
                 <Plus className="w-3.5 h-3.5" /> أضف عقار
               </button>
@@ -263,43 +352,48 @@ export default function Dashboard() {
           {/* قائمة العقارات */}
           {isLoading ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-[#15317E]" />
+              <div className="w-8 h-8 rounded-full border-[3px] border-zinc-100 border-t-[#FF385C] animate-spin" />
             </div>
           ) : properties.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-[1.5rem] border border-slate-100 shadow-sm">
-              <Building2 className="w-12 h-12 text-slate-300 mb-3 mx-auto" />
-              <h3 className="font-bold text-base text-slate-700 mb-1">لا توجد عقارات بعد</h3>
-              <p className="text-sm text-slate-400 mb-5">ابدأ بإضافة أول عقار لك</p>
+            <div className="text-center py-16 bg-white rounded-[2rem] border border-zinc-100 shadow-sm">
+              <Building2 className="w-12 h-12 text-zinc-300 mb-3 mx-auto" />
+              <h3 className="font-black text-base text-zinc-700 mb-1">لا توجد عقارات بعد</h3>
+              <p className="text-sm text-zinc-400 mb-5 font-bold">ابدأ بإضافة أول عقار لك</p>
               <button
                 onClick={() => navigate('/add-property')}
-                className="inline-flex items-center gap-2 bg-[#15317E] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-[#0d1e4c] transition-all"
+                className="inline-flex items-center gap-2 bg-zinc-950 text-white px-5 py-2.5 rounded-2xl text-sm font-black hover:bg-black transition-all"
               >
                 <Plus className="w-4 h-4" /> أضف عقار
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 items-start">
               {properties.map((property, i) => (
                 <div key={property.id} className="relative group">
                   <PropertyCard property={property} index={i} />
                   <div className="absolute top-3 left-3 flex gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button
-                      className="h-8 w-8 bg-white shadow-lg rounded-lg flex items-center justify-center hover:bg-slate-50 transition-colors"
+                      className="h-8 w-8 bg-white shadow-lg rounded-xl flex items-center justify-center hover:bg-zinc-50 transition-colors"
                       onClick={(e) => { e.preventDefault(); navigate(`/edit-property/${property.id}`); }}
+                      title="تعديل"
                     >
-                      <Pencil className="w-3.5 h-3.5 text-slate-600" />
+                      <Pencil className="w-3.5 h-3.5 text-zinc-600" />
                     </button>
+
                     <button
-                      className="h-8 w-8 bg-[#15317E] shadow-lg rounded-lg flex items-center justify-center hover:bg-[#0d1e4c] transition-colors"
+                      className="h-8 w-8 bg-zinc-950 shadow-lg rounded-xl flex items-center justify-center hover:bg-black transition-colors"
                       onClick={(e) => { e.preventDefault(); setExportProperty(property); }}
+                      title="تحميل البطاقة"
                     >
                       <Download className="w-3.5 h-3.5 text-white" />
                     </button>
+
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <button
-                          className="h-8 w-8 bg-rose-500 shadow-lg rounded-lg flex items-center justify-center hover:bg-rose-600 transition-colors"
+                          className="h-8 w-8 bg-rose-500 shadow-lg rounded-xl flex items-center justify-center hover:bg-rose-600 transition-colors"
                           onClick={(e) => e.preventDefault()}
+                          title="حذف"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-white" />
                         </button>
