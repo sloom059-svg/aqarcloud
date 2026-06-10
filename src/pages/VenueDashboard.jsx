@@ -22,6 +22,33 @@ import {
 
 const AIRBNB = '#FF385C';
 
+const VerifiedBadge = () => (
+  <span className="relative group inline-flex items-center align-middle">
+    <svg
+      viewBox="0 0 24 24"
+      className="w-4.5 h-4.5 sm:w-5 sm:h-5"
+      aria-label="مشترك"
+      role="img"
+    >
+      <path
+        fill={AIRBNB}
+        d="M12 2.25l2.02 1.51 2.52-.21 1.06 2.29 2.32 1.01-.23 2.52L21.2 12l-1.51 2.63.23 2.52-2.32 1.01-1.06 2.29-2.52-.21L12 21.75l-2.02-1.51-2.52.21-1.06-2.29-2.32-1.01.23-2.52L2.8 12l1.51-2.63-.23-2.52L6.4 5.84l1.06-2.29 2.52.21L12 2.25z"
+      />
+      <path
+        d="M8.7 12.2l2.05 2.05 4.7-5"
+        fill="none"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+    <span className="pointer-events-none absolute right-1/2 top-full z-[60] mt-2 translate-x-1/2 whitespace-nowrap rounded-xl bg-zinc-950 px-3 py-1.5 text-[11px] font-black text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+      مشترك
+    </span>
+  </span>
+);
+
 // ────────────────────────────────────────────
 // Dropdown الملف الشخصي
 // ────────────────────────────────────────────
@@ -80,7 +107,7 @@ const EmptyHouseIcon = () => (
 const IconButton = ({ children, onClick, title, className = '' }) => (
   <button
     onClick={onClick}
-    className={`h-11 w-11 sm:h-12 sm:w-12 flex items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 transition-all shadow-sm active:scale-[0.98] ${className}`}
+    className={`h-11 w-full sm:h-12 sm:w-12 flex items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 transition-all shadow-sm active:scale-[0.98] ${className}`}
     title={title}
   >
     {children}
@@ -152,6 +179,14 @@ export default function VenueDashboard() {
 
   const newBookings = bookings.filter(b => b.status === 'جديد');
   const hasNotifications = newBookings.length > 0;
+  const isSubscribed = [
+    user?.subscription_status,
+    user?.subscriptionStatus,
+    user?.plan_status,
+    user?.membership_status,
+    user?.trial_status,
+  ].some((status) => ['active', 'trialing', 'subscribed', 'مشترك', 'نشط', 'تجربة'].includes(String(status || '').toLowerCase()))
+    || Boolean(user?.is_subscribed || user?.isSubscribed || user?.subscription_active || user?.trial_active);
 
   const handleShare = (venue) => {
     const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
@@ -267,8 +302,9 @@ export default function VenueDashboard() {
                     <span className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
                     لوحة التحكم
                   </div>
-                  <h1 className="text-base sm:text-lg font-black text-zinc-950 truncate">
-                    {user?.full_name || user?.office_name || 'المالك'}
+                  <h1 className="text-base sm:text-lg font-black text-zinc-950 truncate flex items-center gap-1.5">
+                    <span className="truncate">{user?.full_name || user?.office_name || 'المالك'}</span>
+                    {isSubscribed && <VerifiedBadge />}
                   </h1>
                   <p className="text-xs font-bold text-zinc-500 mt-0.5 truncate">
                     إدارة الأماكن والحجوزات من مكان واحد
@@ -276,7 +312,7 @@ export default function VenueDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between sm:justify-end gap-2">
+              <div className="flex items-center justify-end gap-2 flex-wrap sm:flex-nowrap">
                 <div className="hidden md:inline-flex items-center gap-2 rounded-2xl bg-zinc-50 border border-zinc-200 px-3.5 py-2.5">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
                   <span className="text-xs font-black text-zinc-700">{venues.length} وحدات</span>
@@ -449,10 +485,10 @@ export default function VenueDashboard() {
                       إدارة الحجوزات
                     </Link>
 
-                    <div className="grid grid-cols-4 sm:flex gap-2">
+                    <div className="grid grid-cols-4 sm:flex gap-1.5 sm:gap-2 w-full sm:w-auto">
                       <Link
                         to={`/venue/edit/${venue.id}`}
-                        className="h-11 sm:h-12 sm:w-12 flex items-center justify-center bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 rounded-2xl transition-all shadow-sm"
+                        className="h-11 w-full sm:h-12 sm:w-12 flex items-center justify-center bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 rounded-2xl transition-all shadow-sm"
                         title="تعديل"
                       >
                         <Pencil className="w-4.5 h-4.5" />
