@@ -605,6 +605,41 @@ export default function VenuePublicPage() {
               </div>
             )}
 
+            {/* تقييمات Google — royal */}
+            {venue.google_reviews?.length > 0 && (
+              <div className="py-12 border-t border-[#d4af37]/10">
+                <div className="flex flex-col items-center mb-8">
+                  <p className="text-[#d4af37] text-xs font-bold mb-2 tracking-widest uppercase">ماذا قال عملاؤنا</p>
+                  <h3 className="text-2xl font-black text-white">تقييمات حقيقية</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 max-w-3xl mx-auto">
+                  {venue.google_reviews.slice(0,4).map((r, i) => (
+                    <div key={i} className="bg-[#0f172a] border border-[#d4af37]/10 rounded-2xl p-5">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/20 flex items-center justify-center text-[#d4af37] font-black text-lg">
+                          {r.author?.[0]?.toUpperCase() || '؟'}
+                        </div>
+                        <div>
+                          <p className="font-bold text-white text-sm">{r.author}</p>
+                          <div className="flex gap-0.5 mt-0.5">
+                            {Array(Math.min(r.rating||5,5)).fill(0).map((_,j)=>(
+                              <svg key={j} viewBox="0 0 24 24" fill="#d4af37" className="w-3 h-3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="mr-auto">
+                          <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-slate-600">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" fill="#EA4335"/>
+                          </svg>
+                        </div>
+                      </div>
+                      <p className="text-slate-400 text-sm leading-relaxed">{r.text?.slice(0,160)}{r.text?.length>160?'...':''}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* السوشيال */}
             {activeSocials.length > 0 && (
               <div className="py-12 border-t border-[#d4af37]/10 flex flex-col items-center relative overflow-hidden">
@@ -893,6 +928,39 @@ export default function VenuePublicPage() {
                   <p className="text-sm text-gray-600 font-medium leading-relaxed whitespace-pre-wrap pt-2">{venue.booking_terms}</p>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* تقييمات Google — classic */}
+          {venue.google_reviews?.length > 0 && (
+            <div className="py-12 border-t border-gray-100">
+              <div className="flex flex-col items-center mb-8">
+                <p className="text-xs font-bold mb-2 tracking-widest uppercase" style={{color:accent}}>ماذا قال عملاؤنا</p>
+                <h3 className="text-2xl font-black text-gray-900">تقييمات حقيقية</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 max-w-3xl mx-auto">
+                {venue.google_reviews.slice(0,4).map((r, i) => (
+                  <div key={i} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-lg text-white" style={{backgroundColor:accent}}>
+                        {r.author?.[0]?.toUpperCase() || '؟'}
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-800 text-sm">{r.author}</p>
+                        <div className="flex gap-0.5 mt-0.5">
+                          {Array(Math.min(r.rating||5,5)).fill(0).map((_,j)=>(
+                            <svg key={j} viewBox="0 0 24 24" fill="#f59e0b" className="w-3 h-3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="mr-auto">
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" fill="#EA4335"/></svg>
+                      </div>
+                    </div>
+                    <p className="text-gray-500 text-sm leading-relaxed">{r.text?.slice(0,160)}{r.text?.length>160?'...':''}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
