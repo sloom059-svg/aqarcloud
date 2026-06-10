@@ -91,6 +91,8 @@ const makeEntity = (entityName) => {
     },
     update: async (id, payload) => {
       const clean = { ...payload }
+      // حذف حقول النظام التي لا يجوز تحديثها
+      ;['id', 'created_date', 'created_at', 'created_by', 'created_by_id', 'owner_id'].forEach(k => delete clean[k])
       Object.keys(clean).forEach(k => {
         if (clean[k] === undefined) delete clean[k]
       })
