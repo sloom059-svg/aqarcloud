@@ -238,38 +238,6 @@ export default function PropertyDetail() {
               )}
             </div>
 
-            <div className="rounded-[2rem] bg-white border border-zinc-100 shadow-sm p-5">
-              <p className="text-sm font-black text-zinc-950 mb-4">بيانات المكتب</p>
-              <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200 overflow-hidden flex items-center justify-center">
-                  {officeLogo ? <img src={officeLogo} alt={officeName} className="w-full h-full object-cover" /> : <Building2 className="w-6 h-6 text-zinc-600" />}
-                </div>
-                <div className="min-w-0">
-                  <p className="font-black text-zinc-950 truncate">{officeName}</p>
-                  {agent?.license_number && (
-                    <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-zinc-500">
-                      <CheckCircle2 className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
-                      رخصة موثوق: <span dir="ltr">{agent.license_number}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-2">
-                {waNumber && (
-                  <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer" className="w-full inline-flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white px-4 py-3 rounded-2xl text-sm font-black transition">
-                    <MessageCircle className="w-4 h-4" style={{ color: '#25D366' }} />
-                    تواصل واتساب
-                  </a>
-                )}
-                {agent?.phone && (
-                  <a href={`tel:${agent.phone}`} className="w-full inline-flex items-center justify-center gap-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-800 px-4 py-3 rounded-2xl text-sm font-black transition">
-                    <Phone className="w-4 h-4" />
-                    اتصال
-                  </a>
-                )}
-              </div>
-            </div>
           </aside>
         </div>
 
@@ -322,6 +290,40 @@ export default function PropertyDetail() {
             </div>
           </section>
         )}
+
+        <section className="mt-5 rounded-[2rem] bg-white border border-zinc-100 shadow-sm p-5">
+          <p className="text-sm font-black text-zinc-950 mb-4">بيانات المكتب</p>
+          <div className="flex items-center gap-3">
+            <div className="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200 overflow-hidden flex items-center justify-center flex-shrink-0">
+              {officeLogo ? <img src={officeLogo} alt={officeName} className="w-full h-full object-cover" /> : <Building2 className="w-6 h-6 text-zinc-600" />}
+            </div>
+            <div className="min-w-0">
+              <p className="font-black text-zinc-950 truncate">{officeName}</p>
+              {agent?.license_number && (
+                <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-zinc-500 max-w-full">
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" style={{ color: AIRBNB }} />
+                  <span className="whitespace-nowrap">رخصة موثوق:</span>
+                  <span dir="ltr" className="truncate">{agent.license_number}</span>
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {waNumber && (
+              <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer" className="w-full inline-flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white px-4 py-3 rounded-2xl text-sm font-black transition">
+                <MessageCircle className="w-4 h-4" style={{ color: '#25D366' }} />
+                تواصل واتساب
+              </a>
+            )}
+            {agent?.phone && (
+              <a href={`tel:${agent.phone}`} className="w-full inline-flex items-center justify-center gap-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-800 px-4 py-3 rounded-2xl text-sm font-black transition">
+                <Phone className="w-4 h-4" />
+                اتصال
+              </a>
+            )}
+          </div>
+        </section>
       </div>
 
       {lightbox && (
