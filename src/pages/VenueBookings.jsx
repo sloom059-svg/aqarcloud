@@ -532,6 +532,7 @@ export default function VenueBookings() {
 
       {/* خلفية خفيفة بنفس ثيم Airbnb */}
       <div className="absolute inset-x-0 top-0 h-[170px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
+      <div className="absolute -top-32 -right-28 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ backgroundColor: AIRBNB }} />
       <div className="absolute top-24 left-[-90px] w-72 h-72 rounded-full bg-zinc-900/5 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
@@ -713,7 +714,7 @@ export default function VenueBookings() {
                               <IconLock className="w-3.5 h-3.5" /> إغلاق يدوي
                             </h4>
                           )}
-                          <span className="text-[10px] font-black text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded-md" dir="ltr">{bookingRef}</span>
+                          <span className="text-[10px] font-medium text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded-md" dir="ltr">{bookingRef}</span>
                         </div>
                         {!isManualBlock && booking.client_phone && booking.client_phone !== '000' && (
                           <div className="flex items-center gap-2">
