@@ -377,14 +377,12 @@ export default function CompleteProfile() {
                     <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-100 focus-within:border-slate-400 transition-all flex items-center gap-3">
                       <InstagramIcon className="w-5 h-5 text-slate-500 flex-shrink-0"/>
                       <div className="flex-1">
-                        <label className="block text-[10px] font-bold text-slate-400 mb-0.5">انستقرام</label>
                         <input value={venue.social.instagram||''} onChange={e=>setV('social',{...venue.social,instagram:e.target.value})} placeholder="@yourname" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-sm text-slate-700"/>
                       </div>
                     </div>
                     <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-100 focus-within:border-slate-400 transition-all flex items-center gap-3">
                       <TikTokIcon className="w-5 h-5 text-slate-500 flex-shrink-0"/>
                       <div className="flex-1">
-                        <label className="block text-[10px] font-bold text-slate-400 mb-0.5">تيك توك</label>
                         <input value={venue.social.tiktok||''} onChange={e=>setV('social',{...venue.social,tiktok:e.target.value})} placeholder="@yourname" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-sm text-slate-700"/>
                       </div>
                     </div>
@@ -560,7 +558,7 @@ export default function CompleteProfile() {
           {step>0&&step!==0.5&&(
             <div className="mt-8 pt-4 flex justify-end items-center">
               {isVenue&&step===venueSteps?(
-                <button onClick={saveVenue} disabled={saving} className={`px-8 py-3.5 rounded-full font-bold ${BTN} shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-60`}>
+                <button onClick={saveVenue} disabled={saving} className="px-8 py-3.5 rounded-full font-bold shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-60 bg-[#FF385C] hover:bg-[#E31C5F] text-white">
                   {saving?<><Loader2 className="w-4 h-4 animate-spin"/>جاري الحفظ...</>:<>احفظ وانشر <Check className="w-4 h-4"/></>}
                 </button>
               ):!isVenue&&step===brokerSteps?(
