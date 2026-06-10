@@ -29,24 +29,18 @@ const GoogleIcon = ({ className }) => (
   </svg>
 );
 
-const BrandMark = ({ imageError, setImageError }) => (
-  <div className="flex items-center justify-center gap-3">
-    <div className="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center shadow-[0_18px_45px_rgba(0,0,0,0.12)] overflow-hidden">
-      {!imageError ? (
-        <img
-          src={logo}
-          alt="Aqar Cloud Logo"
-          className="w-full h-full object-contain bg-white p-1.5"
-          onError={() => setImageError(true)}
-        />
-      ) : (
-        <Building2 className="w-5 h-5" />
-      )}
-    </div>
-    <div className="text-right leading-tight">
-      <p className="text-sm font-black text-zinc-950">عقار كلاود</p>
-      <p className="text-[11px] font-bold text-zinc-400">منصة الملاك والوسطاء</p>
-    </div>
+const CardLogo = ({ imageError, setImageError }) => (
+  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-[1.65rem] border border-zinc-200 bg-white shadow-[0_18px_45px_rgba(0,0,0,0.08)] overflow-hidden">
+    {!imageError ? (
+      <img
+        src={logo}
+        alt="Aqar Cloud Logo"
+        className="h-full w-full object-contain p-3"
+        onError={() => setImageError(true)}
+      />
+    ) : (
+      <Building2 className="w-8 h-8 text-zinc-950" />
+    )}
   </div>
 );
 
@@ -112,18 +106,11 @@ export default function Login() {
 
       <div className="relative z-10 min-h-screen grid lg:grid-cols-[0.92fr_1.08fr]">
         {/* الفورم */}
-        <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
+        <section className="flex items-start justify-center px-5 pt-8 pb-10 sm:px-8 sm:pt-10 lg:px-12 lg:pt-14">
           <div className="w-full max-w-[430px] animate-login-up">
-            <div className="mb-8 flex items-center justify-between">
-              <BrandMark imageError={imageError} setImageError={setImageError} />
-              <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-white border border-zinc-200 px-3 py-2 text-[11px] font-black text-zinc-600 shadow-sm">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
-                دخول آمن
-              </div>
-            </div>
-
             <div className="rounded-[2.1rem] bg-white border border-zinc-200 shadow-[0_30px_80px_rgba(0,0,0,0.08)] p-5 sm:p-7">
-              <div className="mb-7">
+              <CardLogo imageError={imageError} setImageError={setImageError} />
+              <div className="mb-7 text-center">
                 <span
                   className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-black text-white shadow-[0_12px_28px_rgba(255,56,92,0.25)]"
                   style={{ backgroundColor: AIRBNB }}
@@ -134,7 +121,7 @@ export default function Login() {
                 <h1 className="mt-4 text-2xl sm:text-3xl font-black tracking-tight text-zinc-950">
                   سجّل دخولك لحسابك
                 </h1>
-                <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium">
+                <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium max-w-xs mx-auto">
                   تابع عقاراتك، صفحاتك، وحجوزاتك من لوحة تحكم واحدة.
                 </p>
               </div>
@@ -144,22 +131,6 @@ export default function Login() {
                   {error}
                 </div>
               )}
-
-              <button
-                onClick={handleGoogle}
-                type="button"
-                disabled={loading}
-                className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
-              >
-                <GoogleIcon className="w-5 h-5" />
-                <span>الدخول بواسطة Google</span>
-              </button>
-
-              <div className="flex items-center gap-4 my-6 opacity-70">
-                <div className="flex-1 h-px bg-zinc-200" />
-                <span className="text-[11px] font-black text-zinc-400">أو بالبريد الإلكتروني</span>
-                <div className="flex-1 h-px bg-zinc-200" />
-              </div>
 
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
@@ -224,6 +195,22 @@ export default function Login() {
                   )}
                 </button>
               </form>
+
+              <div className="flex items-center gap-4 my-5 opacity-70">
+                <div className="flex-1 h-px bg-zinc-200" />
+                <span className="text-[11px] font-black text-zinc-400">أو</span>
+                <div className="flex-1 h-px bg-zinc-200" />
+              </div>
+
+              <button
+                onClick={handleGoogle}
+                type="button"
+                disabled={loading}
+                className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
+              >
+                <GoogleIcon className="w-5 h-5" />
+                <span>الدخول بواسطة Google</span>
+              </button>
             </div>
 
             <p className="text-center mt-6 text-sm text-zinc-500 font-bold">
