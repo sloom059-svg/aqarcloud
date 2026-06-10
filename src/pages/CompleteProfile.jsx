@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44, supabase } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { Loader2, Upload, Trash2, Check, Sun, Crown, Eye, LayoutDashboard, PartyPopper, Sparkles, ArrowLeft, X } from "lucide-react";
 
 const IconHome=(p)=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>;
@@ -52,8 +50,6 @@ const loadState=()=>{try{const s=sessionStorage.getItem(STORAGE_KEY);return s?JS
 const clearState=()=>{try{sessionStorage.removeItem(STORAGE_KEY);}catch(_){}};
 
 export default function CompleteProfile() {
-  const {refreshUser}=useAuth();
-  const navigate=useNavigate();
   const logoRef=useRef();
   const imgRef=useRef();
   const saved=loadState();
@@ -116,9 +112,9 @@ export default function CompleteProfile() {
     setFetchingReviews(false);
   };
 
-  const saveBroker=async()=>{setSaving(true);try{await base44.auth.updateMe({...broker,business_type:role});clearState();setSuccess({type:'broker'});refreshUser();}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveBroker=async()=>{setSaving(true);try{await base44.auth.updateMe({...broker,business_type:role});clearState();setSuccess({type:'broker'});}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
-  const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const created=await base44.entities.Venue.create({...venue,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});await base44.auth.updateMe({business_type:role,office_name:venue.name,phone:venue.whatsapp});const finalSlug=created?.slug||slug;clearState();setSuccess({type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme});refreshUser();}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const created=await base44.entities.Venue.create({...venue,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});await base44.auth.updateMe({business_type:role,office_name:venue.name,phone:venue.whatsapp});const finalSlug=created?.slug||slug;clearState();setSuccess({type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme});}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
   const next=()=>{
     if(step===0.5){setStep(1);return;}
@@ -152,7 +148,7 @@ export default function CompleteProfile() {
           </div>
           <div className="space-y-3" style={{animation:'fadeUp 0.6s ease-out 0.4s both'}}>
             {success.url&&(<button onClick={()=>window.open(success.url,'_blank')} className="w-full py-4 rounded-2xl font-bold text-base shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 bg-white text-[#1a1a1a] hover:bg-slate-100"><Eye className="w-5 h-5"/> عرض صفحتي</button>)}
-            <button onClick={()=>{success.type==='broker'?navigate('/'):navigate('/venue');}} className="w-full py-4 rounded-2xl font-bold text-base border transition-all flex items-center justify-center gap-2 active:scale-95 bg-white/10 text-white border-white/20 hover:bg-white/20"><LayoutDashboard className="w-5 h-5"/> الدخول إلى لوحة التحكم</button>
+            <button onClick={()=>{window.location.href=success.type==='broker'?'/':'/venue';}} className="w-full py-4 rounded-2xl font-bold text-base border transition-all flex items-center justify-center gap-2 active:scale-95 bg-white/10 text-white border-white/20 hover:bg-white/20"><LayoutDashboard className="w-5 h-5"/> الدخول إلى لوحة التحكم</button>
           </div>
         </div>
       </div>
