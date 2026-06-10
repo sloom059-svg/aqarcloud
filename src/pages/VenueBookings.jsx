@@ -1092,16 +1092,16 @@ export default function VenueBookings() {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-zinc-950/5 flex items-center justify-center gap-3 text-center">
+                  <div className="pt-4 flex items-center justify-center gap-3 text-center">
                     <img
                       src={aqarCloudLogo}
                       alt="Aqar Cloud"
                       className="h-8 w-auto object-contain"
                     />
                     <div className="text-right">
-                      <p className="text-[12px] font-black text-zinc-950 leading-tight">Aqar Cloud</p>
+                      <p className="text-[12px] font-black text-zinc-950 leading-tight">صدر هذا السند عبر منصة عقار كلاود</p>
                       <p className="text-[10px] font-bold text-zinc-500 mt-1">
-                        صدر هذا السند عبر منصة عقار كلاود لإدارة الحجوزات بثقة ووضوح
+                        لإدارة الحجوزات والعقارات
                       </p>
                     </div>
                   </div>
