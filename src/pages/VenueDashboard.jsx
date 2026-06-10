@@ -20,6 +20,7 @@ import {
   Mail,
   Headphones,
 } from 'lucide-react';
+import SiteFooter from '@/components/layout/SiteFooter';
 
 const AIRBNB = '#FF385C';
 
@@ -521,49 +522,7 @@ export default function VenueDashboard() {
             </div>
           )}
 
-          <footer className="mt-10 border-t border-zinc-200 pt-7 pb-4">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div>
-                <p className="text-sm font-black text-zinc-950">Aqar Cloud</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">منصة حديثة لإدارة الأماكن والحجوزات.</p>
-              </div>
-
-              <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm font-bold text-zinc-500">
-                <Link to="/terms" className="hover:text-[#FF385C] transition-colors">الشروط والأحكام</Link>
-                <Link to="/privacy" className="hover:text-[#FF385C] transition-colors">سياسة الخصوصية</Link>
-                <Link to="/about" className="hover:text-[#FF385C] transition-colors">من نحن</Link>
-                <Link to="/contact" className="hover:text-[#FF385C] transition-colors">اتصل بنا</Link>
-              </nav>
-
-              <div className="flex items-center gap-2">
-                <a
-                  href="https://x.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="h-10 w-10 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-800 transition-all"
-                  title="X"
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden="true">
-                    <path d="M18.244 2H21.5l-7.11 8.124L22.75 22h-6.545l-5.126-6.697L5.214 22H1.956l7.604-8.69L1.5 2h6.711l4.632 6.12L18.244 2Zm-1.142 17.91h1.804L7.23 3.98H5.293l11.809 15.93Z" />
-                  </svg>
-                </a>
-                <a
-                  href="mailto:support@aqarcloud.com"
-                  className="h-10 w-10 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-800 transition-all"
-                  title="الإيميل"
-                >
-                  <Mail className="w-4 h-4" />
-                </a>
-                <Link
-                  to="/support"
-                  className="h-10 w-10 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-800 transition-all"
-                  title="الدعم الفني"
-                >
-                  <Headphones className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </footer>
+          <SiteFooter />
 
         </main>
       </div>
