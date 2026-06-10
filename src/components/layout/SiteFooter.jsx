@@ -1,17 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Headphones, ShieldCheck, FileText, Info, MessageCircle } from 'lucide-react';
+import { Mail, Headphones, ShieldCheck, FileText, Info, MessageCircle, ArrowUpLeft } from 'lucide-react';
 import logo from '@/aqar-cloud-logo.png';
 
 const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || 'support@aqarcloud.com';
 const SUPPORT_WHATSAPP = (import.meta.env.VITE_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
 
 const footerLinks = [
-  { to: '/terms', label: 'الشروط والأحكام', icon: FileText },
-  { to: '/privacy', label: 'سياسة الخصوصية', icon: ShieldCheck },
-  { to: '/about', label: 'من نحن', icon: Info },
-  { to: '/contact', label: 'اتصل بنا', icon: Mail },
-  { to: '/support', label: 'الدعم الفني', icon: Headphones },
+  { to: '/terms', label: 'الشروط والأحكام' },
+  { to: '/privacy', label: 'سياسة الخصوصية' },
+  { to: '/about', label: 'من نحن' },
+  { to: '/contact', label: 'اتصل بنا' },
+  { to: '/support', label: 'الدعم الفني' },
+];
+
+const quickItems = [
+  { icon: ShieldCheck, label: 'خصوصية البيانات' },
+  { icon: FileText, label: 'شروط واضحة' },
+  { icon: Headphones, label: 'دعم فني' },
 ];
 
 function WhatsAppIcon({ className = 'w-4 h-4' }) {
@@ -22,59 +28,85 @@ function WhatsAppIcon({ className = 'w-4 h-4' }) {
   );
 }
 
-export { SUPPORT_EMAIL, SUPPORT_WHATSAPP, WhatsAppIcon };
+function getWhatsappHref(message = 'مرحباً، أحتاج مساعدة بخصوص عقار كلاود') {
+  return SUPPORT_WHATSAPP ? `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}` : '/support';
+}
+
+export { SUPPORT_EMAIL, SUPPORT_WHATSAPP, WhatsAppIcon, getWhatsappHref };
 
 export default function SiteFooter({ className = '' }) {
-  const whatsappHref = SUPPORT_WHATSAPP
-    ? `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent('مرحباً، أحتاج مساعدة بخصوص عقار كلاود')}`
-    : '/support';
+  const whatsappHref = getWhatsappHref();
 
   return (
-    <footer className={`mt-10 border-t border-zinc-200 pt-7 pb-5 ${className}`} dir="rtl">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link to="/" className="h-12 w-12 rounded-2xl bg-white border border-zinc-200 shadow-sm flex items-center justify-center overflow-hidden shrink-0">
-            <img src={logo} alt="Aqar Cloud" className="w-9 h-9 object-contain" />
-          </Link>
-          <div className="min-w-0">
-            <p className="text-sm font-black text-zinc-950">Aqar Cloud</p>
-            <p className="mt-1 text-xs font-bold text-zinc-500 leading-5">منصة هادئة لإدارة العقارات والأماكن والحجوزات.</p>
+    <footer className={`mt-12 border-t border-[#EBEBEB] bg-[#F7F7F7] ${className}`} dir="rtl">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <div className="grid gap-7 lg:grid-cols-[1.2fr_1fr_1.1fr] lg:items-start">
+          <div className="space-y-4">
+            <Link to="/" className="inline-flex items-center gap-3 min-w-0">
+              <span className="h-12 w-12 rounded-2xl bg-white border border-[#EBEBEB] shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+                <img src={logo} alt="Aqar Cloud" className="w-9 h-9 object-contain" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-base font-black text-[#222222]">Aqar Cloud</span>
+                <span className="block text-xs font-bold text-[#717171] mt-0.5">إدارة وعرض العقارات بواجهة عملية وواضحة.</span>
+              </span>
+            </Link>
+
+            <div className="flex flex-wrap gap-2">
+              {quickItems.map(({ icon: Icon, label }) => (
+                <span key={label} className="inline-flex items-center gap-1.5 rounded-full border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-bold text-[#717171]">
+                  <Icon className="w-3.5 h-3.5 text-[#FF385C]" />
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <nav className="grid grid-cols-2 gap-2 text-sm font-bold text-[#222222]">
+            {footerLinks.map(({ to, label }) => (
+              <Link key={to} to={to} className="rounded-2xl px-3 py-2.5 hover:bg-white hover:text-[#FF385C] transition-colors">
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="rounded-[1.5rem] border border-[#EBEBEB] bg-white p-4 shadow-[0_18px_45px_rgba(34,34,34,0.05)]">
+            <div className="flex items-start gap-3">
+              <span className="h-11 w-11 rounded-2xl bg-[#FFF1F4] text-[#FF385C] flex items-center justify-center shrink-0">
+                <Headphones className="w-5 h-5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-black text-[#222222]">الدعم الفني</p>
+                <p className="mt-1 text-xs leading-6 font-bold text-[#717171]">للاستفسارات والمساعدة في الحسابات أو صفحات العقارات.</p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <a
+                href={whatsappHref}
+                target={SUPPORT_WHATSAPP ? '_blank' : undefined}
+                rel={SUPPORT_WHATSAPP ? 'noreferrer' : undefined}
+                className="h-11 rounded-full bg-[#FF385C] text-white text-xs font-black flex items-center justify-center gap-2 hover:bg-[#E31C5F] transition-colors"
+              >
+                <WhatsAppIcon className="w-4 h-4" />
+                واتساب
+              </a>
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="h-11 rounded-full border border-[#EBEBEB] bg-[#F7F7F7] text-[#222222] text-xs font-black flex items-center justify-center gap-2 hover:bg-white transition-colors"
+              >
+                <Mail className="w-4 h-4" />
+                البريد
+              </a>
+            </div>
           </div>
         </div>
 
-        <nav className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-zinc-600">
-          {footerLinks.map(({ to, label, icon: Icon }) => (
-            <Link key={to} to={to} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full hover:bg-white hover:text-[#FF385C] hover:shadow-sm border border-transparent hover:border-zinc-200 transition-all">
-              <Icon className="w-3.5 h-3.5" />
-              {label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <a
-            href={whatsappHref}
-            target={SUPPORT_WHATSAPP ? '_blank' : undefined}
-            rel={SUPPORT_WHATSAPP ? 'noreferrer' : undefined}
-            className="h-10 w-10 rounded-full border border-emerald-100 bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center text-emerald-600 transition-all"
-            title="واتساب الدعم"
-          >
-            <WhatsAppIcon />
-          </a>
-          <a
-            href={`mailto:${SUPPORT_EMAIL}`}
-            className="h-10 w-10 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-800 transition-all"
-            title="الإيميل"
-          >
-            <Mail className="w-4 h-4" />
-          </a>
-          <Link
-            to="/support"
-            className="h-10 px-4 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center gap-2 text-zinc-800 transition-all text-xs font-black"
-            title="الدعم الفني"
-          >
-            <MessageCircle className="w-4 h-4 text-[#FF385C]" />
-            دعم
+        <div className="mt-7 pt-5 border-t border-[#EBEBEB] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-bold text-[#717171]">
+          <p>© {new Date().getFullYear()} Aqar Cloud. جميع الحقوق محفوظة.</p>
+          <Link to="/support" className="inline-flex items-center gap-1.5 hover:text-[#FF385C] transition-colors">
+            مركز الدعم
+            <ArrowUpLeft className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
