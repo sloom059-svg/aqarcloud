@@ -18,6 +18,8 @@ import {
   Share2,
   Pencil,
   Trash2,
+  Mail,
+  Headphones,
 } from 'lucide-react';
 
 const AIRBNB = '#FF385C';
