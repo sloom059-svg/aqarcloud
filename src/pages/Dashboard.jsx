@@ -209,15 +209,8 @@ export default function Dashboard() {
                     )}
 
                     {user?.license_number && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 border border-[#FF385C]/15 px-2 py-1 text-[10px] sm:text-[11px] font-black text-[#FF385C]">
-                        <BadgeCheck className="w-3.5 h-3.5" />
-                        رخصة موثوق: <span dir="ltr">{user.license_number}</span>
-                      </span>
-                    )}
-
-                    {user?.license_number && (
-                      <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#FF385C]/10 border border-[#FF385C]/15 px-2 py-1 text-[11px] font-black text-[#FF385C]">
-                        <BadgeCheck className="w-3.5 h-3.5" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2 py-1 text-[10px] sm:text-[11px] font-bold text-zinc-500">
+                        <BadgeCheck className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
                         رخصة موثوق: <span dir="ltr">{user.license_number}</span>
                       </span>
                     )}
@@ -276,7 +269,7 @@ export default function Dashboard() {
         <main className="space-y-6 pb-6">
 
           {/* كروت الإحصائيات */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             <div className="bg-white rounded-3xl p-4 shadow-sm border border-zinc-100 flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0">
                 <Building2 className="w-5 h-5" style={{ color: AIRBNB }} />
@@ -307,15 +300,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-4 shadow-sm border border-zinc-100 flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-zinc-100 flex items-center justify-center flex-shrink-0">
-                <Share2 className="w-5 h-5 text-zinc-700" />
-              </div>
-              <div>
-                <p className="text-xs text-zinc-500 font-bold">صفحة الوسيط</p>
-                <p className="text-sm font-black text-zinc-950 leading-none mt-1">جاهزة للمشاركة</p>
-              </div>
-            </div>
+
           </div>
 
           {/* عنوان القسم + الأزرار */}
