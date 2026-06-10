@@ -11,7 +11,6 @@ import {
   Wallet,
   LogOut,
   User,
-  Loader2,
   Plus,
   ChevronDown,
   Eye,
@@ -68,7 +67,7 @@ function ProfileMenu({ onLogout }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]"
+        className="h-9 w-9 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]"
         title="القائمة"
       >
         <LogOut className="w-4 h-4" />
@@ -236,7 +235,10 @@ export default function VenueDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
         <div className="w-16 h-16 rounded-3xl bg-white border border-zinc-200 shadow-xl flex items-center justify-center">
-          <Loader2 className="w-7 h-7 animate-spin" style={{ color: AIRBNB }} />
+          <div
+            className="w-8 h-8 rounded-full border-[3px] border-zinc-100 border-t-[#FF385C] animate-spin"
+            aria-label="جاري التحميل"
+          />
         </div>
       </div>
     );
@@ -289,40 +291,52 @@ export default function VenueDashboard() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="pt-4 sm:pt-5 pb-3">
           <div className="rounded-[1.6rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
 
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <div className="relative flex-shrink-0">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[1.35rem] bg-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200">
+                  <div className="w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-[1.45rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-sm">
                     {user?.office_logo_url ? (
                       <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-xl font-black text-zinc-950">
+                      <span className="text-2xl font-black text-zinc-950">
                         {(user?.full_name || user?.office_name || 'م')[0]}
                       </span>
                     )}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 border-2 border-white rounded-full" style={{ backgroundColor: AIRBNB }} />
+
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white shadow-sm flex items-center justify-center" style={{ backgroundColor: AIRBNB }}>
+                    <svg viewBox="0 0 24 24" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M5 12h14" />
+                      <path d="M12 5v14" />
+                    </svg>
+                  </div>
+
+                  {user?.office_logo_url && (
+                    <div className="absolute -top-1 -left-1 w-6 h-6 rounded-full bg-white border border-zinc-200 shadow-md p-0.5 overflow-hidden">
+                      <img src={user.office_logo_url} alt="شعار مصغر" className="w-full h-full object-cover rounded-full" />
+                    </div>
+                  )}
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs font-black text-zinc-400 mb-0.5">مرحباً بك</p>
-                  <h1 className="text-lg sm:text-xl font-black text-zinc-950 flex items-center gap-1.5 min-w-0">
-                    <span className="truncate min-w-0">{user?.full_name || user?.office_name || 'المالك'}</span>
+                  <p className="text-[11px] sm:text-xs font-black text-zinc-400 leading-none mb-1">مرحباً بك</p>
+                  <h1 className="text-[15px] sm:text-xl font-black text-zinc-950 flex items-center gap-1.5 min-w-0 leading-tight">
+                    <span className="truncate min-w-0 max-w-[120px] sm:max-w-none">{user?.full_name || user?.office_name || 'المالك'}</span>
                     {isSubscribed && <VerifiedBadge />}
                   </h1>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-nowrap">
+              <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-nowrap shrink-0">
 
                 <div className="relative" ref={notifsRef}>
                   <button
                     onClick={() => setShowNotifs(!showNotifs)}
-                    className={`relative h-10 w-10 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    className={`relative h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
                     title="الإشعارات"
                   >
-                    <Bell className="w-4.5 h-4.5" />
+                    <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                     {hasNotifications && (
                       <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,56,92,0.9)]" style={{ backgroundColor: AIRBNB }} />
                     )}
@@ -372,10 +386,10 @@ export default function VenueDashboard() {
                 <div className="relative" ref={revenueRef}>
                   <button
                     onClick={() => setShowRevenue(!showRevenue)}
-                    className={`h-10 w-10 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    className={`h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
                     title="إيرادات الشهر"
                   >
-                    <Wallet className="w-4.5 h-4.5" />
+                    <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                   </button>
 
                   {showRevenue && (
@@ -484,19 +498,19 @@ export default function VenueDashboard() {
                         className="h-11 w-full sm:h-12 sm:w-12 flex items-center justify-center bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 rounded-2xl transition-all shadow-sm"
                         title="تعديل"
                       >
-                        <Pencil className="w-4.5 h-4.5" />
+                        <Pencil className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                       </Link>
 
                       <IconButton onClick={() => handleViewPage(venue)} title="عرض الصفحة" className="text-zinc-800">
-                        <Eye className="w-4.5 h-4.5" />
+                        <Eye className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                       </IconButton>
 
                       <IconButton onClick={() => handleShare(venue)} title="مشاركة" className="text-zinc-800">
-                        <Share2 className="w-4.5 h-4.5" />
+                        <Share2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                       </IconButton>
 
                       <IconButton onClick={() => setItemToDelete(venue)} title="حذف" className="bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100 hover:border-rose-200">
-                        <Trash2 className="w-4.5 h-4.5" />
+                        <Trash2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                       </IconButton>
                     </div>
                   </div>
