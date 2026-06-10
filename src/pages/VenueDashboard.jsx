@@ -66,7 +66,7 @@ function ProfileMenu({ onLogout }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="h-11 w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]"
+        className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]"
         title="القائمة"
       >
         <LogOut className="w-4 h-4" />
@@ -179,14 +179,20 @@ export default function VenueDashboard() {
 
   const newBookings = bookings.filter(b => b.status === 'جديد');
   const hasNotifications = newBookings.length > 0;
-  const isSubscribed = [
-    user?.subscription_status,
-    user?.subscriptionStatus,
-    user?.plan_status,
-    user?.membership_status,
-    user?.trial_status,
-  ].some((status) => ['active', 'trialing', 'subscribed', 'مشترك', 'نشط', 'تجربة'].includes(String(status || '').toLowerCase()))
-    || Boolean(user?.is_subscribed || user?.isSubscribed || user?.subscription_active || user?.trial_active);
+  const subscriptionState = String(
+    user?.subscription_status ||
+    user?.subscriptionStatus ||
+    user?.plan_status ||
+    user?.membership_status ||
+    user?.trial_status ||
+    ''
+  ).toLowerCase();
+
+  // يظهر التوثيق للجميع كاشتراك مجاني/تجريبي، ويختفي فقط لو الاشتراك منتهي أو ملغي أو غير نشط.
+  const isSubscribed = !['expired', 'canceled', 'cancelled', 'inactive', 'ended', 'منتهي', 'ملغي', 'غير نشط'].includes(subscriptionState)
+    && user?.subscription_active !== false
+    && user?.is_subscribed !== false
+    && user?.isSubscribed !== false;
 
   const handleShare = (venue) => {
     const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
@@ -279,13 +285,13 @@ export default function VenueDashboard() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="pt-5 sm:pt-7 pb-4">
-          <div className="rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_18px_60px_rgba(0,0,0,0.08)] backdrop-blur-xl p-3.5 sm:p-4">
+        <header className="pt-4 sm:pt-5 pb-3">
+          <div className="rounded-[1.6rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-3.5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[1.25rem] bg-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[1.35rem] bg-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200">
                     {user?.office_logo_url ? (
                       <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                     ) : (
@@ -298,30 +304,20 @@ export default function VenueDashboard() {
                 </div>
 
                 <div className="min-w-0">
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C]/10 px-2.5 py-1 text-[10px] font-black text-[#FF385C] mb-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
-                    لوحة التحكم
-                  </div>
-                  <h1 className="text-base sm:text-lg font-black text-zinc-950 truncate flex items-center gap-1.5">
+                  <p className="text-[11px] sm:text-xs font-black text-zinc-400 mb-0.5">مرحباً بك</p>
+                  <h1 className="text-lg sm:text-xl font-black text-zinc-950 truncate flex items-center gap-1.5">
                     <span className="truncate">{user?.full_name || user?.office_name || 'المالك'}</span>
                     {isSubscribed && <VerifiedBadge />}
                   </h1>
-                  <p className="text-xs font-bold text-zinc-500 mt-0.5 truncate">
-                    إدارة الأماكن والحجوزات من مكان واحد
-                  </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 flex-wrap sm:flex-nowrap">
-                <div className="hidden md:inline-flex items-center gap-2 rounded-2xl bg-zinc-50 border border-zinc-200 px-3.5 py-2.5">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
-                  <span className="text-xs font-black text-zinc-700">{venues.length} وحدات</span>
-                </div>
+              <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-nowrap">
 
                 <div className="relative" ref={notifsRef}>
                   <button
                     onClick={() => setShowNotifs(!showNotifs)}
-                    className={`relative h-11 w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    className={`relative h-10 w-10 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
                     title="الإشعارات"
                   >
                     <Bell className="w-4.5 h-4.5" />
@@ -374,7 +370,7 @@ export default function VenueDashboard() {
                 <div className="relative" ref={revenueRef}>
                   <button
                     onClick={() => setShowRevenue(!showRevenue)}
-                    className={`h-11 w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    className={`h-10 w-10 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
                     title="إيرادات الشهر"
                   >
                     <Wallet className="w-4.5 h-4.5" />
@@ -397,15 +393,10 @@ export default function VenueDashboard() {
         </header>
 
         <main className="space-y-6">
-          <div className="rounded-[2rem] bg-white border border-zinc-200 shadow-[0_24px_70px_rgba(0,0,0,0.08)] px-4 py-4 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-lg sm:text-xl font-black text-zinc-950">وحداتي السكنية</h3>
-              <p className="text-xs sm:text-sm text-zinc-500 font-bold mt-1">كل مكان تملكه يظهر هنا كبطاقة مستقلة.</p>
-            </div>
-
+          <div className="flex justify-end">
             <Link
               to="/venue/add"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-black text-white px-5 py-3 text-sm font-black shadow-[0_16px_30px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 transition-all active:scale-[0.98]"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-black text-white px-6 py-3.5 text-sm font-black shadow-[0_14px_30px_rgba(0,0,0,0.16)] hover:-translate-y-0.5 transition-all active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               إضافة شاليه
@@ -524,6 +515,51 @@ export default function VenueDashboard() {
               </Link>
             </div>
           )}
+
+          <footer className="mt-10 border-t border-zinc-200 pt-7 pb-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div>
+                <p className="text-sm font-black text-zinc-950">Aqar Cloud</p>
+                <p className="mt-1 text-xs font-bold text-zinc-500">منصة حديثة لإدارة الأماكن والحجوزات.</p>
+              </div>
+
+              <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm font-bold text-zinc-500">
+                <Link to="/terms" className="hover:text-[#FF385C] transition-colors">الشروط والأحكام</Link>
+                <Link to="/privacy" className="hover:text-[#FF385C] transition-colors">سياسة الخصوصية</Link>
+                <Link to="/about" className="hover:text-[#FF385C] transition-colors">من نحن</Link>
+                <Link to="/contact" className="hover:text-[#FF385C] transition-colors">اتصل بنا</Link>
+              </nav>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://x.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="h-10 w-10 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-800 transition-all"
+                  title="X"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden="true">
+                    <path d="M18.244 2H21.5l-7.11 8.124L22.75 22h-6.545l-5.126-6.697L5.214 22H1.956l7.604-8.69L1.5 2h6.711l4.632 6.12L18.244 2Zm-1.142 17.91h1.804L7.23 3.98H5.293l11.809 15.93Z" />
+                  </svg>
+                </a>
+                <a
+                  href="mailto:support@aqarcloud.com"
+                  className="h-10 w-10 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-800 transition-all"
+                  title="الإيميل"
+                >
+                  <Mail className="w-4 h-4" />
+                </a>
+                <Link
+                  to="/support"
+                  className="h-10 w-10 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-800 transition-all"
+                  title="الدعم الفني"
+                >
+                  <Headphones className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </footer>
+
         </main>
       </div>
 
