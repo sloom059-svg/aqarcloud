@@ -82,7 +82,7 @@ export default function VenueWizard() {
   // التحقق من كل خطوة
   const canProceed = () => {
     if (step === 1) return !!form.venue_type;
-    if (step === 2) return form.name.trim() && form.city;
+    if (step === 2) return form.name.trim() && form.city.trim();
     if (step === 5) return form.images.length > 0;
     if (step === 6) return !!form.whatsapp.trim();
     return true;
@@ -227,11 +227,8 @@ export default function VenueWizard() {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-zinc-700 mb-2">المدينة *</label>
-                    <select value={form.city} onChange={e => set('city', e.target.value)}
-                      className="w-full px-4 py-3.5 bg-zinc-50 border border-zinc-200 rounded-2xl focus:border-[#FF385C] focus:ring-2 focus:ring-[#FF385C]/10 outline-none transition-all text-sm font-medium">
-                      <option value="">اختر المدينة</option>
-                      {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <input value={form.city} onChange={e => set('city', e.target.value)} placeholder="اكتب اسم المدينة"
+                      className="w-full px-4 py-3.5 bg-zinc-50 border border-zinc-200 rounded-2xl focus:border-[#FF385C] focus:ring-2 focus:ring-[#FF385C]/10 outline-none transition-all text-sm font-medium" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-zinc-700 mb-2">وصف مختصر <span className="text-zinc-500 font-normal">(اختياري)</span></label>
