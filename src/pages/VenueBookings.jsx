@@ -667,7 +667,7 @@ export default function VenueBookings() {
               <CalendarIcon className="w-4 h-4 text-zinc-950/70" />
               التقويم والإتاحة
             </h3>
-            <VenueCalendar bookedDates={bookedDates} onRangeSelect={null} readOnly={true} venueName={venue?.name || ''} />
+            <VenueCalendar bookedDates={bookedDates} onRangeSelect={null} readOnly={true} accent={AIRBNB} venueName={venue?.name || ''} />
             <p className="text-xs text-gray-400 mt-2">سوف تظهر التواريخ المحجوزة في صفحة الشاليه</p>
           </div>
 

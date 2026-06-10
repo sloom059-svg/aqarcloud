@@ -18,14 +18,13 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
   const [hoverDate, setHoverDate] = useState(null);
   const [rangeStart, setRangeStart] = useState(null);
 
-  // ثيم موحّد للتقويم حتى لو صفحة العملاء مررت لون مختلف
+  // نثبت لون التقويم على ثيم Airbnb حتى لو وصل accent ذهبي من صفحة ثانية
   const themeAccent = AIRBNB;
   const bookedSet = new Set(bookedDates);
 
   const prevMonth = () => setViewDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1));
   const nextMonth = () => setViewDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1));
 
-  // build calendar grid
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
@@ -58,8 +57,7 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
   }
 
   return (
-    <div className="select-none rounded-[1.4rem] bg-white/70">
-      {/* Header */}
+    <div className="select-none rounded-[1.4rem] bg-white">
       <div className="flex items-center justify-between mb-3">
         <button
           type="button"
@@ -85,14 +83,12 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
         </button>
       </div>
 
-      {/* Day names */}
       <div className="grid grid-cols-7 mb-1.5 rounded-2xl bg-zinc-50 border border-zinc-100 px-1 py-1">
         {DAYS.map(d => (
           <div key={d} className="text-center text-[10px] font-black text-zinc-400 py-1">{d}</div>
         ))}
       </div>
 
-      {/* Days */}
       <div className="grid grid-cols-7 gap-1">
         {cells.map((d, i) => {
           if (!d) return <div key={i} className="aspect-square" />;
@@ -107,13 +103,14 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
           let cellClass = 'w-full aspect-square flex items-center justify-center rounded-2xl text-[12px] font-bold transition-all border ';
 
           if (isBooked) {
-            cellClass += 'bg-zinc-100 text-zinc-300 border-zinc-100 cursor-default line-through';
+            // المحجوز رمادي هادئ، مو وردي
+            cellClass += 'bg-zinc-100 text-zinc-400 border-zinc-200 cursor-default line-through';
           } else if (isPast) {
             cellClass += 'bg-transparent text-zinc-300 border-transparent cursor-default';
           } else if (isStart || inRange) {
             cellClass += 'text-white border-transparent shadow-[0_10px_18px_rgba(255,56,92,0.22)] cursor-pointer scale-[0.98]';
           } else if (isToday) {
-            cellClass += 'bg-white text-zinc-950 border-[#FF385C] cursor-pointer hover:bg-[#FF385C]/5';
+            cellClass += 'bg-white border-[#FF385C] cursor-pointer hover:bg-[#FF385C]/5';
           } else {
             cellClass += 'bg-white text-zinc-700 border-zinc-100 cursor-pointer hover:border-[#FF385C]/30 hover:bg-[#FF385C]/5 hover:text-zinc-950';
           }
@@ -140,7 +137,6 @@ export default function VenueCalendar({ bookedDates = [], onRangeSelect, readOnl
         })}
       </div>
 
-      {/* Legend */}
       <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-zinc-100 flex-wrap">
         <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-bold">
           <div className="w-3 h-3 rounded-md bg-zinc-100 border border-zinc-200" />
