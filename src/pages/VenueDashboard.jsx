@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import {
   Bell,
   Calendar,
@@ -14,36 +13,20 @@ import {
   User,
   Loader2,
   Plus,
-  ChevronDown
+  ChevronDown,
+  Home,
+  Eye,
+  Share2,
+  Pencil,
+  Trash2,
+  ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
 
-// ────────────────────────────────────────────
-// مساعد: شارة الحالة
-// ────────────────────────────────────────────
-const getStatusBadge = (status) => {
-  const map = {
-    'نشط':     { type: 'active',   label: 'متاح الآن' },
-    'غير نشط': { type: 'stopped',  label: 'إيقاف مؤقت' },
-    'معطّل':   { type: 'disabled', label: 'معطّل مؤقتاً' },
-  };
-  const info = map[status] || { type: 'busy', label: status };
-
-  const styles = {
-    active:   'bg-white/20 text-white backdrop-blur-md border border-white/30',
-    busy:     'bg-amber-500/90 text-white backdrop-blur-md border border-amber-400/50',
-    stopped:  'bg-rose-500/90 text-white backdrop-blur-md border border-rose-400/50',
-    disabled: 'bg-slate-700/90 text-white backdrop-blur-md border border-slate-600/50',
-  };
-
-  return (
-    <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${styles[info.type]}`}>
-      {info.label}
-    </span>
-  );
-};
+const AIRBNB = '#FF385C';
 
 // ────────────────────────────────────────────
-// Dropdown زر الخروج
+// Dropdown الملف الشخصي
 // ────────────────────────────────────────────
 function ProfileMenu({ onLogout }) {
   const [open, setOpen] = useState(false);
@@ -59,7 +42,7 @@ function ProfileMenu({ onLogout }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white flex items-center gap-1"
+        className="h-11 w-11 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur-md transition-all text-white flex items-center justify-center gap-1"
         title="القائمة"
       >
         <LogOut className="w-4 h-4" />
@@ -67,19 +50,19 @@ function ProfileMenu({ onLogout }) {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute left-0 top-full mt-3 w-48 bg-white rounded-3xl shadow-2xl border border-zinc-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
           <Link
             to="/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
+            className="flex items-center gap-3 px-4 py-3.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors font-bold"
           >
-            <User className="w-4 h-4 text-[#15317E]" />
+            <User className="w-4 h-4" style={{ color: AIRBNB }} />
             الملف الشخصي
           </Link>
-          <div className="h-px bg-slate-100" />
+          <div className="h-px bg-zinc-100" />
           <button
             onClick={() => { setOpen(false); onLogout(); }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-medium"
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-bold"
           >
             <LogOut className="w-4 h-4" />
             تسجيل الخروج
@@ -90,6 +73,37 @@ function ProfileMenu({ onLogout }) {
   );
 }
 
+const EmptyHouseIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="w-11 h-11">
+    <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5Z" />
+    <path d="M9 21v-8h6v8" />
+  </svg>
+);
+
+const IconButton = ({ children, onClick, title, className = '' }) => (
+  <button
+    onClick={onClick}
+    className={`h-11 w-11 sm:h-12 sm:w-12 flex items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 transition-all shadow-sm active:scale-[0.98] ${className}`}
+    title={title}
+  >
+    {children}
+  </button>
+);
+
+const MiniStat = ({ label, value, icon: Icon }) => (
+  <div className="rounded-[1.4rem] bg-white/10 border border-white/10 p-4 backdrop-blur-md">
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <p className="text-[11px] font-bold text-white/55">{label}</p>
+        <p className="mt-1 text-xl font-black text-white" dir="ltr">{value}</p>
+      </div>
+      <div className="w-10 h-10 rounded-2xl bg-white text-zinc-950 flex items-center justify-center shrink-0">
+        <Icon className="w-5 h-5" style={{ color: AIRBNB }} />
+      </div>
+    </div>
+  </div>
+);
+
 // ────────────────────────────────────────────
 // الصفحة الرئيسية
 // ────────────────────────────────────────────
@@ -98,14 +112,13 @@ export default function VenueDashboard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const [toastMessage, setToastMessage]   = useState('');
-  const [showRevenue, setShowRevenue]     = useState(false);
-  const [showNotifs, setShowNotifs]       = useState(false);
-  const [itemToDelete, setItemToDelete]   = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showRevenue, setShowRevenue] = useState(false);
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
   const revenueRef = useRef(null);
   const notifsRef = useRef(null);
 
-  // ── إغلاق النوافذ المنبثقة عند الضغط خارجها ──
   useEffect(() => {
     const handler = (e) => {
       if (revenueRef.current && !revenueRef.current.contains(e.target)) setShowRevenue(false);
@@ -115,21 +128,18 @@ export default function VenueDashboard() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // ── جلب الشاليهات ──
   const { data: venues = [], isLoading } = useQuery({
     queryKey: ['venues', user?.id],
     queryFn: () => base44.entities.Venue.filter({ owner_id: user?.id }, '-created_date'),
     enabled: !!user?.id,
   });
 
-  // ── جلب الحجوزات ──
   const { data: bookings = [] } = useQuery({
     queryKey: ['bookings-all', user?.id],
     queryFn: () => base44.entities.Booking.filter({ owner_id: user?.id }),
     enabled: !!user?.id,
   });
 
-  // ── حذف شاليه ──
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Venue.delete(id),
     onSuccess: () => {
@@ -139,9 +149,6 @@ export default function VenueDashboard() {
     },
   });
 
-  const getBookingCount = (venueId) => bookings.filter(b => b.venue_id === venueId).length;
-
-  // ── إيرادات الشهر الحالي من الحجوزات المؤكدة فقط ──
   const now = new Date();
   const thisMonth = now.getMonth();
   const thisYear = now.getFullYear();
@@ -156,14 +163,14 @@ export default function VenueDashboard() {
     return v?.price_weekend || 0;
   };
 
-  // إجمالي إيرادات الشهر: الحجوزات المؤكدة فقط (الملغية لا تُحسب)
   const monthlyRevenue = bookings
     .filter(b => b.status === 'مؤكد' && isThisMonth(b))
     .reduce((sum, b) => sum + (b.total_price ? Number(b.total_price) : venuePrice(b.venue_id)), 0);
 
-  // ── الإشعارات: الحجوزات الجديدة ──
   const newBookings = bookings.filter(b => b.status === 'جديد');
   const hasNotifications = newBookings.length > 0;
+  const activeVenues = venues.filter(v => v.status === 'نشط').length;
+  const monthlyBookings = bookings.filter(b => b.status !== 'ملغي' && isThisMonth(b)).length;
 
   const handleShare = (venue) => {
     const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
@@ -186,7 +193,9 @@ export default function VenueDashboard() {
       await base44.entities.Venue.update(venue.id, { status: newStatus });
       qc.invalidateQueries({ queryKey: ['venues'] });
       showToast(newStatus === 'نشط' ? 'تم تفعيل الشاليه' : 'تم إيقاف الشاليه مؤقتاً');
-    } catch (_) { showToast('تعذّر تحديث الحالة'); }
+    } catch (_) {
+      showToast('تعذّر تحديث الحالة');
+    }
   };
 
   const showToast = (msg) => {
@@ -194,60 +203,58 @@ export default function VenueDashboard() {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  // ── تسجيل الخروج ──
   const handleLogout = async () => {
     await logout(false);
     navigate('/login');
   };
 
-  // ── شاشة التحميل ──
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#15317E]" />
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
+        <div className="w-16 h-16 rounded-3xl bg-white border border-zinc-200 shadow-xl flex items-center justify-center">
+          <Loader2 className="w-7 h-7 animate-spin" style={{ color: AIRBNB }} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-20 relative">
+    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-16 relative overflow-x-hidden text-zinc-950">
+      <div className="absolute inset-x-0 top-0 h-[320px] bg-zinc-950 rounded-b-[2.5rem] sm:rounded-b-[3rem] overflow-hidden">
+        <div className="absolute -top-28 -right-20 w-80 h-80 rounded-full blur-3xl opacity-25" style={{ backgroundColor: AIRBNB }} />
+        <div className="absolute bottom-[-90px] left-[-70px] w-80 h-80 rounded-full bg-white/10 blur-3xl" />
+      </div>
 
-      {/* ── Toast ── */}
       {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#15317E] text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[#0d1e4c]">
-          <CheckCircle className="w-5 h-5 text-emerald-400" />
-          <span className="text-sm font-bold tracking-wide">{toastMessage}</span>
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-zinc-950 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10">
+          <CheckCircle className="w-5 h-5" style={{ color: AIRBNB }} />
+          <span className="text-sm font-black tracking-wide">{toastMessage}</span>
         </div>
       )}
 
-      {/* ── Modal تأكيد الحذف ── */}
       {itemToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-[#15317E] rounded-[2rem] p-6 w-full max-w-sm shadow-2xl border border-[#2a4db3]">
-            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-5 mx-auto border border-white/20">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-              </svg>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/65 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl border border-zinc-100">
+            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-5 mx-auto border border-rose-100">
+              <Trash2 className="w-7 h-7 text-rose-500" />
             </div>
-            <h3 className="text-xl font-bold text-center text-white mb-2">تأكيد الحذف</h3>
-            <p className="text-sm text-white/70 text-center mb-6 leading-relaxed">
-              هل أنت متأكد من رغبتك في حذف<br />
-              <span className="text-emerald-400 font-bold text-base">{itemToDelete.name}</span>؟<br />
-              <span className="text-xs opacity-60">لا يمكن التراجع عن هذا الإجراء لاحقاً.</span>
+            <h3 className="text-xl font-black text-center text-zinc-950 mb-2">تأكيد الحذف</h3>
+            <p className="text-sm text-zinc-500 text-center mb-6 leading-relaxed font-medium">
+              هل أنت متأكد من حذف<br />
+              <span className="text-zinc-950 font-black text-base">{itemToDelete.name}</span>؟<br />
+              <span className="text-xs text-zinc-400">لا يمكن التراجع عن هذا الإجراء لاحقاً.</span>
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setItemToDelete(null)}
-                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-sm"
+                className="flex-1 py-3.5 rounded-2xl font-black text-zinc-700 bg-zinc-100 hover:bg-zinc-200 transition-all text-sm"
               >
                 تراجع
               </button>
               <button
                 onClick={() => deleteMutation.mutate(itemToDelete.id)}
                 disabled={deleteMutation.isPending}
-                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 transition-all border border-rose-400 text-sm disabled:opacity-60"
+                className="flex-1 py-3.5 rounded-2xl font-black text-white bg-rose-500 hover:bg-rose-600 transition-all text-sm disabled:opacity-60"
               >
                 {deleteMutation.isPending ? '...' : 'نعم، احذف'}
               </button>
@@ -256,279 +263,254 @@ export default function VenueDashboard() {
         </div>
       )}
 
-      {/* ── الخلفية الزرقاء العلوية ── */}
-      <div className="absolute top-0 left-0 right-0 h-[190px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="pt-6 sm:pt-8 pb-6 text-white">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border border-white/15 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg backdrop-blur-md">
+                  {user?.office_logo_url ? (
+                    <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xl font-black text-white">
+                      {(user?.full_name || user?.office_name || 'م')[0]}
+                    </span>
+                  )}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-2 border-zinc-950 rounded-full" style={{ backgroundColor: AIRBNB }} />
+              </div>
 
-      <div className="relative z-10 max-w-md mx-auto">
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-xs text-white/55 mb-1 font-bold">مرحباً بك،</p>
+                <h1 className="text-base sm:text-xl font-black truncate">{user?.full_name || user?.office_name || 'المالك'}</h1>
+              </div>
+            </div>
 
-        {/* ── الهيدر ── */}
-        <header className="px-5 pt-8 pb-6 flex items-center justify-between text-white">
+            <div className="flex items-center gap-2">
+              <div className="relative" ref={notifsRef}>
+                <button
+                  onClick={() => setShowNotifs(!showNotifs)}
+                  className={`relative h-11 w-11 rounded-2xl border border-white/10 backdrop-blur-md transition-all flex items-center justify-center ${showNotifs ? 'bg-white text-zinc-950' : 'bg-white/10 hover:bg-white/15 text-white'}`}
+                  title="الإشعارات"
+                >
+                  <Bell className="w-4.5 h-4.5" />
+                  {hasNotifications && (
+                    <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,56,92,0.9)]" style={{ backgroundColor: AIRBNB }} />
+                  )}
+                </button>
 
-          {/* بيانات المالك */}
-          <div className="flex items-center gap-3">
-            {/* الشعار - دائرة ثابتة زي واتساب */}
-            <div className="relative flex-shrink-0">
-              <div className="w-12 h-12 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
-                {user?.office_logo_url ? (
-                  <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-xl font-bold text-white">
-                    {(user?.full_name || user?.office_name || 'م')[0]}
-                  </span>
+                {showNotifs && (
+                  <div className="absolute top-full left-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <div className="px-4 py-3 bg-zinc-950 text-white flex items-center justify-between">
+                      <span className="text-sm font-black">الإشعارات</span>
+                      {hasNotifications && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{newBookings.length}</span>
+                      )}
+                    </div>
+                    {newBookings.length === 0 ? (
+                      <div className="px-4 py-7 text-center">
+                        <p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p>
+                      </div>
+                    ) : (
+                      <div className="max-h-72 overflow-y-auto">
+                        {newBookings.map(b => {
+                          const v = venues.find(x => x.id === b.venue_id);
+                          return (
+                            <Link
+                              key={b.id}
+                              to={`/venue/bookings/${b.venue_id}`}
+                              onClick={() => setShowNotifs(false)}
+                              className="flex items-start gap-3 px-4 py-3.5 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
+                            >
+                              <div className="w-10 h-10 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <Calendar className="w-4 h-4" style={{ color: AIRBNB }} />
+                              </div>
+                              <div className="flex-1 min-w-0 text-right">
+                                <p className="text-sm font-black text-zinc-800">حجز جديد</p>
+                                <p className="text-xs text-zinc-500 truncate font-medium">
+                                  {b.client_name || 'عميل'} — {v?.name || 'شاليه'}
+                                </p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
-            </div>
-            <div>
-              <p className="text-[11px] text-white/70 mb-0.5 tracking-wider">مرحباً بك،</p>
-              <h1 className="text-base font-bold">{user?.full_name || user?.office_name || 'المالك'}</h1>
+
+              <div className="relative" ref={revenueRef}>
+                <button
+                  onClick={() => setShowRevenue(!showRevenue)}
+                  className={`h-11 w-11 rounded-2xl border border-white/10 backdrop-blur-md transition-all flex items-center justify-center ${showRevenue ? 'bg-white text-zinc-950' : 'bg-white/10 hover:bg-white/15 text-white'}`}
+                  title="إيرادات الشهر"
+                >
+                  <Wallet className="w-4.5 h-4.5" />
+                </button>
+
+                {showRevenue && (
+                  <div className="absolute top-full left-0 mt-3 w-60 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
+                    <p className="text-[11px] text-zinc-500 font-bold mb-1">إيرادات الشهر المؤكدة</p>
+                    <p className="text-2xl font-black text-zinc-950" dir="ltr">
+                      {monthlyRevenue.toLocaleString('en-US')} <span className="text-[11px] font-bold text-zinc-400">ر.س</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <ProfileMenu onLogout={handleLogout} />
             </div>
           </div>
 
-          {/* أيقونات التحكم */}
-          <div className="flex items-center gap-2">
-
-            {/* الإشعارات */}
-            <div className="relative" ref={notifsRef}>
-              <button
-                onClick={() => setShowNotifs(!showNotifs)}
-                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90 hover:text-white'}`}
-                title="الإشعارات"
-              >
-                <Bell className="w-4 h-4" />
-                {hasNotifications && (
-                  <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
-                )}
-              </button>
-              {showNotifs && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                  <div className="px-4 py-3 bg-[#15317E] text-white flex items-center justify-between">
-                    <span className="text-sm font-bold">الإشعارات</span>
-                    {hasNotifications && (
-                      <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">{newBookings.length}</span>
-                    )}
-                  </div>
-                  {newBookings.length === 0 ? (
-                    <div className="px-4 py-6 text-center">
-                      <p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p>
-                    </div>
-                  ) : (
-                    <div className="max-h-64 overflow-y-auto">
-                      {newBookings.map(b => {
-                        const v = venues.find(x => x.id === b.venue_id);
-                        return (
-                          <Link
-                            key={b.id}
-                            to={`/venue/bookings/${b.venue_id}`}
-                            onClick={() => setShowNotifs(false)}
-                            className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
-                          >
-                            <div className="w-9 h-9 rounded-xl bg-[#15317E]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <Calendar className="w-4 h-4 text-[#15317E]" />
-                            </div>
-                            <div className="flex-1 min-w-0 text-right">
-                              <p className="text-sm font-bold text-slate-700">حجز جديد</p>
-                              <p className="text-xs text-slate-500 truncate">
-                                {b.client_name || 'عميل'} — {v?.name || 'شاليه'}
-                              </p>
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
+          <div className="mt-7 grid grid-cols-1 lg:grid-cols-[1.4fr_.9fr] gap-4 items-end">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black text-white/80 backdrop-blur-md">
+                <Sparkles className="w-4 h-4" style={{ color: AIRBNB }} />
+                لوحة تحكم الأماكن
+              </div>
+              <h2 className="mt-4 text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+                إدارة وحداتك السكنية
+                <br className="hidden sm:block" />
+                بتجربة أوضح وأسرع.
+              </h2>
+              <p className="mt-3 text-sm sm:text-base text-white/60 font-medium leading-7 max-w-2xl">
+                تابع الحجوزات، شارك صفحاتك، وعدّل بيانات كل مكان من لوحة واحدة مناسبة للجوال والآيباد والديسكتوب.
+              </p>
             </div>
 
-            {/* الإيرادات */}
-            <div className="relative" ref={revenueRef}>
-              <button
-                onClick={() => setShowRevenue(!showRevenue)}
-                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}
-                title="إيرادات الشهر"
-              >
-                <Wallet className="w-4 h-4" />
-              </button>
-              {showRevenue && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
-                  <p className="text-[11px] text-slate-500 font-medium mb-1">إيرادات الشهر (الحجوزات المؤكدة)</p>
-                  <p className="text-xl font-bold text-[#15317E]" dir="ltr">
-                    {monthlyRevenue.toLocaleString('en-US')} <span className="text-[10px] font-normal text-slate-400">ر.س</span>
-                  </p>
-                </div>
-              )}
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <MiniStat label="الوحدات" value={venues.length} icon={Home} />
+              <MiniStat label="النشطة" value={activeVenues} icon={ShieldCheck} />
+              <MiniStat label="حجوزات الشهر" value={monthlyBookings} icon={Calendar} />
             </div>
-
-            {/* زر الخروج مع Dropdown */}
-            <ProfileMenu onLogout={handleLogout} />
           </div>
         </header>
 
-        {/* ── المحتوى ── */}
-        <main className="px-4 space-y-6 mt-4">
-
-          {/* عنوان القسم */}
-          <div className="flex items-center justify-between px-2 text-white mb-4">
-            <h3 className="text-lg font-bold">وحداتي السكنية</h3>
-            <div className="flex items-center gap-2.5">
-              <span className="bg-white/10 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm border border-white/10">
-                {venues.length} وحدات
-              </span>
-              <Link
-                to="/venue/add"
-                className="flex items-center gap-1.5 bg-white text-[#15317E] px-3.5 py-1.5 rounded-full text-xs font-bold shadow-[0_4px_15px_rgba(0,0,0,0.15)] hover:shadow-[0_4px_20px_rgba(255,255,255,0.25)] hover:-translate-y-0.5 transition-all group"
-              >
-                <div className="bg-[#15317E]/10 rounded-full p-0.5">
-                  <Plus className="w-3 h-3 group-hover:rotate-90 transition-transform duration-300" strokeWidth={3} />
-                </div>
-                إضافة شاليه
-              </Link>
+        <main className="space-y-6">
+          <div className="rounded-[2rem] bg-white border border-zinc-200 shadow-[0_24px_70px_rgba(0,0,0,0.08)] px-4 py-4 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg sm:text-xl font-black text-zinc-950">وحداتي السكنية</h3>
+              <p className="text-xs sm:text-sm text-zinc-500 font-bold mt-1">كل مكان تملكه يظهر هنا كبطاقة مستقلة.</p>
             </div>
+
+            <Link
+              to="/venue/add"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-black text-white px-5 py-3 text-sm font-black shadow-[0_16px_30px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 transition-all active:scale-[0.98]"
+            >
+              <Plus className="w-4 h-4" />
+              إضافة شاليه
+            </Link>
           </div>
 
-          {/* بطاقات الشاليهات */}
-          {venues.map((venue) => (
-            <div key={venue.id} className="bg-white rounded-[2rem] p-2 shadow-xl shadow-slate-200/50 border border-slate-100 transition-all duration-300">
+          {venues.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
+              {venues.map((venue) => (
+                <div key={venue.id} className="bg-white rounded-[2rem] p-2.5 shadow-[0_20px_55px_rgba(0,0,0,0.08)] border border-zinc-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_rgba(0,0,0,0.12)]">
+                  <div className="relative h-56 sm:h-60 rounded-[1.55rem] overflow-hidden bg-zinc-100">
+                    {venue.images?.[0] ? (
+                      <img src={venue.images[0]} alt={venue.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-400">
+                        <EmptyHouseIcon />
+                      </div>
+                    )}
 
-              {/* الصورة */}
-              <div className="relative h-56 rounded-[1.5rem] overflow-hidden">
-                {venue.images?.[0] ? (
-                  <img src={venue.images[0]} alt={venue.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12">
-                      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/>
-                    </svg>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+
+                    {venue.status === 'معطّل' && (
+                      <div className="absolute inset-0 bg-black/65 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 opacity-80">
+                          <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                        <span className="text-white text-sm font-black opacity-90">متوقف عن العرض حالياً</span>
+                      </div>
+                    )}
+
+                    <div className="absolute top-3 right-3 flex items-center bg-white/85 backdrop-blur-md p-1 rounded-full shadow-sm border border-white/70 z-20">
+                      <button
+                        onClick={() => handleToggleStatus({ ...venue, status: 'نشط' })}
+                        className={`px-3 py-1.5 text-[11px] font-black rounded-full transition-all duration-300 ${venue.status === 'نشط' ? 'text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-950'}`}
+                        style={venue.status === 'نشط' ? { backgroundColor: AIRBNB } : {}}
+                      >
+                        نشط
+                      </button>
+                      <button
+                        onClick={() => handleToggleStatus({ ...venue, status: 'معطّل' })}
+                        className={`px-3 py-1.5 text-[11px] font-black rounded-full transition-all duration-300 ${venue.status === 'معطّل' ? 'bg-zinc-950 text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-950'}`}
+                      >
+                        معطّل
+                      </button>
+                    </div>
+
+                    <div className="absolute bottom-4 left-4 right-4 text-white z-10">
+                      <h3 className="text-xl font-black mb-1 truncate">{venue.name}</h3>
+                      <p className="text-sm text-white/78 flex items-center gap-1.5 font-bold">
+                        <MapPin className="w-4 h-4" />
+                        {venue.city}
+                      </p>
+                    </div>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#15317E]/90 via-[#15317E]/30 to-transparent" />
 
-                {/* overlay معطّل */}
-                {venue.status === 'معطّل' && (
-                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 opacity-80">
-                      <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                    </svg>
-                    <span className="text-white text-sm font-bold opacity-90">الشاليه متوقف عن العرض حالياً</span>
+                  <div className="grid grid-cols-2 gap-2 px-1 py-3">
+                    <div className="rounded-2xl bg-zinc-50 border border-zinc-100 p-3">
+                      <p className="text-[11px] text-zinc-500 mb-1 font-bold">السعر / ليلة ويكند</p>
+                      <p className="text-lg font-black text-zinc-950" dir="ltr">
+                        {venue.price_weekend?.toLocaleString('en-US') ?? '—'} <span className="text-[10px] font-bold text-zinc-400">ر.س</span>
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-zinc-50 border border-zinc-100 p-3 text-left">
+                      <p className="text-[11px] text-zinc-500 mb-1 font-bold">حجوزات الشهر</p>
+                      <p className="text-lg font-black text-zinc-950" dir="ltr">
+                        {bookings.filter(b => b.venue_id === venue.id && b.status !== 'ملغي' && isThisMonth(b)).length}
+                      </p>
+                    </div>
                   </div>
-                )}
 
-                {/* شريط نشط / معطّل */}
-                <div className="absolute top-3 right-3 flex items-center bg-white/60 backdrop-blur-md p-1 rounded-full shadow-sm border border-white/60 z-20">
-                  <button
-                    onClick={() => handleToggleStatus({ ...venue, status: 'نشط' })}
-                    className={`px-3 py-1 text-[11px] font-bold rounded-full transition-all duration-300 ${venue.status === 'نشط' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-                  >
-                    نشط
-                  </button>
-                  <button
-                    onClick={() => handleToggleStatus({ ...venue, status: 'معطّل' })}
-                    className={`px-3 py-1 text-[11px] font-bold rounded-full transition-all duration-300 ${venue.status === 'معطّل' ? 'bg-white text-rose-500 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-                  >
-                    معطّل
-                  </button>
+                  <div className="bg-zinc-50 rounded-[1.35rem] p-2 flex flex-col sm:flex-row gap-2">
+                    <Link
+                      to={`/venue/bookings/${venue.id}`}
+                      className="flex-1 min-h-12 bg-zinc-950 hover:bg-black text-white flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-sm transition-all shadow-md shadow-black/10 active:scale-[0.98]"
+                    >
+                      <Calendar className="w-5 h-5" />
+                      إدارة الحجوزات
+                    </Link>
+
+                    <div className="grid grid-cols-4 sm:flex gap-2">
+                      <Link
+                        to={`/venue/edit/${venue.id}`}
+                        className="h-11 sm:h-12 sm:w-12 flex items-center justify-center bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 rounded-2xl transition-all shadow-sm"
+                        title="تعديل"
+                      >
+                        <Pencil className="w-4.5 h-4.5" />
+                      </Link>
+
+                      <IconButton onClick={() => handleViewPage(venue)} title="عرض الصفحة" className="text-zinc-800">
+                        <Eye className="w-4.5 h-4.5" />
+                      </IconButton>
+
+                      <IconButton onClick={() => handleShare(venue)} title="مشاركة" className="text-zinc-800">
+                        <Share2 className="w-4.5 h-4.5" />
+                      </IconButton>
+
+                      <IconButton onClick={() => setItemToDelete(venue)} title="حذف" className="bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100 hover:border-rose-200">
+                        <Trash2 className="w-4.5 h-4.5" />
+                      </IconButton>
+                    </div>
+                  </div>
                 </div>
-
-                {/* اسم + موقع */}
-                <div className="absolute bottom-4 left-4 right-4 text-white z-10">
-                  <h3 className="text-xl font-bold mb-1">{venue.name}</h3>
-                  <p className="text-sm text-white/80 flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4" />
-                    {venue.city}
-                  </p>
-                </div>
-              </div>
-
-              {/* السعر والحجوزات */}
-              <div className="flex items-center justify-between px-4 py-4">
-                <div>
-                  <p className="text-xs text-slate-500 mb-0.5 font-medium">السعر / ليلة ويكند</p>
-                  <p className="text-lg font-bold text-[#15317E]" dir="ltr">
-                    {venue.price_weekend?.toLocaleString('en-US') ?? '—'} <span className="text-xs font-normal text-slate-400">ر.س</span>
-                  </p>
-                </div>
-                <div className="w-px h-8 bg-slate-200" />
-                <div className="text-left">
-                  <p className="text-xs text-slate-500 mb-0.5 font-medium">حجوزات الشهر</p>
-                  <p className="text-lg font-bold text-[#15317E]" dir="ltr">
-                    {bookings.filter(b => b.venue_id === venue.id && b.status !== 'ملغي' && isThisMonth(b)).length}
-                  </p>
-                </div>
-              </div>
-
-              {/* شريط الإجراءات */}
-              <div className="bg-slate-50 rounded-[1.2rem] p-2 flex gap-2">
-                <Link
-                  to={`/venue/bookings/${venue.id}`}
-                  className="flex-1 bg-[#15317E] hover:bg-[#0d1e4c] text-white flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all shadow-md shadow-[#15317E]/20"
-                >
-                  <Calendar className="w-5 h-5" />
-                  إدارة الحجوزات
-                </Link>
-
-                <div className="flex gap-2">
-                  {/* تعديل */}
-                  <Link
-                    to={`/venue/edit/${venue.id}`}
-                    className="w-12 flex items-center justify-center bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 rounded-xl transition-all shadow-sm group"
-                    title="تعديل"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
-                      <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
-                    </svg>
-                  </Link>
-
-                  {/* عرض الصفحة */}
-                  <button
-                    onClick={() => handleViewPage(venue)}
-                    className="w-12 flex items-center justify-center bg-white text-[#15317E] border border-slate-200 hover:bg-blue-50 hover:border-blue-200 rounded-xl transition-all shadow-sm group"
-                    title="عرض الصفحة"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  </button>
-
-                  {/* مشاركة */}
-                  <button
-                    onClick={() => handleShare(venue)}
-                    className="w-12 flex items-center justify-center bg-white text-[#15317E] border border-slate-200 hover:bg-blue-50 hover:border-blue-200 rounded-xl transition-all shadow-sm group"
-                    title="مشاركة"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
-                      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="10.49" x2="8.59" y2="6.51"/>
-                    </svg>
-                  </button>
-
-                  {/* حذف */}
-                  <button
-                    onClick={() => setItemToDelete(venue)}
-                    className="w-12 flex items-center justify-center bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 rounded-xl transition-all shadow-sm group"
-                    title="حذف"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
-                      <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                      <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
 
-          {/* حالة فارغة */}
           {venues.length === 0 && (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
-                  <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/>
-                </svg>
+            <div className="text-center py-16 sm:py-20 bg-white rounded-[2rem] border border-zinc-200 shadow-[0_20px_55px_rgba(0,0,0,0.06)]">
+              <div className="w-20 h-20 bg-zinc-100 rounded-3xl flex items-center justify-center mx-auto mb-4 text-zinc-400">
+                <EmptyHouseIcon />
               </div>
-              <p className="text-slate-500 font-medium mb-4">لا توجد وحدات سكنية حالياً</p>
-              <Link to="/venue/add" className="inline-flex items-center gap-2 bg-[#15317E] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#0d1e4c] transition-all">
+              <p className="text-zinc-700 font-black mb-2">لا توجد وحدات سكنية حالياً</p>
+              <p className="text-zinc-500 font-bold text-sm mb-5">أضف أول مكان وابدأ مشاركة صفحتك مع العملاء.</p>
+              <Link to="/venue/add" className="inline-flex items-center gap-2 bg-zinc-950 text-white px-6 py-3 rounded-2xl font-black text-sm hover:bg-black transition-all">
                 <Plus className="w-4 h-4" /> أضف أول شاليه
               </Link>
             </div>
@@ -536,7 +518,6 @@ export default function VenueDashboard() {
         </main>
       </div>
 
-      {/* خط الخطوط */}
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
