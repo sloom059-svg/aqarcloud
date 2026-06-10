@@ -25,20 +25,20 @@ import { QRCodeSVG } from 'qrcode.react';
 const AIRBNB = '#FF385C';
 const toEn = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
 const formatPrice = (p) => p ? toEn(p) : '';
-const periodLabel = (p) => ({ سنوي: 'سنوياً', شهري: 'شهرياً', يومياً: 'يومياً', يومي: 'يومياً' }[p] || '');
+const periodLabel = (p) => ({ سنوي: 'سنوياً', شهري: 'شهرياً', يومي: 'يومياً' }[p] || '');
 
-const chip = (Icon, label, value) => {
+function InfoBox({ icon: Icon, label, value }) {
   if (!value && value !== 0) return null;
   return (
-    <div className="rounded-2xl bg-zinc-50 border border-zinc-100 px-3 py-2 text-right">
-      <div className="flex items-center gap-1.5 text-[10px] font-black text-zinc-400 mb-1">
-        <Icon className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+    <div className="info-box">
+      <div className="info-label">
+        <Icon className="info-icon" />
         {label}
       </div>
-      <div className="text-[12px] font-black text-zinc-950 leading-tight">{value}</div>
+      <div className="info-value">{value}</div>
     </div>
   );
-};
+}
 
 export default function PropertyCardExport({ property, agent, onClose }) {
   const cardRef = useRef(null);
@@ -56,9 +56,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
     ? 'السعر قابل للتفاوض'
     : `${formatPrice(property.price)} ر.س`;
 
-  const priceSub = property.price_on_request
-    ? ''
-    : property.price_negotiable
+  const priceSub = property.price_on_request || property.price_negotiable
     ? ''
     : property.listing_type === 'إيجار'
     ? periodLabel(property.rental_period)
@@ -67,22 +65,26 @@ export default function PropertyCardExport({ property, agent, onClose }) {
   const dimensionText = property.length_street && property.length_depth
     ? `${toEn(property.length_street)} × ${toEn(property.length_depth)} م`
     : property.street_width
-    ? `شارع ${property.street_width} م`
+    ? `شارع ${toEn(property.street_width)} م`
     : '';
 
-  const nearby = property.nearby_places?.slice(0, 4) || [];
-  const features = property.features?.slice(0, 10) || [];
+  const features = property.features?.slice(0, 8) || [];
+  const nearby = property.nearby_places?.slice(0, 3) || [];
 
   const downloadCard = async () => {
     if (!cardRef.current) return;
     try {
       const html2canvas = (await import('html2canvas')).default;
+      await document.fonts?.ready?.catch?.(() => {});
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
         useCORS: true,
+        allowTaint: true,
         backgroundColor: '#ffffff',
         scrollX: 0,
         scrollY: 0,
+        windowWidth: 470,
+        windowHeight: cardRef.current.scrollHeight,
       });
       const link = document.createElement('a');
       link.download = `${property.title || 'property-card'}.png`;
@@ -101,191 +103,442 @@ export default function PropertyCardExport({ property, agent, onClose }) {
       <style dangerouslySetInnerHTML={{ __html: `
         .export-card, .export-card * {
           box-sizing: border-box;
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
-          letter-spacing: 0 !important;
+          font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif !important;
           text-rendering: geometricPrecision;
         }
+
         .export-card {
           width: 470px;
-          min-height: 860px;
+          background: #ffffff;
+          border-radius: 32px;
+          overflow: hidden;
+          color: #09090b;
+          direction: rtl;
+        }
+
+        .photo-wrap {
+          height: 285px;
+          position: relative;
+          overflow: hidden;
+          background: #f4f4f5;
+        }
+
+        .photo-wrap img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .photo-shade {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to top, rgba(0,0,0,.58), rgba(0,0,0,.08), rgba(0,0,0,.18));
+        }
+
+        .pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border-radius: 999px;
+          padding: 8px 13px;
+          font-size: 12px;
+          font-weight: 900;
+          line-height: 1;
+          box-shadow: 0 8px 22px rgba(0,0,0,.12);
+        }
+
+        .top-tags {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          left: 16px;
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 10px;
+        }
+
+        .price-card {
+          position: absolute;
+          right: 16px;
+          bottom: 16px;
+          min-width: 172px;
           background: #fff;
+          border-radius: 22px;
+          padding: 14px 16px;
+          box-shadow: 0 18px 38px rgba(0,0,0,.22);
+        }
+
+        .price-label {
+          color: #a1a1aa;
+          font-weight: 900;
+          font-size: 11px;
+          margin-bottom: 5px;
+        }
+
+        .price-value {
+          color: #FF385C;
+          font-size: 24px;
+          font-weight: 900;
+          line-height: 1.1;
+          direction: ltr;
+          text-align: right;
+        }
+
+        .area-stack {
+          position: absolute;
+          left: 16px;
+          bottom: 16px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 8px;
+        }
+
+        .content {
+          padding: 24px 24px 18px;
+        }
+
+        .title {
+          font-size: 25px;
+          font-weight: 900;
+          line-height: 1.22;
+          margin: 0;
+          color: #09090b;
+        }
+
+        .location {
+          margin-top: 9px;
+          color: #71717a;
+          font-size: 14px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .desc {
+          margin-top: 13px;
+          color: #52525b;
+          font-size: 13px;
+          font-weight: 600;
+          line-height: 1.8;
+        }
+
+        .grid {
+          padding: 0 24px 18px;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .info-box {
+          background: #fafafa;
+          border: 1px solid #eeeeee;
+          border-radius: 20px;
+          padding: 11px 12px;
+          min-height: 67px;
+        }
+
+        .info-label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #a1a1aa;
+          font-size: 11px;
+          font-weight: 900;
+          margin-bottom: 6px;
+        }
+
+        .info-icon {
+          width: 14px;
+          height: 14px;
+          color: #FF385C;
+          flex-shrink: 0;
+        }
+
+        .info-value {
+          color: #09090b;
+          font-size: 14px;
+          font-weight: 900;
+          line-height: 1.25;
+        }
+
+        .section {
+          margin: 0 24px 18px;
+          background: #fafafa;
+          border: 1px solid #eeeeee;
+          border-radius: 26px;
+          padding: 16px;
+        }
+
+        .section-title {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          color: #09090b;
+          font-size: 13px;
+          font-weight: 900;
+          margin-bottom: 11px;
+        }
+
+        .feature-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 7px;
+        }
+
+        .feature-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          background: #fff;
+          border: 1px solid #e4e4e7;
+          color: #3f3f46;
+          border-radius: 999px;
+          padding: 7px 10px;
+          font-size: 12px;
+          font-weight: 900;
+        }
+
+        .nearby-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          background: #fff;
+          border: 1px solid #e4e4e7;
+          border-radius: 18px;
+          padding: 10px 12px;
+          font-size: 12px;
+          font-weight: 900;
+          margin-top: 7px;
+        }
+
+        .footer {
+          margin: 0 24px 24px;
+          background: #09090b;
+          color: white;
+          border-radius: 28px;
+          padding: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .footer::before {
+          content: "";
+          position: absolute;
+          width: 160px;
+          height: 160px;
+          border-radius: 999px;
+          background: rgba(255,56,92,.28);
+          left: -56px;
+          top: -70px;
+        }
+
+        .office {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          min-width: 0;
+          position: relative;
+          z-index: 1;
+        }
+
+        .office-logo {
+          width: 60px;
+          height: 60px;
+          border-radius: 18px;
+          background: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+
+        .office-logo img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .office-name {
+          font-size: 17px;
+          font-weight: 900;
+          line-height: 1.25;
+          max-width: 180px;
+        }
+
+        .contact {
+          margin-top: 4px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 15px;
+          font-weight: 900;
+          direction: ltr;
+          justify-content: flex-end;
+        }
+
+        .qr-box {
+          background: #fff;
+          border-radius: 20px;
+          padding: 9px;
+          text-align: center;
+          flex-shrink: 0;
+          position: relative;
+          z-index: 1;
+        }
+
+        .qr-label {
+          color: #71717a;
+          font-size: 10px;
+          font-weight: 900;
+          margin-top: 4px;
         }
       `}} />
 
-      <div
-        ref={cardRef}
-        dir="rtl"
-        className="export-card bg-white w-full rounded-[2rem] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.18)] relative"
-      >
-        <div className="absolute top-0 left-0 right-0 h-1.5" style={{ backgroundColor: AIRBNB }} />
-
-        {/* الصورة */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-zinc-100">
+      <div ref={cardRef} className="export-card">
+        <div className="photo-wrap">
           <img
             src={property.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'}
             alt={property.title || 'عقار'}
-            className="w-full h-full object-cover"
             crossOrigin="anonymous"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-          <div className="absolute top-4 right-4 flex flex-wrap gap-2">
-            {property.listing_type && (
-              <span className="rounded-full bg-white px-3 py-1.5 text-[11px] font-black text-zinc-950 shadow-sm">
-                {property.listing_type}
-              </span>
-            )}
-            {property.type && (
-              <span className="rounded-full bg-zinc-950/90 text-white px-3 py-1.5 text-[11px] font-black shadow-sm">
-                {property.type}
-              </span>
-            )}
+          <div className="photo-shade" />
+
+          <div className="top-tags">
+            <div style={{ display: 'flex', gap: 8 }}>
+              {property.listing_type && <span className="pill" style={{ background: '#fff', color: '#09090b' }}>{property.listing_type}</span>}
+              {property.type && <span className="pill" style={{ background: 'rgba(9,9,11,.82)', color: '#fff' }}>{property.type}</span>}
+            </div>
           </div>
 
-          {property.facade && (
-            <div className="absolute top-4 left-4">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm">
-                <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+          <div className="price-card">
+            <div className="price-label">السعر</div>
+            <div className="price-value">{priceText}</div>
+            {priceSub && <div style={{ color: '#a1a1aa', fontSize: 11, fontWeight: 800, marginTop: 4 }}>{priceSub}</div>}
+          </div>
+
+          <div className="area-stack">
+            {property.facade && (
+              <span className="pill" style={{ background: 'rgba(255,255,255,.96)', color: '#27272a' }}>
+                <Compass style={{ width: 15, height: 15, color: AIRBNB }} />
                 واجهة {property.facade}
               </span>
-            </div>
-          )}
-
-          <div className="absolute bottom-4 right-4 left-4 flex items-end justify-between gap-3">
-            <div className="rounded-[1.2rem] bg-white px-4 py-3 shadow-lg min-w-[160px]">
-              <p className="text-[10px] font-black text-zinc-400 mb-1">السعر</p>
-              <div className="text-[20px] font-black leading-tight" style={{ color: AIRBNB }}>{priceText}</div>
-              {priceSub && <div className="text-[10px] font-bold text-zinc-400 mt-1">{priceSub}</div>}
-            </div>
-
+            )}
             {property.area && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur px-3 py-1.5 text-[12px] font-black text-white">
-                <Maximize className="w-3.5 h-3.5" />
-                {property.area} م²
+              <span className="pill" style={{ background: 'rgba(9,9,11,.58)', color: '#fff' }}>
+                <Maximize style={{ width: 15, height: 15 }} />
+                {toEn(property.area)} م²
               </span>
             )}
           </div>
         </div>
 
-        {/* العنوان */}
-        <div className="p-5 pb-4">
-          <h2 className="text-[21px] font-black text-zinc-950 leading-tight">{property.title || 'عقار مميز'}</h2>
+        <div className="content">
+          <h2 className="title">{property.title || 'عقار مميز'}</h2>
           {location && (
-            <div className="mt-2 flex items-center gap-1.5 text-zinc-500 text-sm font-bold">
-              <MapPin className="w-4 h-4 shrink-0" />
+            <div className="location">
+              <MapPin style={{ width: 16, height: 16, color: '#71717a' }} />
               <span>{location}</span>
             </div>
           )}
-          {property.description && (
-            <p className="mt-3 text-[13px] leading-7 font-medium text-zinc-500">
-              {property.description}
-            </p>
-          )}
+          {property.description && <div className="desc">{property.description}</div>}
         </div>
 
-        {/* الخصائص */}
-        <div className="px-5">
-          <div className="grid grid-cols-2 gap-2.5">
-            {chip(Building2, 'نوع العقار', property.type)}
-            {chip(Layers, 'نوع العرض', property.listing_type)}
-            {chip(Maximize, 'المساحة', property.area ? `${toEn(property.area)} م²` : '')}
-            {chip(Ruler, 'عرض الشارع', property.street_width ? `${toEn(property.street_width)} م` : '')}
-            {!isLand && chip(BedDouble, 'غرف النوم', property.bedrooms ? toEn(property.bedrooms) : '')}
-            {!isLand && chip(Bath, 'دورات المياه', property.bathrooms ? toEn(property.bathrooms) : '')}
-            {!isLand && chip(Sofa, 'الصالات', property.halls ? toEn(property.halls) : '')}
-            {!isLand && chip(Home, 'عمر العقار', property.property_age ? `${toEn(property.property_age)} سنة` : '')}
-            {isLand && chip(Compass, 'الواجهة', property.facade || '')}
-            {isLand && chip(Map, 'الأبعاد', dimensionText)}
-            {property.plot_number && chip(FileText, 'رقم المخطط', property.plot_number)}
-            {property.parcel_number && chip(FileText, 'رقم القطعة', property.parcel_number)}
-            {property.rental_period && chip(CalendarClock, 'مدة الإيجار', property.rental_period)}
-          </div>
+        <div className="grid">
+          <InfoBox icon={Building2} label="نوع العقار" value={property.type} />
+          <InfoBox icon={Layers} label="نوع العرض" value={property.listing_type} />
+          <InfoBox icon={Maximize} label="المساحة" value={property.area ? `${toEn(property.area)} م²` : ''} />
+          <InfoBox icon={Ruler} label="عرض الشارع" value={property.street_width ? `${toEn(property.street_width)} م` : ''} />
+          {!isLand && <InfoBox icon={BedDouble} label="غرف النوم" value={property.bedrooms ? toEn(property.bedrooms) : ''} />}
+          {!isLand && <InfoBox icon={Bath} label="دورات المياه" value={property.bathrooms ? toEn(property.bathrooms) : ''} />}
+          {!isLand && <InfoBox icon={Sofa} label="الصالات" value={property.halls ? toEn(property.halls) : ''} />}
+          {!isLand && <InfoBox icon={Home} label="عمر العقار" value={property.property_age ? `${toEn(property.property_age)} سنة` : ''} />}
+          {isLand && <InfoBox icon={Compass} label="الواجهة" value={property.facade} />}
+          {isLand && <InfoBox icon={Map} label="الأبعاد" value={dimensionText} />}
+          <InfoBox icon={FileText} label="رقم المخطط" value={property.plot_number} />
+          <InfoBox icon={FileText} label="رقم القطعة" value={property.parcel_number} />
+          <InfoBox icon={CalendarClock} label="مدة الإيجار" value={property.rental_period} />
         </div>
 
-        {/* المزايا */}
-        {(features.length > 0 || nearby.length > 0) && (
-          <div className="px-5 pt-4">
-            <div className="rounded-[1.7rem] bg-[#FAFAFA] border border-zinc-100 p-4">
-              {features.length > 0 && (
-                <div>
-                  <p className="text-[12px] font-black text-zinc-950 mb-2.5 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" style={{ color: AIRBNB }} />
-                    أبرز المزايا
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {features.map((feature) => (
-                      <span key={feature} className="inline-flex items-center gap-1 rounded-full bg-white border border-zinc-200 px-2.5 py-1.5 text-[11px] font-black text-zinc-700">
-                        <CheckCircle2 className="w-3 h-3" style={{ color: AIRBNB }} />
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {nearby.length > 0 && (
-                <div className={features.length ? 'mt-4 pt-4 border-t border-zinc-200' : ''}>
-                  <p className="text-[12px] font-black text-zinc-950 mb-2.5 flex items-center gap-1.5">
-                    <Map className="w-4 h-4" style={{ color: AIRBNB }} />
-                    المواقع والخدمات القريبة
-                  </p>
-                  <div className="grid grid-cols-1 gap-2">
-                    {nearby.map((place, i) => (
-                      <div key={i} className="flex items-center justify-between gap-2 rounded-2xl bg-white border border-zinc-200 px-3 py-2 text-[11px]">
-                        <span className="font-black text-zinc-700">{place.label}</span>
-                        <span className="font-bold text-zinc-400">{place.distance_label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+        {features.length > 0 && (
+          <div className="section">
+            <div className="section-title">
+              <CheckCircle2 style={{ width: 16, height: 16, color: AIRBNB }} />
+              أبرز المزايا
+            </div>
+            <div className="feature-list">
+              {features.map((feature) => (
+                <span key={feature} className="feature-chip">
+                  <CheckCircle2 style={{ width: 12, height: 12, color: AIRBNB }} />
+                  {feature}
+                </span>
+              ))}
             </div>
           </div>
         )}
 
-        {/* الفوتر */}
-        <div className="p-5 pt-4">
-          <div className="rounded-[1.8rem] bg-zinc-950 text-white p-4 overflow-hidden relative">
-            <div className="absolute -left-10 -top-10 w-36 h-36 rounded-full opacity-20" style={{ backgroundColor: AIRBNB }} />
-
-            <div className="relative z-10 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {officeLogo ? (
-                    <img src={officeLogo} alt={officeName} className="w-full h-full object-cover" crossOrigin="anonymous" />
-                  ) : (
-                    <Building2 className="w-6 h-6 text-zinc-700" />
-                  )}
-                </div>
-
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black text-white/60 mb-1">تواصل الآن</p>
-                  <h3 className="text-[15px] font-black">{officeName}</h3>
-                  {contactNum && (
-                    <div className="mt-1 flex items-center gap-1.5 text-[12px] font-black" dir="ltr">
-                      <MessageCircle className="w-4 h-4" style={{ color: '#25D366' }} />
-                      <span>{contactNum}</span>
-                    </div>
-                  )}
-                  {!contactNum && agent?.phone && (
-                    <div className="mt-1 flex items-center gap-1.5 text-[12px] font-black" dir="ltr">
-                      <Phone className="w-4 h-4" style={{ color: AIRBNB }} />
-                      <span>{agent.phone}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-white p-2 rounded-[1.1rem] shadow-inner text-center flex-shrink-0">
-                <QRCodeSVG
-                  value={`${window.location.origin}/property/${property.id}`}
-                  size={78}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                  level="M"
-                />
-                <p className="text-[9px] font-black text-zinc-500 mt-1">امسح لعرض العقار</p>
-              </div>
+        {nearby.length > 0 && (
+          <div className="section">
+            <div className="section-title">
+              <Map style={{ width: 16, height: 16, color: AIRBNB }} />
+              المواقع والخدمات القريبة
             </div>
+            {nearby.map((place, i) => (
+              <div className="nearby-row" key={i}>
+                <span>{place.label}</span>
+                <span style={{ color: '#a1a1aa' }}>{place.distance_label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="footer">
+          <div className="office">
+            <div className="office-logo">
+              {officeLogo ? (
+                <img src={officeLogo} alt={officeName} crossOrigin="anonymous" />
+              ) : (
+                <Building2 style={{ width: 27, height: 27, color: '#3f3f46' }} />
+              )}
+            </div>
+
+            <div>
+              <div style={{ color: 'rgba(255,255,255,.55)', fontSize: 11, fontWeight: 900, marginBottom: 4 }}>تواصل الآن</div>
+              <div className="office-name">{officeName}</div>
+              {contactNum && (
+                <div className="contact">
+                  <MessageCircle style={{ width: 17, height: 17, color: '#25D366' }} />
+                  <span>{contactNum}</span>
+                </div>
+              )}
+              {!contactNum && agent?.phone && (
+                <div className="contact">
+                  <Phone style={{ width: 17, height: 17, color: AIRBNB }} />
+                  <span>{agent.phone}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="qr-box">
+            <QRCodeSVG
+              value={`${window.location.origin}/property/${property.id}`}
+              size={86}
+              bgColor="#ffffff"
+              fgColor="#000000"
+              level="M"
+            />
+            <div className="qr-label">امسح لعرض العقار</div>
           </div>
         </div>
       </div>
