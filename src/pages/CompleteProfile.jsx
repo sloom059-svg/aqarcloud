@@ -60,7 +60,11 @@ export default function CompleteProfile() {
 
   const [mainRole,setMainRole]=useState(saved?.mainRole||'');
   const [role,setRole]=useState(saved?.role||'');
-  const [step,setStep]=useState(saved?.step||0);
+  const [step,setStep]=useState(()=>{
+    const s=saved?.step;
+    if(s===undefined||s===null)return 0;
+    return Number(s);
+  });
   const [saving,setSaving]=useState(false);
   const [uploadingLogo,setUploadingLogo]=useState(false);
   const [uploadingImgs,setUploadingImgs]=useState(false);
@@ -117,12 +121,13 @@ export default function CompleteProfile() {
 
   const next=()=>{
     if(step===0.5){setStep(1);return;}
-    setStep(s=>Math.min(Math.floor(s)+1,totalSteps));
+    const nextStep=Math.min(Math.round(step)+1, totalSteps);
+    setStep(nextStep);
   };
   const prev=()=>{
-    if(step===0.5){setStep(0);setMainRole('');}
-    else if(step>1)setStep(s=>s-1);
-    else setStep(0);
+    if(step===0.5){setStep(0);setMainRole('');return;}
+    if(step>1){setStep(s=>Math.round(s)-1);return;}
+    setStep(0);
   };
 
   if(success){
