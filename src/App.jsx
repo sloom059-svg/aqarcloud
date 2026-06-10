@@ -33,7 +33,7 @@ const AuthenticatedApp = () => {
   const { user, isAuthenticated, isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
   const path = typeof window !== 'undefined' ? window.location.pathname : '/';
-  const publicPaths = ['/login','/register','/forgot-password','/reset-password','/complete-profile','/check-profile','/terms','/privacy','/about','/contact','/support'];
+  const publicPaths = ['/login','/register','/forgot-password','/reset-password','/complete-profile','/check-profile','/terms','/refund','/privacy','/about','/contact','/support'];
   const isPublicView = publicPaths.includes(path) || path.startsWith('/agent/') || path.startsWith('/property/') || path.startsWith('/place/');
 
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -75,6 +75,7 @@ const AuthenticatedApp = () => {
       <Route path="/property/:id" element={<PropertyDetail />} />
       <Route path="/place/:slug" element={<VenuePublicPage />} />
       <Route path="/terms" element={<StaticPage type="terms" />} />
+      <Route path="/refund" element={<StaticPage type="refund" />} />
       <Route path="/privacy" element={<StaticPage type="privacy" />} />
       <Route path="/about" element={<StaticPage type="about" />} />
       <Route path="/contact" element={<StaticPage type="contact" />} />
