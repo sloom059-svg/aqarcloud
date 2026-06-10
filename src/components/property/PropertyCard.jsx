@@ -10,7 +10,6 @@ import {
   Ruler,
   Compass,
   Layers,
-  Tag,
   Sofa,
   CalendarClock,
   FileText,
@@ -86,6 +85,7 @@ export default function PropertyCard({ property, index = 0 }) {
             </div>
           )}
 
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/35 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
 
           <div className="absolute top-3 right-3 flex gap-2 flex-wrap">
@@ -101,16 +101,32 @@ export default function PropertyCard({ property, index = 0 }) {
             )}
           </div>
 
+          {property.facade && (
+            <div className="absolute top-3 left-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm border border-white/70">
+                <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                واجهة {property.facade}
+              </span>
+            </div>
+          )}
+
           {property.status && property.status !== 'نشط' && (
             <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
               <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-zinc-950">{property.status}</span>
             </div>
           )}
 
-          <div className="absolute bottom-3 right-3 left-3">
+          <div className="absolute bottom-3 right-3 left-3 flex items-end justify-between gap-3">
             <p className="inline-flex rounded-2xl bg-white px-3 py-2 text-sm font-black shadow-sm" style={{ color: AIRBNB }}>
               {priceText}
             </p>
+
+            {property.area && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white">
+                <Maximize className="w-3.5 h-3.5" />
+                {property.area} م²
+              </span>
+            )}
           </div>
         </div>
 
