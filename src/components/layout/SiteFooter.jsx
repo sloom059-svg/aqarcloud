@@ -6,6 +6,8 @@ const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || 'support@aqarcloud.c
 const SUPPORT_WHATSAPP = (import.meta.env.VITE_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
 const SUPPORT_X = import.meta.env.VITE_SUPPORT_X || '';
 
+const OFFICIAL_FONT = { fontFamily: "'Tajawal', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" };
+
 const footerLinks = [
   { to: '/terms', label: 'الشروط والأحكام' },
   { to: '/refund', label: 'سياسة الاسترجاع' },
@@ -39,7 +41,7 @@ export default function SiteFooter({ className = '' }) {
   const xHref = SUPPORT_X || '/support';
 
   return (
-    <footer className={`mt-10 border-t border-zinc-200 bg-[#F7F7F7] font-body ${className}`} dir="rtl">
+    <footer className={`mt-10 border-t border-zinc-200 bg-[#F7F7F7] ${className}`} dir="rtl" style={OFFICIAL_FONT}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-6">
         <div className="mx-auto w-full max-w-md sm:max-w-none rounded-2xl border border-zinc-200 bg-white px-3 py-2.5 shadow-sm">
           <div className="flex items-center justify-center gap-2 sm:gap-3">
