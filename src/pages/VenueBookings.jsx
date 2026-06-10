@@ -99,7 +99,7 @@ const getBookingRef = (id) => {
 const STATUS_MAP = {
   'جديد':      { border: 'bg-[#FF385C]',    select: 'bg-[#FF385C]/10 text-[#FF385C] border-[#FF385C]/20',         statBg: 'bg-[#FF385C]/10',    statText: 'text-[#FF385C]',    statIcon: Inbox },
   'بالانتظار': { border: 'bg-amber-500',   select: 'bg-amber-50 text-amber-700 border-amber-200',       statBg: 'bg-amber-50',   statText: 'text-amber-500',   statIcon: Clock },
-  'مؤكد':      { border: 'bg-emerald-500', select: 'bg-emerald-50 text-emerald-700 border-emerald-200', statBg: 'bg-emerald-50', statText: 'text-emerald-600', statIcon: CheckCircle2 },
+  'مؤكد':      { border: 'bg-[#FF385C]/100', select: 'bg-[#FF385C]/10 text-emerald-700 border-[#FF385C]/20', statBg: 'bg-[#FF385C]/10', statText: 'text-[#FF385C]', statIcon: CheckCircle2 },
   'ملغي':      { border: 'bg-rose-500',    select: 'bg-rose-50 text-rose-700 border-rose-200',          statBg: 'bg-rose-50',    statText: 'text-rose-500',    statIcon: XCircle },
 };
 
@@ -419,31 +419,31 @@ export default function VenueBookings() {
 
       {/* Modal تعديل */}
       {editBooking && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-900/60 backdrop-blur-sm overflow-y-auto" onClick={() => setEditBooking(null)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden my-4" onClick={e => e.stopPropagation()}>
-            <div className="bg-zinc-50 p-4 border-b border-zinc-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-950/60 backdrop-blur-md overflow-y-auto" onClick={() => setEditBooking(null)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden my-4 border border-zinc-100" onClick={e => e.stopPropagation()}>
+            <div className="bg-white p-4 border-b border-zinc-100 flex items-center justify-between">
               <h3 className="font-bold text-zinc-950 flex items-center gap-2">
                 <Edit3 className="w-4 h-4" /> تعديل تفاصيل الحجز
               </h3>
               <button onClick={() => setEditBooking(null)} className="p-1.5 bg-zinc-200 text-zinc-500 rounded-full hover:bg-zinc-300"><X className="w-4 h-4" /></button>
             </div>
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4 bg-[#FAFAFA]">
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-500">اسم العميل</Label>
-                <Input value={editForm.client_name} onChange={e => handleEditFormChange('client_name', e.target.value)} className="h-11 rounded-xl text-sm" />
+                <Input value={editForm.client_name} onChange={e => handleEditFormChange('client_name', e.target.value)} className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-500">رقم الجوال</Label>
-                <Input value={editForm.client_phone} onChange={e => handleEditFormChange('client_phone', e.target.value)} className="h-11 rounded-xl text-sm" dir="ltr" />
+                <Input value={editForm.client_phone} onChange={e => handleEditFormChange('client_phone', e.target.value)} className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" dir="ltr" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-500">تاريخ الدخول</Label>
-                  <Input type="date" value={editForm.check_in} onChange={e => handleEditFormChange('check_in', e.target.value)} className="h-11 rounded-xl text-sm" />
+                  <Input type="date" value={editForm.check_in} onChange={e => handleEditFormChange('check_in', e.target.value)} className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-zinc-500">تاريخ الخروج</Label>
-                  <Input type="date" value={editForm.check_out} onChange={e => handleEditFormChange('check_out', e.target.value)} className="h-11 rounded-xl text-sm" />
+                  <Input type="date" value={editForm.check_out} onChange={e => handleEditFormChange('check_out', e.target.value)} className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
                 </div>
               </div>
               {editConflict && (
@@ -464,9 +464,9 @@ export default function VenueBookings() {
 
       {/* Modal حجز يدوي */}
       {showManual && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-900/60 backdrop-blur-sm overflow-y-auto" onClick={() => setShowManual(false)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden my-4" onClick={e => e.stopPropagation()}>
-            <div className="bg-zinc-50 p-4 border-b border-zinc-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-950/60 backdrop-blur-md overflow-y-auto" onClick={() => setShowManual(false)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden my-4 border border-zinc-100" onClick={e => e.stopPropagation()}>
+            <div className="bg-white p-4 border-b border-zinc-100 flex items-center justify-between">
               <h3 className="font-bold text-zinc-950 flex items-center gap-2">
                 <div className="bg-[#FF385C]/10 p-1.5 rounded-lg"><Plus className="w-4 h-4 text-zinc-950" /></div>
                 إضافة حجز يدوي
@@ -476,11 +476,11 @@ export default function VenueBookings() {
             <form onSubmit={handleManualSubmit} className="p-4 sm:p-5 space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-500">اسم العميل *</Label>
-                <Input value={manualForm.client_name} onChange={e => setManualForm(p => ({ ...p, client_name: e.target.value }))} placeholder="محمد عبدالله" required className="h-11 rounded-xl text-sm" />
+                <Input value={manualForm.client_name} onChange={e => setManualForm(p => ({ ...p, client_name: e.target.value }))} placeholder="محمد عبدالله" required className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-500">رقم الجوال *</Label>
-                <Input value={manualForm.client_phone} dir="ltr" onChange={e => setManualForm(p => ({ ...p, client_phone: e.target.value }))} placeholder="05xxxxxxxx" required className="h-11 rounded-xl text-sm" />
+                <Input value={manualForm.client_phone} dir="ltr" onChange={e => setManualForm(p => ({ ...p, client_phone: e.target.value }))} placeholder="05xxxxxxxx" required className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5 min-w-0">
@@ -519,7 +519,7 @@ export default function VenueBookings() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-zinc-500">ملاحظات (اختياري)</Label>
-                <Input value={manualForm.notes} onChange={e => setManualForm(p => ({ ...p, notes: e.target.value }))} placeholder="أي تفاصيل إضافية..." className="h-11 rounded-xl text-sm" />
+                <Input value={manualForm.notes} onChange={e => setManualForm(p => ({ ...p, notes: e.target.value }))} placeholder="أي تفاصيل إضافية..." className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
               </div>
               <Button type="submit" disabled={addBookingMutation.isPending} className="w-full h-11 rounded-xl font-bold bg-zinc-950 hover:bg-black text-white text-sm">
                 {addBookingMutation.isPending ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : 'تأكيد الحجز'}
@@ -805,17 +805,17 @@ export default function VenueBookings() {
 
       {/* ══════════ مودال إصدار السند ══════════ */}
       {receiptBooking && !showReceiptPreview && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-900/60 backdrop-blur-sm overflow-y-auto" onClick={() => setReceiptBooking(null)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden my-4" onClick={e => e.stopPropagation()}>
-            <div className="bg-zinc-50 p-4 border-b border-zinc-100 flex items-center justify-between">
-              <h3 className="font-bold text-zinc-950 flex items-center gap-2 text-sm">
-                <div className="bg-amber-100 p-1 rounded-lg"><FileText className="w-4 h-4 text-amber-600" /></div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-950/60 backdrop-blur-md overflow-y-auto" onClick={() => setReceiptBooking(null)}>
+          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden my-4 border border-zinc-100" onClick={e => e.stopPropagation()}>
+            <div className="bg-white p-4 border-b border-zinc-100 flex items-center justify-between">
+              <h3 className="font-black text-zinc-950 flex items-center gap-2 text-sm">
+                <div className="bg-[#FF385C]/10 p-1.5 rounded-xl"><FileText className="w-4 h-4 text-[#FF385C]" /></div>
                 إصدار سند استلام
               </h3>
               <button onClick={() => setReceiptBooking(null)} className="p-1 bg-zinc-200 text-zinc-500 rounded-full hover:bg-zinc-300 transition-colors"><X className="w-4 h-4" /></button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4 bg-[#FAFAFA]">
               <div className="bg-zinc-950/5 border border-zinc-950/10 rounded-xl p-3 flex justify-between items-center">
                 <div>
                   <p className="text-[10px] text-zinc-500 font-bold mb-0.5">سند لصالح</p>
@@ -842,7 +842,7 @@ export default function VenueBookings() {
               <div>
                 <label className="block text-[11px] font-bold text-zinc-500 mb-1.5">مبلغ السند (ريال)</label>
                 <input type="number" value={receiptForm.amount} onChange={e => setReceiptForm({ ...receiptForm, amount: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-white border border-zinc-200 rounded-xl focus:border-zinc-950 focus:ring-1 focus:ring-[#FF385C] outline-none transition-all text-sm font-black text-left" dir="ltr" placeholder="0.00" />
+                  className="w-full px-3 py-2.5 bg-white border border-zinc-200 rounded-xl focus:border-[#FF385C] focus:ring-1 focus:ring-[#FF385C] outline-none transition-all text-sm font-black text-left" dir="ltr" placeholder="0.00" />
               </div>
 
               {/* زر تحديث الشروط */}
@@ -853,11 +853,11 @@ export default function VenueBookings() {
 
               <div className="pt-2 flex gap-2">
                 <button onClick={() => { if (!receiptForm.amount) { showToast('أدخل مبلغ السند'); return; } setShowReceiptPreview(true); }}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-zinc-950 hover:bg-black text-white rounded-xl font-bold text-xs transition-all shadow-sm">
+                  className="flex-1 flex items-center justify-center gap-1.5 py-3 bg-zinc-950 hover:bg-black text-white rounded-2xl font-black text-xs transition-all shadow-sm active:scale-[0.98]">
                   <Eye className="w-3.5 h-3.5" /> معاينة السند
                 </button>
                 <button onClick={sendReceiptWhatsApp}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#1DA851] text-white rounded-xl font-bold text-xs transition-all shadow-sm">
+                  className="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#FF385C] hover:bg-[#E31C5F] text-white rounded-2xl font-black text-xs transition-all shadow-sm active:scale-[0.98]">
                   <IconWa className="w-3.5 h-3.5" /> إرسال للعميل
                 </button>
               </div>
@@ -869,12 +869,12 @@ export default function VenueBookings() {
       {/* ══ مودال تعديل شروط السند ══ */}
       {showEditTerms && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden my-4">
-            <div className="bg-zinc-50 p-4 border-b border-zinc-100 flex items-center justify-between">
-              <h3 className="font-bold text-zinc-950 flex items-center gap-2 text-sm">
+          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden my-4 border border-zinc-100">
+            <div className="bg-white p-4 border-b border-zinc-100 flex items-center justify-between">
+              <h3 className="font-black text-zinc-950 flex items-center gap-2 text-sm">
                 <FileText className="w-4 h-4" /> شروط هذا السند
               </h3>
-              <button onClick={() => setShowEditTerms(false)} className="p-1 bg-zinc-200 text-zinc-500 rounded-full hover:bg-zinc-300">
+              <button onClick={() => setShowEditTerms(false)} className="p-1.5 bg-zinc-100 text-zinc-500 rounded-full hover:bg-zinc-200 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -889,15 +889,15 @@ export default function VenueBookings() {
                 rows={6}
                 value={receiptForm.customTerms ?? (venue?.booking_terms || `هذا السند يثبت استلام المبلغ الموضح أعلاه فقط.\nالعربون المدفوع غير مسترد في حال إلغاء الحجز من قبل الضيف.\nيجب دفع باقي قيمة الحجز كاملاً قبل أو عند تسجيل الدخول.\nيتم تحصيل مبلغ تأمين إضافي عند الدخول ويسترد عند الخروج.`)}
                 onChange={e => setReceiptForm(prev => ({ ...prev, customTerms: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:border-zinc-950 focus:ring-1 focus:ring-[#FF385C] outline-none transition-all text-sm resize-none leading-relaxed"
+                className="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:border-[#FF385C] focus:ring-1 focus:ring-[#FF385C] outline-none transition-all text-sm resize-none leading-relaxed"
               />
               <div className="flex gap-2 pt-1">
                 <button onClick={() => setReceiptForm(prev => ({ ...prev, customTerms: venue?.booking_terms || null }))}
-                  className="flex-1 py-2.5 text-xs font-bold text-zinc-600 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition-all">
+                  className="flex-1 py-2.5 text-xs font-bold text-zinc-600 bg-white border border-zinc-200 hover:bg-zinc-50 rounded-2xl transition-all">
                   إعادة الشروط الأصلية
                 </button>
                 <button onClick={() => setShowEditTerms(false)}
-                  className="flex-1 py-2.5 text-xs font-bold text-white bg-zinc-950 hover:bg-black rounded-xl transition-all shadow-sm">
+                  className="flex-1 py-2.5 text-xs font-black text-white bg-zinc-950 hover:bg-black rounded-2xl transition-all shadow-sm">
                   حفظ وإغلاق
                 </button>
               </div>
@@ -908,26 +908,26 @@ export default function VenueBookings() {
 
       {/* ══════════ معاينة السند PDF ══════════ */}
       {showReceiptPreview && receiptBooking && (
-        <div className="fixed inset-0 z-[200] bg-zinc-800/90 backdrop-blur-sm overflow-auto flex flex-col items-center py-6 px-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-          <div className="sticky top-2 z-50 flex items-center gap-3 bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-zinc-200 mb-4">
-            <button onClick={downloadReceipt} disabled={downloadingReceipt} className="flex items-center gap-2 bg-zinc-950 text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-black transition-all shadow-sm disabled:opacity-60">
+        <div className="fixed inset-0 z-[200] bg-zinc-950/85 backdrop-blur-md overflow-auto flex flex-col items-center py-6 px-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+          <div className="sticky top-2 z-50 flex items-center gap-2 bg-white/95 backdrop-blur-xl p-2 rounded-3xl shadow-2xl border border-zinc-100 mb-4">
+            <button onClick={downloadReceipt} disabled={downloadingReceipt} className="flex items-center gap-2 bg-[#FF385C] text-white px-5 py-2.5 rounded-2xl font-black text-xs hover:bg-[#E31C5F] transition-all shadow-sm disabled:opacity-60 active:scale-[0.98]">
               {downloadingReceipt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} تنزيل السند
             </button>
-            <button onClick={() => setShowReceiptPreview(false)} className="flex items-center gap-2 bg-zinc-100 text-zinc-600 px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-zinc-200 transition-all">
+            <button onClick={() => setShowReceiptPreview(false)} className="flex items-center gap-2 bg-zinc-100 text-zinc-700 px-5 py-2.5 rounded-2xl font-black text-xs hover:bg-zinc-200 transition-all active:scale-[0.98]">
               <X className="w-4 h-4" /> إغلاق المعاينة
             </button>
           </div>
 
           {/* غلاف للتصغير على الجوال */}
           <div className="receipt-scale-wrap">
-            <div ref={receiptRef} dir="rtl" className="receipt-page w-[210mm] min-h-[297mm] shrink-0 bg-white text-zinc-900 relative shadow-2xl flex flex-col" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-              <div className="absolute inset-3 border-2 border-zinc-950 rounded-2xl pointer-events-none" />
-              <div className="absolute inset-4 border border-zinc-950/30 rounded-xl pointer-events-none" />
+            <div ref={receiptRef} dir="rtl" className="receipt-page w-[210mm] min-h-[297mm] shrink-0 bg-white text-zinc-900 relative shadow-2xl flex flex-col rounded-[18px] overflow-hidden" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+              <div className="absolute inset-3 border-2 border-zinc-950/90 rounded-2xl pointer-events-none" />
+              <div className="absolute inset-4 border border-[#FF385C]/25 rounded-xl pointer-events-none" />
 
             <div className="px-12 pt-14 pb-8 flex flex-col flex-1">
               <div className="flex justify-between items-start mb-12">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center text-white shadow-md overflow-hidden">
+                  <div className="w-14 h-14 bg-zinc-950 rounded-[1.25rem] flex items-center justify-center text-white shadow-md overflow-hidden ring-4 ring-[#FF385C]/10">
                     {user?.office_logo_url ? <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" /> : <FileText className="w-6 h-6" />}
                   </div>
                   <div>
@@ -935,8 +935,8 @@ export default function VenueBookings() {
                     {venue?.city && <p className="text-xs font-bold text-zinc-400">{venue.city}</p>}
                   </div>
                 </div>
-                <div className="text-left border-r-4 border-zinc-950 pr-5">
-                  <h2 className="text-2xl font-extrabold text-zinc-800" style={{ letterSpacing: 'normal' }}>سند استلام</h2>
+                <div className="text-left border-r-4 border-[#FF385C] pr-5">
+                  <h2 className="text-2xl font-black text-zinc-950" style={{ letterSpacing: 'normal' }}>سند استلام</h2>
                   <p className="text-[10px] font-bold text-zinc-400 mt-1 uppercase tracking-widest">Receipt Voucher</p>
                   <div className="mt-3 space-y-1">
                     <p className="text-xs font-bold text-zinc-600 flex justify-end gap-1.5">
@@ -969,9 +969,9 @@ export default function VenueBookings() {
               </div>
 
               {(venue?.booking_terms || receiptForm.customTerms !== null || true) && (
-                <div className="mt-12 bg-zinc-50 p-5 rounded-2xl border border-zinc-200">
+                <div className="mt-12 bg-[#FFF7F9] p-5 rounded-2xl border border-[#FF385C]/15">
                   <h4 className="font-bold text-zinc-950 mb-3 flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-[#D97706]" /> الشروط والأحكام
+                    <CheckCircle2 className="w-4 h-4 text-[#FF385C]" /> الشروط والأحكام
                   </h4>
                   {(() => {
                     // الأولوية: شروط مخصصة للسند → شروط الشاليه → شروط افتراضية
@@ -992,12 +992,12 @@ export default function VenueBookings() {
               )}
             </div>
 
-            <div className="mt-auto px-12 pb-6 pt-6 border-t border-zinc-950/10 bg-zinc-50/50 rounded-b-xl mx-4 mb-4 flex flex-col gap-5">
+            <div className="mt-auto px-12 pb-6 pt-6 border-t border-zinc-950/10 bg-[#FAFAFA] rounded-b-xl mx-4 mb-4 flex flex-col gap-5">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col text-right gap-1.5">
                   {(user?.phone || receiptBooking.client_phone) && (
                     <span className="text-zinc-950 font-black text-lg flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-[#D97706]" /> <span dir="ltr">{user?.phone || ''}</span>
+                      <Phone className="w-4 h-4 text-[#FF385C]" /> <span dir="ltr">{user?.phone || ''}</span>
                     </span>
                   )}
                   {venue?.city && (
