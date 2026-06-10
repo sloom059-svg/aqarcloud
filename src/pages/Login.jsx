@@ -101,7 +101,7 @@ export default function Login() {
           imageError={imageError}
           setImageError={setImageError}
           className="flex items-center justify-center"
-          imgClassName="max-h-16 lg:max-h-[72px] max-w-[180px] lg:max-w-[210px]"
+          imgClassName="max-h-14 lg:max-h-16 max-w-[160px] lg:max-w-[185px]"
         />
       </div>
 
@@ -116,7 +116,7 @@ export default function Login() {
                   imageError={imageError}
                   setImageError={setImageError}
                   className="mx-auto mb-3 flex items-center justify-center"
-                  imgClassName="max-h-[78px] max-w-[210px]"
+                  imgClassName="max-h-[70px] max-w-[190px]"
                 />
                 <p className="text-sm font-black text-zinc-950">إدارة الشاليهات والحجوزات بسهولة</p>
                 <p className="mt-1 text-xs font-bold text-zinc-500">صفحتك، أسعارك، وحجوزاتك في مكان واحد.</p>
