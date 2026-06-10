@@ -37,8 +37,13 @@ const AuthenticatedApp = () => {
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      <div className="fixed inset-0 flex items-center justify-center bg-[#F7F7F7]">
+        <div className="w-14 h-14 rounded-3xl bg-white border border-zinc-200 shadow-xl flex items-center justify-center">
+          <div
+            className="w-7 h-7 rounded-full border-[3px] border-zinc-100 border-t-[#FF385C] animate-spin"
+            aria-label="جاري التحميل"
+          />
+        </div>
       </div>
     );
   }
