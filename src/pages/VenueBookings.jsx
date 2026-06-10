@@ -1085,7 +1085,7 @@ export default function VenueBookings() {
                           value={`${window.location.origin}/place/${venue?.slug || venue?.id || 'venue'}`}
                           size={58}
                           bgColor="#ffffff"
-                          fgColor="#FF385C"
+                          fgColor="#FFF7F9"
                           level="M"
                         />
                       </div>
