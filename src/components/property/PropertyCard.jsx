@@ -20,9 +20,11 @@ import { motion } from 'framer-motion';
 
 const AIRBNB = '#FF385C';
 
+const toEn = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
+
 const formatPrice = (price) => {
   if (!price) return '—';
-  return new Intl.NumberFormat('ar-SA').format(price) + ' ر.س';
+  return toEn(price) + ' ر.س';
 };
 
 const item = (Icon, label, value) => {
@@ -49,15 +51,15 @@ export default function PropertyCard({ property, index = 0 }) {
     item(Building2, 'النوع', property.type),
     item(Layers, 'العرض', property.listing_type),
     property.rental_period ? item(CalendarClock, 'الإيجار', property.rental_period) : null,
-    property.area ? item(Maximize, 'المساحة', `${property.area} م²`) : null,
-    property.street_width ? item(Ruler, 'الشارع', `${property.street_width} م`) : null,
+    property.area ? item(Maximize, 'المساحة', `${toEn(property.area)} م²`) : null,
+    property.street_width ? item(Ruler, 'الشارع', `${toEn(property.street_width)} م`) : null,
     property.facade ? item(Compass, 'الواجهة', property.facade) : null,
     property.bedrooms ? item(BedDouble, 'غرف', property.bedrooms) : null,
     property.bathrooms ? item(Bath, 'دورات', property.bathrooms) : null,
     property.halls ? item(Sofa, 'صالات', property.halls) : null,
-    property.property_age ? item(Home, 'العمر', `${property.property_age} سنة`) : null,
-    property.length_street ? item(Ruler, 'على الشارع', `${property.length_street} م`) : null,
-    property.length_depth ? item(Ruler, 'العمق', `${property.length_depth} م`) : null,
+    property.property_age ? item(Home, 'العمر', `${toEn(property.property_age)} سنة`) : null,
+    property.length_street ? item(Ruler, 'على الشارع', `${toEn(property.length_street)} م`) : null,
+    property.length_depth ? item(Ruler, 'العمق', `${toEn(property.length_depth)} م`) : null,
     property.plot_number ? item(FileText, 'المخطط', property.plot_number) : null,
     property.parcel_number ? item(FileText, 'القطعة', property.parcel_number) : null,
   ].filter(Boolean);
@@ -101,15 +103,6 @@ export default function PropertyCard({ property, index = 0 }) {
             )}
           </div>
 
-          {property.facade && (
-            <div className="absolute top-3 left-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm border border-white/70">
-                <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
-                واجهة {property.facade}
-              </span>
-            </div>
-          )}
-
           {property.status && property.status !== 'نشط' && (
             <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
               <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-zinc-950">{property.status}</span>
@@ -121,12 +114,21 @@ export default function PropertyCard({ property, index = 0 }) {
               {priceText}
             </p>
 
-            {property.area && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white">
-                <Maximize className="w-3.5 h-3.5" />
-                {property.area} م²
-              </span>
-            )}
+            <div className="flex flex-col items-end gap-1.5">
+              {property.facade && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm border border-white/70">
+                  <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                  واجهة {property.facade}
+                </span>
+              )}
+
+              {property.area && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white">
+                  <Maximize className="w-3.5 h-3.5" />
+                  {toEn(property.area)} م²
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -166,7 +168,7 @@ export default function PropertyCard({ property, index = 0 }) {
               ))}
               {property.features.length > 5 && (
                 <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-black text-zinc-500">
-                  +{property.features.length - 5}
+                  +{toEn(property.features.length - 5)}
                 </span>
               )}
             </div>
@@ -175,7 +177,7 @@ export default function PropertyCard({ property, index = 0 }) {
           {property.nearby_places?.length > 0 && (
             <div className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-400 pt-2">
               <MapPinned className="w-3.5 h-3.5" />
-              {property.nearby_places.length} موقع قريب مضاف
+              {toEn(property.nearby_places.length)} موقع قريب مضاف
             </div>
           )}
         </div>
