@@ -1101,7 +1101,7 @@ export default function VenueBookings() {
                     <div className="text-right">
                       <p className="text-[12px] font-black text-zinc-950 leading-tight">صدر هذا السند عبر منصة عقار كلاود</p>
                       <p className="text-[10px] font-bold text-zinc-500 mt-1">
-                        لإدارة الحجوزات والعقارات
+                        لإدارة الشاليهات و الحجوزات والعقارات
                       </p>
                     </div>
                   </div>
