@@ -101,7 +101,12 @@ const makeEntity = (entityName) => {
         alert('خطأ في التحديث: ' + error.message)
         throw error
       }
-      return data?.[0]
+      // لو رجع 0 صفوف = العملية نجحت لكن لم تُحدّث بسبب صلاحيات RLS أو عدم تطابق الـ id
+      if (!data || data.length === 0) {
+        alert('لم يتم حفظ التعديل: لا تملك صلاحية تعديل هذا العقار (تحقق من سياسة RLS في Supabase) أو أن المعرّف غير مطابق.')
+        throw new Error('Update affected 0 rows (RLS or id mismatch)')
+      }
+      return data[0]
     },
     delete: async (id) => {
       const { error } = await supabase.from(table).delete().eq('id', id)
