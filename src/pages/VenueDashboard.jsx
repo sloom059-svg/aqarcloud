@@ -295,7 +295,7 @@ export default function VenueDashboard() {
 
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <div className="relative flex-shrink-0">
-                  <div className="w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-[1.45rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-sm">
+                  <div className="w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-[1.45rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
                     {user?.office_logo_url ? (
                       <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                     ) : (
@@ -305,18 +305,7 @@ export default function VenueDashboard() {
                     )}
                   </div>
 
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white shadow-sm flex items-center justify-center" style={{ backgroundColor: AIRBNB }}>
-                    <svg viewBox="0 0 24 24" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M5 12h14" />
-                      <path d="M12 5v14" />
-                    </svg>
-                  </div>
 
-                  {user?.office_logo_url && (
-                    <div className="absolute -top-1 -left-1 w-6 h-6 rounded-full bg-white border border-zinc-200 shadow-md p-0.5 overflow-hidden">
-                      <img src={user.office_logo_url} alt="شعار مصغر" className="w-full h-full object-cover rounded-full" />
-                    </div>
-                  )}
                 </div>
 
                 <div className="min-w-0">
@@ -343,15 +332,15 @@ export default function VenueDashboard() {
                   </button>
 
                   {showNotifs && (
-                    <div className="absolute top-full left-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                      <div className="px-4 py-3 bg-zinc-950 text-white flex items-center justify-between">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[270px] max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="px-3.5 py-2.5 bg-zinc-950 text-white flex items-center justify-between">
                         <span className="text-sm font-black">الإشعارات</span>
                         {hasNotifications && (
                           <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{newBookings.length}</span>
                         )}
                       </div>
                       {newBookings.length === 0 ? (
-                        <div className="px-4 py-7 text-center">
+                        <div className="px-4 py-5 text-center">
                           <p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p>
                         </div>
                       ) : (
@@ -363,9 +352,9 @@ export default function VenueDashboard() {
                                 key={b.id}
                                 to={`/venue/bookings/${b.venue_id}`}
                                 onClick={() => setShowNotifs(false)}
-                                className="flex items-start gap-3 px-4 py-3.5 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
+                                className="flex items-start gap-2.5 px-3.5 py-3 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
                               >
-                                <div className="w-10 h-10 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <div className="w-9 h-9 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <Calendar className="w-4 h-4" style={{ color: AIRBNB }} />
                                 </div>
                                 <div className="flex-1 min-w-0 text-right">
