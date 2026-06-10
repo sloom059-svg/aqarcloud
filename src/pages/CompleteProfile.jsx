@@ -115,7 +115,10 @@ export default function CompleteProfile() {
 
   const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const created=await base44.entities.Venue.create({...venue,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});await base44.auth.updateMe({business_type:role,office_name:venue.name,phone:venue.whatsapp});await refreshUser();clearState();const finalSlug=created?.slug||slug;setSuccess({type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme});}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
-  const next=()=>setStep(s=>Math.min(s+1,totalSteps));
+  const next=()=>{
+    if(step===0.5){setStep(1);return;}
+    setStep(s=>Math.min(Math.floor(s)+1,totalSteps));
+  };
   const prev=()=>{
     if(step===0.5){setStep(0);setMainRole('');}
     else if(step>1)setStep(s=>s-1);
@@ -493,7 +496,7 @@ export default function CompleteProfile() {
                 <div className="flex flex-wrap gap-2.5">
                   {ALL_FEATURES.map(f=>(
                     <button key={f.id} onClick={()=>toggleFeature(f.id)}
-                      className={`feature-bubble flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-bold transition-all ${venue.features.includes(f.id)?'selected border-transparent':'bg-white text-slate-600 border-slate-200'}`}>
+                      className={`feature-bubble flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium transition-all ${venue.features.includes(f.id)?'selected border-transparent':'bg-white text-slate-600 border-slate-200'}`}>
                       <f.Icon className="w-4 h-4 flex-shrink-0"/>{f.id}
                     </button>
                   ))}
