@@ -14,13 +14,10 @@ import {
   Loader2,
   Plus,
   ChevronDown,
-  Home,
   Eye,
   Share2,
   Pencil,
   Trash2,
-  ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 
 const AIRBNB = '#FF385C';
@@ -90,20 +87,6 @@ const IconButton = ({ children, onClick, title, className = '' }) => (
   </button>
 );
 
-const MiniStat = ({ label, value, icon: Icon }) => (
-  <div className="rounded-[1.4rem] bg-white/10 border border-white/10 p-4 backdrop-blur-md">
-    <div className="flex items-center justify-between gap-3">
-      <div>
-        <p className="text-[11px] font-bold text-white/55">{label}</p>
-        <p className="mt-1 text-xl font-black text-white" dir="ltr">{value}</p>
-      </div>
-      <div className="w-10 h-10 rounded-2xl bg-white text-zinc-950 flex items-center justify-center shrink-0">
-        <Icon className="w-5 h-5" style={{ color: AIRBNB }} />
-      </div>
-    </div>
-  </div>
-);
-
 // ────────────────────────────────────────────
 // الصفحة الرئيسية
 // ────────────────────────────────────────────
@@ -169,8 +152,6 @@ export default function VenueDashboard() {
 
   const newBookings = bookings.filter(b => b.status === 'جديد');
   const hasNotifications = newBookings.length > 0;
-  const activeVenues = venues.filter(v => v.status === 'نشط').length;
-  const monthlyBookings = bookings.filter(b => b.status !== 'ملغي' && isThisMonth(b)).length;
 
   const handleShare = (venue) => {
     const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
@@ -220,7 +201,7 @@ export default function VenueDashboard() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-16 relative overflow-x-hidden text-zinc-950">
-      <div className="absolute inset-x-0 top-0 h-[320px] bg-zinc-950 rounded-b-[2.5rem] sm:rounded-b-[3rem] overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-[190px] bg-zinc-950 rounded-b-[2.5rem] sm:rounded-b-[3rem] overflow-hidden">
         <div className="absolute -top-28 -right-20 w-80 h-80 rounded-full blur-3xl opacity-25" style={{ backgroundColor: AIRBNB }} />
         <div className="absolute bottom-[-90px] left-[-70px] w-80 h-80 rounded-full bg-white/10 blur-3xl" />
       </div>
@@ -264,7 +245,7 @@ export default function VenueDashboard() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="pt-6 sm:pt-8 pb-6 text-white">
+        <header className="pt-6 sm:pt-7 pb-5 text-white">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="relative flex-shrink-0">
@@ -363,28 +344,6 @@ export default function VenueDashboard() {
             </div>
           </div>
 
-          <div className="mt-7 grid grid-cols-1 lg:grid-cols-[1.4fr_.9fr] gap-4 items-end">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black text-white/80 backdrop-blur-md">
-                <Sparkles className="w-4 h-4" style={{ color: AIRBNB }} />
-                لوحة تحكم الأماكن
-              </div>
-              <h2 className="mt-4 text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-                إدارة وحداتك السكنية
-                <br className="hidden sm:block" />
-                بتجربة أوضح وأسرع.
-              </h2>
-              <p className="mt-3 text-sm sm:text-base text-white/60 font-medium leading-7 max-w-2xl">
-                تابع الحجوزات، شارك صفحاتك، وعدّل بيانات كل مكان من لوحة واحدة مناسبة للجوال والآيباد والديسكتوب.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <MiniStat label="الوحدات" value={venues.length} icon={Home} />
-              <MiniStat label="النشطة" value={activeVenues} icon={ShieldCheck} />
-              <MiniStat label="حجوزات الشهر" value={monthlyBookings} icon={Calendar} />
-            </div>
-          </div>
         </header>
 
         <main className="space-y-6">
