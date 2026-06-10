@@ -241,25 +241,30 @@ export default function AgentProfile() {
                 <p className="text-[11px] sm:text-xs font-black text-zinc-400 mb-1">صفحة الوسيط العقاري</p>
                 <h1 className="text-2xl sm:text-4xl font-black text-zinc-950 leading-tight truncate">{officeName}</h1>
 
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
-                  {agent.city && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {agent.city}
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {agent.city && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500 whitespace-nowrap">
+                        <MapPin className="w-3.5 h-3.5" />
+                        {agent.city}
+                      </span>
+                    )}
+
+                    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500 whitespace-nowrap">
+                      <Building2 className="w-3.5 h-3.5" />
+                      {toEn(properties.length)} عقار
                     </span>
-                  )}
+                  </div>
 
                   {agent.license_number && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500">
-                      <BadgeCheck className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
-                      رخصة موثوق: <span dir="ltr">{agent.license_number}</span>
-                    </span>
+                    <div className="flex">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500 max-w-full">
+                        <BadgeCheck className="w-3.5 h-3.5 flex-shrink-0" style={{ color: AIRBNB }} />
+                        <span className="whitespace-nowrap">رخصة موثوق:</span>
+                        <span dir="ltr" className="truncate">{agent.license_number}</span>
+                      </span>
+                    </div>
                   )}
-
-                  <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500">
-                    <Building2 className="w-3.5 h-3.5" />
-                    {toEn(properties.length)} عقار
-                  </span>
                 </div>
 
                 {agent.bio && (

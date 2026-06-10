@@ -25,7 +25,6 @@ import {
   Loader2,
   CheckCircle,
   BadgeCheck,
-  MapPin,
 } from "lucide-react";
 import PropertyCard from '@/components/property/PropertyCard';
 import PropertyCardExport from '@/components/property/PropertyCardExport';
@@ -122,6 +121,7 @@ export default function Dashboard() {
     },
   });
 
+
   const copyProfileLink = async () => {
     const url = `${window.location.origin}/agent/${user.id}`;
     const shareData = {
@@ -145,7 +145,6 @@ export default function Dashboard() {
     }
   };
 
-  const totalProperties = properties.length;
   const logoUrl = user?.office_logo_url || user?.profile_image_url;
   const officeName = user?.office_name || 'مكتبي العقاري';
 
@@ -173,11 +172,11 @@ export default function Dashboard() {
 
         {/* هيدر موحّد مع لوحة تحكم الشاليه */}
         <header className="pt-4 sm:pt-6 pb-4">
-          <div className="rounded-[1.4rem] sm:rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-2.5 sm:p-4">
-            <div className="flex items-start sm:items-center justify-between gap-2.5 sm:gap-5">
-              <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
+          <div className="rounded-[1.6rem] sm:rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-3 sm:gap-5">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 sm:w-[68px] sm:h-[68px] rounded-[1.1rem] sm:rounded-[1.35rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                  <div className="w-[58px] h-[58px] sm:w-[68px] sm:h-[68px] rounded-[1.35rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
                     {logoUrl ? (
                       <img src={logoUrl} alt="شعار المكتب" className="w-full h-full object-cover" />
                     ) : (
@@ -188,39 +187,32 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="min-w-0 flex-1 pt-0.5 sm:pt-0">
-                  <div className="flex items-baseline gap-1.5 min-w-0">
-                    <p className="text-[10px] sm:text-xs font-black text-zinc-400 shrink-0 leading-none">مرحباً بك</p>
-                    <h1 className="text-[14px] sm:text-xl font-black text-zinc-950 truncate leading-tight min-w-0 max-w-[38vw] xs:max-w-[46vw] sm:max-w-[420px] lg:max-w-none">
+                <div className="min-w-0">
+                  <p className="text-[11px] sm:text-xs font-black text-zinc-400 leading-none mb-1">مرحباً بك</p>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <h1 className="text-[15px] sm:text-xl font-black text-zinc-950 truncate leading-tight max-w-[150px] sm:max-w-[420px] lg:max-w-none">
                       {officeName}
                     </h1>
                   </div>
 
-                  <div className="mt-1.5 flex items-center gap-1.5 overflow-x-auto max-w-full pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    {user?.city && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2 py-1 text-[10px] sm:text-[11px] font-bold text-zinc-500 whitespace-nowrap shrink-0">
-                        <MapPin className="w-3 h-3 shrink-0" />
-                        <span className="truncate max-w-[92px] sm:max-w-none">{user.city}</span>
-                      </span>
-                    )}
-
+                  <div className="mt-1.5 flex items-center gap-2 flex-wrap">
                     {user?.license_number && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2 py-1 text-[10px] sm:text-[11px] font-bold text-zinc-500 whitespace-nowrap shrink-0">
-                        <BadgeCheck className="w-3.5 h-3.5 shrink-0" style={{ color: AIRBNB }} />
-                        <span>رخصة موثوق</span>
-                        <span dir="ltr" className="font-black">{user.license_number}</span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2 py-1 text-[10px] sm:text-[11px] font-bold text-zinc-500 max-w-[calc(100vw-185px)] sm:max-w-none">
+                        <BadgeCheck className="w-3.5 h-3.5 flex-shrink-0" style={{ color: AIRBNB }} />
+                        <span className="whitespace-nowrap">رخصة موثوق:</span>
+                        <span dir="ltr" className="truncate">{user.license_number}</span>
                       </span>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-1 sm:gap-2 flex-nowrap shrink-0">
+              <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-nowrap shrink-0">
                 {/* الإشعارات */}
                 <div className="relative" ref={notifsRef}>
                   <button
                     onClick={() => setShowNotifs(!showNotifs)}
-                    className={`relative h-9 w-9 sm:h-11 sm:w-11 rounded-xl sm:rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    className={`relative h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
                     title="الإشعارات"
                   >
                     <Bell className="w-4 h-4" />
@@ -241,16 +233,16 @@ export default function Dashboard() {
                 <div className="relative" ref={revenueRef}>
                   <button
                     onClick={() => setShowRevenue(!showRevenue)}
-                    className={`h-9 w-9 sm:h-11 sm:w-11 rounded-xl sm:rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
-                    title="الإحصائيات"
+                    className={`h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    title="إحصائيات العقارات"
                   >
                     <BarChart3 className="w-4 h-4" />
                   </button>
                   {showRevenue && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
-                      <p className="text-[11px] text-zinc-500 font-bold mb-1">إجمالي العقارات</p>
+                      <p className="text-[11px] text-zinc-500 font-bold mb-1">إحصائيات العقارات</p>
                       <p className="text-xl font-black text-zinc-950">
-                        {totalProperties} <span className="text-[10px] font-bold text-zinc-400">عقار</span>
+                        {properties.length} <span className="text-[10px] font-bold text-zinc-400">عقار</span>
                       </p>
                     </div>
                   )}
