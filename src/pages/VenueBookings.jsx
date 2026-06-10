@@ -1092,27 +1092,17 @@ export default function VenueBookings() {
                     </div>
                   </div>
 
-                  <div className="rounded-[1.6rem] bg-white border border-zinc-200 shadow-sm px-5 py-4 flex items-center justify-between gap-5">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-2xl bg-zinc-950 flex items-center justify-center text-white shadow-sm overflow-hidden flex-shrink-0">
-                        {user?.office_logo_url ? (
-                          <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-sm font-black">AC</span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-black text-zinc-950 leading-tight">Aqar Cloud</p>
-                        <p className="text-[11px] font-bold text-zinc-500 mt-1">تم إصدار هذا السند إلكترونياً عبر منصة عقار كلاود</p>
-                      </div>
-                    </div>
-
-                    <div className="text-left flex-shrink-0">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C]/10 px-3 py-1.5 text-[10px] font-black text-[#FF385C]">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        موثق إلكترونياً
-                      </span>
-                      <p className="text-[10px] font-bold text-zinc-400 mt-2">Official Digital Receipt</p>
+                  <div className="pt-4 border-t border-zinc-950/5 flex items-center justify-center gap-3 text-center">
+                    <img
+                      src="/aqar-cloud-logo.png"
+                      alt="Aqar Cloud"
+                      className="h-8 w-auto object-contain"
+                    />
+                    <div className="text-right">
+                      <p className="text-[12px] font-black text-zinc-950 leading-tight">Aqar Cloud</p>
+                      <p className="text-[10px] font-bold text-zinc-500 mt-1">
+                        صدر هذا السند عبر منصة عقار كلاود لإدارة الحجوزات بثقة ووضوح
+                      </p>
                     </div>
                   </div>
                 </div>
