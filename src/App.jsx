@@ -31,16 +31,9 @@ import VenuePublicPage from '@/pages/VenuePublicPage';
 const AuthenticatedApp = () => {
   const { user, isAuthenticated, isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // توجيه فوري: عضو داخل بدون ملف مكتمل → فورم الإكمال
-  React.useEffect(() => {
-    if (isLoadingAuth || !isAuthenticated || !user) return;
-    const path = window.location.pathname;
-    const publicPaths = ['/login','/register','/forgot-password','/reset-password','/complete-profile','/check-profile'];
-    const isPublicView = publicPaths.includes(path) || path.startsWith('/agent/') || path.startsWith('/property/') || path.startsWith('/place/');
-    if (!user.office_name && !isPublicView) {
-      window.location.replace('/complete-profile');
-    }
-  }, [user, isAuthenticated, isLoadingAuth]);
+  const path = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const publicPaths = ['/login','/register','/forgot-password','/reset-password','/complete-profile','/check-profile'];
+  const isPublicView = publicPaths.includes(path) || path.startsWith('/agent/') || path.startsWith('/property/') || path.startsWith('/place/');
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -54,6 +47,12 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     }
+  }
+
+  // لو العضو داخل بدون ملف مكتمل → حوّله فوراً قبل أي render
+  if (isAuthenticated && user && !user.office_name && !isPublicView) {
+    window.location.replace('/complete-profile');
+    return null;
   }
 
   return (
