@@ -8,9 +8,6 @@ import {
   Lock,
   Mail,
   Building2,
-  Share2,
-  CalendarCheck,
-  ShieldCheck,
   ArrowLeft,
   CheckCircle2,
 } from 'lucide-react';
@@ -43,15 +40,10 @@ const BrandMark = ({ imageError, setImageError, className = '', imgClassName = '
   </div>
 );
 
-const FeatureRow = ({ icon: Icon, title, text }) => (
-  <div className="flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.06] p-3.5 backdrop-blur-md">
-    <div className="w-10 h-10 rounded-2xl bg-white text-zinc-950 flex items-center justify-center shrink-0">
-      <Icon className="w-4.5 h-4.5" />
-    </div>
-    <div>
-      <p className="text-sm font-black text-white">{title}</p>
-      <p className="text-xs font-medium text-white/60 mt-0.5">{text}</p>
-    </div>
+const StatChip = ({ children }) => (
+  <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/80 px-3.5 py-2 text-[11px] font-black text-zinc-700 backdrop-blur-sm shadow-sm">
+    <CheckCircle2 className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+    {children}
   </div>
 );
 
@@ -97,203 +89,182 @@ export default function Login() {
   if (!mounted) return null;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans overflow-hidden text-zinc-950">
+    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans overflow-hidden text-zinc-950 relative">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-36 -right-32 w-80 h-80 rounded-full blur-3xl opacity-15" style={{ backgroundColor: AIRBNB }} />
+        <div className="absolute -top-28 -right-24 w-72 h-72 rounded-full blur-3xl opacity-20" style={{ backgroundColor: AIRBNB }} />
         <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-zinc-900/5 blur-3xl" />
       </div>
 
-      <div className="relative z-10 min-h-screen grid lg:grid-cols-[0.92fr_1.08fr]">
-        {/* الفورم */}
-        <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
-          <div className="w-full max-w-[430px] animate-login-up">
-            {/* هوية مختصرة للجوال فقط حتى لا تختفي العلامة التجارية */}
-            <div className="lg:hidden mb-6 text-center">
-              <BrandMark
-                imageError={imageError}
-                setImageError={setImageError}
-                className="mx-auto mb-3 flex h-20 items-center justify-center"
-                imgClassName="max-h-20 max-w-[190px]"
-              />
-              <p className="text-sm font-black text-zinc-950">إدارة الشاليهات والحجوزات بسهولة</p>
-              <p className="mt-1 text-xs font-bold text-zinc-500">صفحتك، أسعارك، وحجوزاتك في مكان واحد.</p>
-            </div>
+      {/* Desktop / tablet logo in corner */}
+      <div className="hidden md:flex absolute top-8 left-8 lg:top-10 lg:left-10 z-20">
+        <BrandMark
+          imageError={imageError}
+          setImageError={setImageError}
+          className="flex items-center justify-center"
+          imgClassName="max-h-16 lg:max-h-[72px] max-w-[180px] lg:max-w-[210px]"
+        />
+      </div>
 
-            <div className="rounded-[2.1rem] bg-white border border-zinc-200 shadow-[0_30px_80px_rgba(0,0,0,0.08)] p-5 sm:p-7">
-              <div className="mb-5 text-right">
-                <span className="inline-flex items-center rounded-full bg-[#FF385C]/10 px-3 py-1 text-[11px] font-black text-[#FF385C]">
-                  دخول آمن وسريع
-                </span>
-                <h1 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight text-zinc-950">
-                  سجّل دخولك لحسابك
-                </h1>
-                <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium">
-                  تابع عقاراتك، صفحاتك، وحجوزاتك من لوحة تحكم واحدة.
-                </p>
+      <div className="relative z-10 min-h-screen flex items-start justify-center px-5 pt-8 pb-10 sm:px-8 md:pt-12 lg:px-12 lg:pt-14">
+        <div className="w-full max-w-6xl grid lg:grid-cols-[1.05fr_.95fr] gap-8 items-start">
+          {/* Right area / form */}
+          <section className="order-2 lg:order-1 flex justify-center lg:justify-end">
+            <div className="w-full max-w-[440px] animate-login-up">
+              {/* Mobile logo */}
+              <div className="md:hidden mb-5 text-center">
+                <BrandMark
+                  imageError={imageError}
+                  setImageError={setImageError}
+                  className="mx-auto mb-3 flex items-center justify-center"
+                  imgClassName="max-h-[78px] max-w-[210px]"
+                />
+                <p className="text-sm font-black text-zinc-950">إدارة الشاليهات والحجوزات بسهولة</p>
+                <p className="mt-1 text-xs font-bold text-zinc-500">صفحتك، أسعارك، وحجوزاتك في مكان واحد.</p>
               </div>
 
-              {error && (
-                <div className="mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 text-center font-bold animate-in fade-in slide-in-from-top-2">
-                  {error}
-                </div>
-              )}
-
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div>
-                  <label className="block text-xs font-black text-zinc-800 mb-2">البريد الإلكتروني</label>
-                  <div className="relative group">
-                    <input
-                      type="email"
-                      dir="ltr"
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="w-full pr-11 pl-4 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
-                    />
-                    <Mail className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
-                  </div>
+              <div className="rounded-[2rem] bg-white border border-zinc-200 shadow-[0_28px_70px_rgba(0,0,0,0.08)] p-5 sm:p-7">
+                <div className="mb-5 text-right">
+                  <span className="inline-flex items-center rounded-full bg-[#FF385C]/10 px-3 py-1 text-[11px] font-black text-[#FF385C]">
+                    دخول آمن وسريع
+                  </span>
+                  <h1 className="mt-3 text-[1.75rem] sm:text-[2rem] font-black tracking-tight text-zinc-950">
+                    تسجيل الدخول
+                  </h1>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium">
+                    ادخل إلى لوحة التحكم وتابع عقاراتك وحجوزاتك من مكان واحد.
+                  </p>
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs font-black text-zinc-800">كلمة المرور</label>
-                    <Link to="/forgot-password" className="text-[11px] font-black text-zinc-500 hover:text-[#FF385C] transition-colors">
-                      نسيت كلمة المرور؟
-                    </Link>
+                {error && (
+                  <div className="mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 text-center font-bold animate-in fade-in slide-in-from-top-2">
+                    {error}
                   </div>
-                  <div className="relative group">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      dir="ltr"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="w-full pr-11 pl-11 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
-                    />
-                    <Lock className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 focus:outline-none transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
-                    </button>
+                )}
+
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                  <div>
+                    <label className="block text-xs font-black text-zinc-800 mb-2">البريد الإلكتروني</label>
+                    <div className="relative group">
+                      <input
+                        type="email"
+                        dir="ltr"
+                        placeholder="name@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="w-full pr-11 pl-4 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
+                      />
+                      <Mail className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
+                    </div>
                   </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-xs font-black text-zinc-800">كلمة المرور</label>
+                      <Link to="/forgot-password" className="text-[11px] font-black text-zinc-500 hover:text-[#FF385C] transition-colors">
+                        نسيت كلمة المرور؟
+                      </Link>
+                    </div>
+                    <div className="relative group">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        dir="ltr"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="w-full pr-11 pl-11 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
+                      />
+                      <Lock className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 focus:outline-none transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-12 rounded-2xl bg-zinc-950 hover:bg-black text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                        جاري التحقق...
+                      </>
+                    ) : (
+                      <>
+                        تسجيل الدخول
+                        <ArrowLeft className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <div className="flex items-center gap-3 my-3 opacity-70">
+                  <div className="flex-1 h-px bg-zinc-200" />
+                  <span className="text-[11px] font-black text-zinc-400">أو</span>
+                  <div className="flex-1 h-px bg-zinc-200" />
                 </div>
 
                 <button
-                  type="submit"
+                  onClick={handleGoogle}
+                  type="button"
                   disabled={loading}
-                  className="w-full h-12 rounded-2xl bg-zinc-950 hover:bg-black text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
+                  className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                      جاري التحقق...
-                    </>
-                  ) : (
-                    <>
-                      تسجيل الدخول
-                      <ArrowLeft className="w-4 h-4" />
-                    </>
-                  )}
+                  <GoogleIcon className="w-5 h-5" />
+                  <span>الدخول بواسطة Google</span>
                 </button>
-              </form>
-
-              <div className="flex items-center gap-3 my-3 opacity-70">
-                <div className="flex-1 h-px bg-zinc-200" />
-                <span className="text-[11px] font-black text-zinc-400">أو</span>
-                <div className="flex-1 h-px bg-zinc-200" />
               </div>
 
-              <button
-                onClick={handleGoogle}
-                type="button"
-                disabled={loading}
-                className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
-              >
-                <GoogleIcon className="w-5 h-5" />
-                <span>الدخول بواسطة Google</span>
-              </button>
+              <p className="text-center mt-5 text-sm text-zinc-500 font-bold">
+                ليس لديك حساب؟{' '}
+                <Link to="/register" className="font-black text-zinc-950 hover:text-[#FF385C] transition-colors">
+                  ابدأ كمالك أو وسيط
+                </Link>
+              </p>
             </div>
+          </section>
 
-            <p className="text-center mt-6 text-sm text-zinc-500 font-bold">
-              ليس لديك حساب؟{' '}
-              <Link to="/register" className="font-black text-zinc-950 hover:text-[#FF385C] transition-colors">
-                ابدأ كمالك أو وسيط
-              </Link>
-            </p>
-          </div>
-        </section>
-
-        {/* اللوحة التسويقية */}
-        <section className="hidden lg:flex relative min-h-screen items-center justify-center overflow-hidden bg-zinc-950 p-10">
-          <img
-            src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1600"
-            alt="Chalet"
-            className="absolute inset-0 w-full h-full object-cover opacity-35"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-950/90 to-black/80" />
-          <div className="absolute top-12 right-12 w-28 h-28 rounded-full blur-3xl opacity-40" style={{ backgroundColor: AIRBNB }} />
-          <div className="absolute bottom-16 left-16 w-44 h-44 rounded-full bg-white/10 blur-3xl" />
-
-          <div className="relative z-10 w-full max-w-xl text-right text-white animate-login-fade">
-            <div className="mb-9 inline-flex min-h-24 min-w-[230px] items-center justify-center rounded-[2rem] border border-white/10 bg-white/95 px-8 py-5 shadow-2xl shadow-black/25">
-              <BrandMark
-                imageError={imageError}
-                setImageError={setImageError}
-                className="flex items-center justify-center"
-                imgClassName="max-h-24 max-w-[240px]"
-              />
-            </div>
-
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black text-white/85 backdrop-blur-md">
-              <CheckCircle2 className="w-4 h-4" style={{ color: AIRBNB }} />
-              تجربة سهلة لأصحاب الشاليهات والوسطاء
-            </div>
-
-            <h2 className="mt-8 text-5xl font-black leading-[1.12] tracking-tight">
-              صفحتك العقارية
-              <br />
-              جاهزة للمشاركة خلال دقائق.
-            </h2>
-            <p className="mt-5 text-base leading-8 text-white/68 font-medium max-w-lg">
-              صمّم صفحة احترافية، اعرض الصور والأسعار، واستقبل العملاء عبر رابط واحد بسيط.
-            </p>
-
-            <div className="grid grid-cols-1 gap-3 mt-10 max-w-md">
-              <FeatureRow icon={Building2} title="إدارة مرتبة" text="كل عقاراتك وشاليهاتك في لوحة واحدة." />
-              <FeatureRow icon={CalendarCheck} title="حجوزات أوضح" text="اعرف الإتاحة وتابع الطلبات بسهولة." />
-              <FeatureRow icon={Share2} title="رابط جاهز" text="شارك صفحتك مع العملاء فورًا." />
-            </div>
-
-            <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.08] p-4 backdrop-blur-md flex items-center justify-between max-w-md">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5" style={{ color: AIRBNB }} />
-                </div>
-                <div>
-                  <p className="text-sm font-black">ابدأ بدون تعقيد</p>
-                  <p className="text-xs text-white/55 font-medium">تسجيل سريع وربط مباشر بملفك.</p>
-                </div>
+          {/* Left supporting content on desktop/tablet */}
+          <section className="order-1 lg:order-2 hidden md:flex items-center lg:justify-start justify-center pt-8 lg:pt-20">
+            <div className="w-full max-w-[430px] lg:max-w-[500px] text-right animate-login-fade">
+              <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/85 px-4 py-2 text-xs font-black text-zinc-700 backdrop-blur-sm shadow-sm">
+                <CheckCircle2 className="w-4 h-4" style={{ color: AIRBNB }} />
+                تجربة سهلة لأصحاب الشاليهات والوسطاء
               </div>
-              <span className="text-[11px] font-black rounded-full px-3 py-1.5" style={{ backgroundColor: AIRBNB }}>
-                جديد
-              </span>
+
+              <h2 className="mt-6 text-4xl lg:text-[3.2rem] font-black leading-[1.15] tracking-tight text-zinc-950">
+                كل إدارة موقعك
+                <br />
+                في مكان واحد.
+              </h2>
+              <p className="mt-4 text-sm lg:text-base leading-8 text-zinc-500 font-medium max-w-lg">
+                جهّز صفحتك، تابع الحجوزات، وشارك رابطك مع العملاء بسهولة من لوحة تحكم واحدة بتجربة حديثة وواضحة.
+              </p>
+
+              <div className="mt-7 flex flex-wrap gap-2.5">
+                <StatChip>صفحة مخصصة لكل عقار</StatChip>
+                <StatChip>إدارة سهلة للحجوزات</StatChip>
+                <StatChip>دخول سريع عبر Google</StatChip>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body { font-family: 'Tajawal', sans-serif; margin: 0; }
         @keyframes loginUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes loginFade { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes loginFade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
         .animate-login-up { animation: loginUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-login-fade { animation: loginFade 0.9s ease-out forwards; }
+        .animate-login-fade { animation: loginFade 0.8s ease-out forwards; }
         input[type='password']::-ms-reveal,
         input[type='password']::-ms-clear { display: none; }
       ` }} />
