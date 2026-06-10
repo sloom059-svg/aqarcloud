@@ -534,12 +534,12 @@ export default function VenueBookings() {
       <div className="absolute -top-32 -right-28 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ backgroundColor: AIRBNB }} />
       <div className="absolute top-24 left-[-90px] w-72 h-72 rounded-full bg-zinc-900/5 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 max-w-md mx-auto px-4">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
 
         {/* هيدر موحّد مع لوحة التحكم */}
-        <header className="pt-4 sm:pt-5 pb-3">
-          <div className="rounded-[1.6rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-3.5">
-            <div className="flex items-center justify-between gap-2 sm:gap-4">
+        <header className="pt-4 sm:pt-6 pb-4">
+          <div className="rounded-[1.6rem] sm:rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-3 sm:gap-5">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <button
                   onClick={() => navigate('/venue')}
@@ -564,7 +564,7 @@ export default function VenueBookings() {
                 <div className="min-w-0">
                   <p className="text-[11px] sm:text-xs font-black text-zinc-400 leading-none mb-1">إدارة الحجوزات</p>
                   {venue && (
-                    <h1 className="text-[15px] sm:text-xl font-black text-zinc-950 truncate leading-tight max-w-[120px] sm:max-w-none">
+                    <h1 className="text-[15px] sm:text-xl font-black text-zinc-950 truncate leading-tight max-w-[125px] sm:max-w-[420px] lg:max-w-none">
                       {venue.name}
                     </h1>
                   )}
@@ -585,7 +585,7 @@ export default function VenueBookings() {
                     )}
                   </button>
                   {showNotifs && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[270px] max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[270px] sm:w-80 max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
                       <div className="px-3.5 py-2.5 bg-zinc-950 text-white flex items-center justify-between">
                         <span className="text-sm font-black">الإشعارات</span>
                         {hasNotifications && <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{newBookings.length}</span>}
@@ -642,16 +642,16 @@ export default function VenueBookings() {
         {/* ═══════════════════════════════════════
             المحتوى
         ═══════════════════════════════════════ */}
-        <div className="space-y-6">
+        <div className="space-y-6 pb-6">
 
           {/* كروت الإحصائيات */}
-          <div className="flex gap-2">
+          <div className="grid grid-cols-4 gap-2 sm:gap-3">
             {statusOrder.map(s => {
               const count = bookings.filter(b => b.status === s).length;
               const cfg = STATUS_MAP[s];
               const Icon = cfg.statIcon;
               return (
-                <div key={s} className="flex-1 bg-white rounded-2xl py-2 px-1 shadow-sm border border-zinc-100 flex flex-col items-center justify-center gap-0.5">
+                <div key={s} className="bg-white rounded-2xl sm:rounded-3xl py-2.5 sm:py-3 px-1 shadow-sm border border-zinc-100 flex flex-col items-center justify-center gap-0.5">
                   <div className={`p-1 ${cfg.statBg} rounded-lg`}><Icon className={`w-3.5 h-3.5 ${cfg.statText}`} /></div>
                   <p className={`text-base font-black leading-none mt-0.5 ${cfg.statText}`}>{count}</p>
                   <p className="text-[10px] font-bold text-zinc-500">{s}</p>
@@ -661,7 +661,7 @@ export default function VenueBookings() {
           </div>
 
           {/* التقويم */}
-          <div className="bg-white rounded-[1.5rem] p-4 shadow-sm border border-zinc-100">
+          <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-5 shadow-sm border border-zinc-100">
             <h3 className="text-sm font-bold text-zinc-950 flex items-center gap-2 mb-4">
               <CalendarIcon className="w-4 h-4 text-zinc-950/70" />
               التقويم والإتاحة
@@ -697,7 +697,7 @@ export default function VenueBookings() {
                 const bookingRef    = getBookingRef(booking.id);
 
                 return (
-                  <div key={booking.id} className="bg-white rounded-[1.2rem] p-3 shadow-sm border border-zinc-100 relative overflow-hidden">
+                  <div key={booking.id} className="bg-white rounded-[1.2rem] sm:rounded-[1.6rem] p-3 sm:p-4 shadow-sm border border-zinc-100 relative overflow-hidden">
                     <div className={`absolute top-0 right-0 w-1 h-full ${cfg.border}`} />
 
                     <div className="flex justify-between items-start mb-3 pl-1 pr-2">
