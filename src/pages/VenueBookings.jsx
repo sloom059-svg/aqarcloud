@@ -920,140 +920,210 @@ export default function VenueBookings() {
 
           {/* غلاف للتصغير على الجوال */}
           <div className="receipt-scale-wrap">
-            <div ref={receiptRef} dir="rtl" className="receipt-page w-[210mm] min-h-[297mm] shrink-0 bg-white text-zinc-900 relative shadow-2xl flex flex-col rounded-[18px] overflow-hidden" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-              <div className="absolute inset-3 border-2 border-zinc-950/90 rounded-2xl pointer-events-none" />
-              <div className="absolute inset-4 border border-[#FF385C]/25 rounded-xl pointer-events-none" />
+            <div ref={receiptRef} dir="rtl" className="receipt-page w-[210mm] min-h-[297mm] shrink-0 bg-[#FAFAFA] text-zinc-950 relative shadow-2xl flex flex-col rounded-[22px] overflow-hidden" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+              {/* زخرفة خفيفة */}
+              <div className="absolute -top-28 -right-24 w-80 h-80 rounded-full opacity-[0.08]" style={{ backgroundColor: AIRBNB }} />
+              <div className="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-zinc-950 opacity-[0.04]" />
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-8 left-8 right-8 h-px bg-gradient-to-l from-transparent via-zinc-950/10 to-transparent" />
+                <div className="absolute bottom-8 left-8 right-8 h-px bg-gradient-to-l from-transparent via-zinc-950/10 to-transparent" />
+              </div>
 
-            <div className="px-12 pt-14 pb-8 flex flex-col flex-1">
-              <div className="flex justify-between items-start mb-12">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-zinc-950 rounded-[1.25rem] flex items-center justify-center text-white shadow-md overflow-hidden ring-4 ring-[#FF385C]/10">
-                    {user?.office_logo_url ? <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" /> : <FileText className="w-6 h-6" />}
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-black text-zinc-950 mb-1">{venue?.name || 'المنشأة'}</h1>
-                    {venue?.city && <p className="text-xs font-bold text-zinc-400">{venue.city}</p>}
+              <div className="relative z-10 px-12 pt-11 pb-8 flex flex-col flex-1">
+                {/* Header */}
+                <div className="bg-white rounded-[2rem] border border-zinc-200 shadow-[0_18px_50px_rgba(0,0,0,0.06)] p-5 mb-8">
+                  <div className="flex items-start justify-between gap-8">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-16 h-16 rounded-[1.4rem] bg-zinc-950 flex items-center justify-center text-white shadow-lg overflow-hidden ring-4 ring-[#FF385C]/10 flex-shrink-0">
+                        {user?.office_logo_url ? (
+                          <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <FileText className="w-7 h-7" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-black text-[#FF385C] mb-1 tracking-wide">Aqar Cloud Receipt</p>
+                        <h1 className="text-2xl font-black text-zinc-950 leading-tight truncate">{venue?.name || 'المنشأة'}</h1>
+                        <div className="mt-2 flex items-center gap-2 text-xs font-bold text-zinc-500">
+                          {venue?.city && (
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              {venue.city}
+                            </span>
+                          )}
+                          <span className="w-1 h-1 rounded-full bg-zinc-300" />
+                          <span dir="ltr">{new Date().toLocaleDateString('en-GB')}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-left flex-shrink-0">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-[#FF385C]/10 px-3 py-1.5 mb-3">
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
+                        <span className="text-[11px] font-black text-[#FF385C]">سند رسمي</span>
+                      </div>
+                      <h2 className="text-3xl font-black text-zinc-950 leading-none">سند استلام</h2>
+                      <p className="text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-[0.25em]">Receipt Voucher</p>
+                      <p className="mt-4 text-xs font-black text-zinc-600">
+                        رقم المرجع:
+                        <span dir="ltr" className="mr-1 inline-flex px-2 py-1 rounded-lg bg-zinc-100 text-zinc-950">{getBookingRef(receiptBooking.id)}</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="text-left border-r-4 border-[#FF385C] pr-5">
-                  <h2 className="text-2xl font-black text-zinc-950" style={{ letterSpacing: 'normal' }}>سند استلام</h2>
-                  <p className="text-[10px] font-bold text-zinc-400 mt-1 uppercase tracking-widest">Receipt Voucher</p>
-                  <div className="mt-3 space-y-1">
-                    <p className="text-xs font-bold text-zinc-600 flex justify-end gap-1.5">
-                      <span>التاريخ:</span>
-                      <span dir="ltr">{new Date().toLocaleDateString('en-GB')}</span>
+
+                {/* Amount hero */}
+                <div className="rounded-[2rem] bg-zinc-950 text-white p-6 mb-7 shadow-[0_18px_45px_rgba(0,0,0,0.15)] relative overflow-hidden">
+                  <div className="absolute -left-16 -top-16 w-52 h-52 rounded-full opacity-20" style={{ backgroundColor: AIRBNB }} />
+                  <div className="relative z-10 flex items-center justify-between gap-6">
+                    <div>
+                      <p className="text-xs font-black text-white/50 mb-2">المبلغ المستلم</p>
+                      <div className="flex items-end gap-2">
+                        <span className="text-5xl font-black tracking-tight">{receiptForm.amount || '0'}</span>
+                        <span className="text-sm font-black text-white/60 mb-1.5">ريال سعودي</span>
+                      </div>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-black text-white/50 mb-2">نوع السند</p>
+                      <span className="inline-flex rounded-2xl bg-white/10 border border-white/10 px-4 py-2 text-sm font-black">
+                        {receiptTypeLabel(receiptForm.type)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Details cards */}
+                <div className="grid grid-cols-2 gap-4 mb-7">
+                  <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
+                    <p className="text-[11px] font-black text-zinc-400 mb-2">استلمنا من</p>
+                    <p className="text-xl font-black text-zinc-950 leading-tight">{receiptBooking.client_name}</p>
+                    {receiptBooking.client_phone && receiptBooking.client_phone !== '000' && (
+                      <p dir="ltr" className="mt-2 text-xs font-bold text-zinc-500 text-right">{receiptBooking.client_phone}</p>
+                    )}
+                  </div>
+
+                  <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
+                    <p className="text-[11px] font-black text-zinc-400 mb-2">الفترة</p>
+                    <p dir="ltr" className="text-lg font-black text-zinc-950 text-right">
+                      {formatDateAr(receiptBooking.check_in)} → {formatDateAr(receiptBooking.check_out)}
                     </p>
-                    <p className="text-xs font-bold text-zinc-600">رقم المرجع: <span dir="ltr">{getBookingRef(receiptBooking.id)}</span></p>
+                    {getNights(receiptBooking.check_in, receiptBooking.check_out) && (
+                      <p className="mt-2 text-xs font-bold text-zinc-500">{getNights(receiptBooking.check_in, receiptBooking.check_out)}</p>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              <div className="w-full h-px bg-gradient-to-l from-transparent via-[#FF385C]/20 to-transparent mb-10" />
+                {/* Statement */}
+                <div className="bg-white rounded-[2rem] border border-zinc-200 p-6 shadow-sm mb-7">
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="w-5 h-5 text-[#FF385C]" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-zinc-950 mb-2">تفاصيل السند</h3>
+                      <p className="text-sm font-bold text-zinc-600 leading-8">
+                        تم استلام مبلغ وقدره
+                        <span className="mx-1 text-zinc-950 font-black">{receiptForm.amount || '0'} ريال سعودي</span>
+                        من العميل
+                        <span className="mx-1 text-zinc-950 font-black">{receiptBooking.client_name}</span>
+                        وذلك عن
+                        <span className="mx-1 text-zinc-950 font-black">{receiptTypeLabel(receiptForm.type)}</span>
+                        للفترة الموضحة أعلاه.
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="px-2 space-y-8">
-                <div className="flex items-baseline gap-4 border-b-2 border-zinc-100 pb-4">
-                  <span className="text-lg font-bold text-zinc-500 min-w-[120px]">استلمنا من السيد/ة:</span>
-                  <span className="text-xl font-black text-zinc-950">{receiptBooking.client_name}</span>
-                </div>
-                <div className="flex items-baseline gap-4 border-b-2 border-zinc-100 pb-4">
-                  <span className="text-lg font-bold text-zinc-500 min-w-[120px]">مبلغ وقدره:</span>
-                  <span className="text-2xl font-black text-zinc-800">{receiptForm.amount || '0'} <span className="text-sm font-bold text-zinc-500">ريال سعودي</span></span>
-                </div>
-                <div className="flex items-baseline gap-4 border-b-2 border-zinc-100 pb-4">
-                  <span className="text-lg font-bold text-zinc-500 min-w-[120px]">وذلك عبارة عن:</span>
-                  <span className="text-lg font-bold text-zinc-800 leading-relaxed">
-                    {receiptTypeLabel(receiptForm.type)} - للفترة من والى: <span dir="ltr" className="inline-block px-1">{formatDateAr(receiptBooking.check_in)} → {formatDateAr(receiptBooking.check_out)}</span>
-                    {getNights(receiptBooking.check_in, receiptBooking.check_out) ? ` (${getNights(receiptBooking.check_in, receiptBooking.check_out)})` : ''}
-                  </span>
-                </div>
-              </div>
-
-              {(venue?.booking_terms || receiptForm.customTerms !== null || true) && (
-                <div className="mt-12 bg-[#FFF7F9] p-5 rounded-2xl border border-[#FF385C]/15">
-                  <h4 className="font-bold text-zinc-950 mb-3 flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-[#FF385C]" /> الشروط والأحكام
+                {/* Terms */}
+                <div className="bg-[#FFF7F9] rounded-[2rem] border border-[#FF385C]/15 p-6 mb-7">
+                  <h4 className="font-black text-zinc-950 mb-4 flex items-center gap-2 text-sm">
+                    <span className="w-8 h-8 rounded-2xl bg-white border border-[#FF385C]/15 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-[#FF385C]" />
+                    </span>
+                    الشروط والأحكام
                   </h4>
                   {(() => {
-                    // الأولوية: شروط مخصصة للسند → شروط الشاليه → شروط افتراضية
                     const terms = receiptForm.customTerms ?? venue?.booking_terms;
                     if (terms?.trim()) {
-                      return <p className="text-sm font-medium text-zinc-600 leading-relaxed whitespace-pre-line">{terms}</p>;
+                      return <p className="text-sm font-bold text-zinc-600 leading-8 whitespace-pre-line">{terms}</p>;
                     }
                     return (
-                      <ul className="text-sm font-medium text-zinc-600 space-y-2 list-disc list-inside">
+                      <ul className="text-sm font-bold text-zinc-600 space-y-2.5 list-disc list-inside leading-7">
                         <li>هذا السند يثبت استلام المبلغ الموضح أعلاه فقط ولا يمثل تأكيداً نهائياً للحجز ما لم يسدد كامل المبلغ.</li>
-                        <li>العربون المدفوع <span className="text-rose-600 font-bold">غير مسترد</span> في حال إلغاء الحجز من قبل الضيف.</li>
+                        <li>العربون المدفوع <span className="text-rose-600 font-black">غير مسترد</span> في حال إلغاء الحجز من قبل الضيف.</li>
                         <li>يجب دفع باقي قيمة الحجز كاملاً قبل أو عند تسجيل الدخول.</li>
                         <li>يتم تحصيل مبلغ تأمين إضافي عند الدخول ويسترد عند الخروج بعد التأكد من سلامة الممتلكات.</li>
                       </ul>
                     );
                   })()}
                 </div>
-              )}
-            </div>
 
-            <div className="mt-auto px-12 pb-6 pt-6 border-t border-zinc-950/10 bg-[#FAFAFA] rounded-b-xl mx-4 mb-4 flex flex-col gap-5">
-              <div className="flex justify-between items-center">
-                <div className="flex flex-col text-right gap-1.5">
-                  {(user?.phone || receiptBooking.client_phone) && (
-                    <span className="text-zinc-950 font-black text-lg flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-[#FF385C]" /> <span dir="ltr">{user?.phone || ''}</span>
-                    </span>
-                  )}
-                  {venue?.city && (
-                    <span className="text-zinc-500 font-bold text-xs flex items-center gap-2">
-                      <MapPin className="w-3.5 h-3.5" /> {venue.city}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-zinc-200 shadow-sm">
-                  <div className="text-left pl-2">
-                    <span className="block text-xs font-black text-zinc-950">امسح الرمز</span>
-                    <span className="block text-[10px] font-bold text-zinc-500">لزيارة صفحة {venue?.name || 'المنشأة'}</span>
+                <div className="mt-auto grid grid-cols-[1fr_auto] gap-5 items-end">
+                  <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
+                    <p className="text-[11px] font-black text-zinc-400 mb-3">بيانات التواصل</p>
+                    <div className="space-y-2">
+                      {(user?.phone || receiptBooking.client_phone) && (
+                        <p className="text-zinc-950 font-black text-sm flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-[#FF385C]" />
+                          <span dir="ltr">{user?.phone || receiptBooking.client_phone}</span>
+                        </p>
+                      )}
+                      {venue?.city && (
+                        <p className="text-zinc-500 font-bold text-xs flex items-center gap-2">
+                          <MapPin className="w-3.5 h-3.5" />
+                          {venue.city}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="bg-white p-1 rounded-lg border border-zinc-100">
-                    <QRCodeSVG
-                      value={`${window.location.origin}/place/${venue?.slug || venue?.id || 'venue'}`}
-                      size={48}
-                      bgColor="#ffffff"
-                      fgColor="#FF385C"
-                      level="M"
-                    />
+
+                  <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-4 shadow-sm flex items-center gap-3">
+                    <div className="text-left">
+                      <span className="block text-xs font-black text-zinc-950">امسح الرمز</span>
+                      <span className="block text-[10px] font-bold text-zinc-500">لزيارة صفحة {venue?.name || 'المنشأة'}</span>
+                    </div>
+                    <div className="bg-white p-1.5 rounded-2xl border border-zinc-100 shadow-sm">
+                      <QRCodeSVG
+                        value={`${window.location.origin}/place/${venue?.slug || venue?.id || 'venue'}`}
+                        size={58}
+                        bgColor="#ffffff"
+                        fgColor="#FF385C"
+                        level="M"
+                      />
+                    </div>
                   </div>
                 </div>
+
+                {venue?.social && (venue.social.instagram || venue.social.tiktok || venue.social.x || venue.social.snapchat) && (
+                  <div className="mt-5 flex justify-center items-center gap-6 pt-4 border-t border-zinc-950/5">
+                    {venue.social.instagram && (
+                      <div className="flex items-center gap-1.5 text-zinc-950">
+                        <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.instagram}</span>
+                        <IconInstagram className="w-4 h-4" />
+                      </div>
+                    )}
+                    {venue.social.x && (
+                      <div className="flex items-center gap-1.5 text-zinc-950">
+                        <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.x}</span>
+                        <IconX className="w-3.5 h-3.5" />
+                      </div>
+                    )}
+                    {venue.social.snapchat && (
+                      <div className="flex items-center gap-1.5 text-zinc-950">
+                        <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.snapchat}</span>
+                        <IconSnapchat className="w-4 h-4" />
+                      </div>
+                    )}
+                    {venue.social.tiktok && (
+                      <div className="flex items-center gap-1.5 text-zinc-950">
+                        <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.tiktok}</span>
+                        <IconTiktok className="w-4 h-4" />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-
-              {/* أيقونات التواصل الاجتماعي */}
-              {venue?.social && (venue.social.instagram || venue.social.tiktok || venue.social.x || venue.social.snapchat) && (
-                <div className="flex justify-center items-center gap-6 pt-4 border-t border-zinc-950/5">
-                  {venue.social.instagram && (
-                    <div className="flex items-center gap-1.5 text-zinc-950">
-                      <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.instagram}</span>
-                      <IconInstagram className="w-4 h-4" />
-                    </div>
-                  )}
-                  {venue.social.x && (
-                    <div className="flex items-center gap-1.5 text-zinc-950">
-                      <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.x}</span>
-                      <IconX className="w-3.5 h-3.5" />
-                    </div>
-                  )}
-                  {venue.social.snapchat && (
-                    <div className="flex items-center gap-1.5 text-zinc-950">
-                      <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.snapchat}</span>
-                      <IconSnapchat className="w-4 h-4" />
-                    </div>
-                  )}
-                  {venue.social.tiktok && (
-                    <div className="flex items-center gap-1.5 text-zinc-950">
-                      <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.tiktok}</span>
-                      <IconTiktok className="w-4 h-4" />
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
-          </div>
           </div>
         </div>
       )}
