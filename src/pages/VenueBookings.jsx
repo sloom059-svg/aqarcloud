@@ -532,7 +532,6 @@ export default function VenueBookings() {
 
       {/* خلفية خفيفة بنفس ثيم Airbnb */}
       <div className="absolute inset-x-0 top-0 h-[170px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
-      <div className="absolute -top-32 -right-28 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ backgroundColor: AIRBNB }} />
       <div className="absolute top-24 left-[-90px] w-72 h-72 rounded-full bg-zinc-900/5 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
