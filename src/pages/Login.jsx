@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   ArrowLeft,
   CheckCircle2,
+  Sparkles,
 } from 'lucide-react';
 
 import logo from '../aqar-cloud-logo.png';
@@ -28,18 +29,31 @@ const GoogleIcon = ({ className }) => (
   </svg>
 );
 
-const CardLogo = ({ imageError, setImageError }) => (
-  <div className="mx-auto mb-4 flex h-28 w-28 items-center justify-center">
-    {!imageError ? (
-      <img
-        src={logo}
-        alt="Aqar Cloud Logo"
-        className="h-full w-full object-contain"
-        onError={() => setImageError(true)}
-      />
-    ) : (
-      <Building2 className="w-12 h-12 text-zinc-950" />
-    )}
+const BrandHeader = ({ imageError, setImageError }) => (
+  <div className="relative overflow-hidden rounded-[1.8rem] border border-zinc-100 bg-gradient-to-br from-white via-[#fff7f9] to-zinc-50 px-5 py-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.9)]">
+    <div className="pointer-events-none absolute -top-16 right-1/2 h-40 w-40 translate-x-1/2 rounded-full blur-3xl opacity-20" style={{ backgroundColor: AIRBNB }} />
+    <div className="pointer-events-none absolute -bottom-20 -left-12 h-44 w-44 rounded-full bg-zinc-950/5 blur-3xl" />
+
+    <div className="relative z-10 mx-auto mb-3 flex h-[104px] w-full items-center justify-center sm:h-[118px]">
+      {!imageError ? (
+        <img
+          src={logo}
+          alt="Aqar Cloud Logo"
+          className="max-h-[94px] w-auto max-w-[250px] object-contain sm:max-h-[108px] sm:max-w-[280px]"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <div className="flex items-center gap-3 text-zinc-950">
+          <Building2 className="h-10 w-10" />
+          <span className="text-2xl font-black">عقار كلاود</span>
+        </div>
+      )}
+    </div>
+
+    <div className="relative z-10 inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-2 text-[11px] font-black text-zinc-700 shadow-sm ring-1 ring-zinc-100">
+      <Sparkles className="h-3.5 w-3.5" style={{ color: AIRBNB }} />
+      منصة إدارة الشاليهات والحجوزات
+    </div>
   </div>
 );
 
@@ -105,107 +119,110 @@ export default function Login() {
 
       <div className="relative z-10 min-h-screen grid lg:grid-cols-[0.92fr_1.08fr]">
         {/* الفورم */}
-        <section className="flex items-start justify-center px-5 pt-8 pb-10 sm:px-8 sm:pt-10 lg:px-12 lg:pt-14">
-          <div className="w-full max-w-[430px] animate-login-up">
-            <div className="rounded-[2.1rem] bg-white border border-zinc-200 shadow-[0_30px_80px_rgba(0,0,0,0.08)] p-5 sm:p-7">
-              <CardLogo imageError={imageError} setImageError={setImageError} />
-              <div className="mb-5 text-center">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950">
-                  سجّل دخولك لحسابك
-                </h1>
-                <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium max-w-xs mx-auto">
-                  تابع عقاراتك، صفحاتك، وحجوزاتك من لوحة تحكم واحدة.
-                </p>
-              </div>
+        <section className="flex items-start justify-center px-5 pt-5 pb-8 sm:px-8 sm:pt-8 lg:px-12 lg:pt-10">
+          <div className="w-full max-w-[440px] animate-login-up">
+            <div className="rounded-[2.1rem] bg-white border border-zinc-200 shadow-[0_30px_80px_rgba(0,0,0,0.08)] p-4 sm:p-5">
+              <BrandHeader imageError={imageError} setImageError={setImageError} />
 
-              {error && (
-                <div className="mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 text-center font-bold animate-in fade-in slide-in-from-top-2">
-                  {error}
-                </div>
-              )}
-
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div>
-                  <label className="block text-xs font-black text-zinc-800 mb-2">البريد الإلكتروني</label>
-                  <div className="relative group">
-                    <input
-                      type="email"
-                      dir="ltr"
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="w-full pr-11 pl-4 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
-                    />
-                    <Mail className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
-                  </div>
+              <div className="px-1 pt-5 sm:px-2">
+                <div className="mb-4 text-right">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-zinc-950">
+                    تسجيل الدخول
+                  </h1>
+                  <p className="mt-1.5 text-xs sm:text-sm leading-6 text-zinc-500 font-bold">
+                    تابع عقاراتك، صفحاتك، وحجوزاتك من لوحة تحكم واحدة.
+                  </p>
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs font-black text-zinc-800">كلمة المرور</label>
-                    <Link to="/forgot-password" className="text-[11px] font-black text-zinc-500 hover:text-[#FF385C] transition-colors">
-                      نسيت كلمة المرور؟
-                    </Link>
+                {error && (
+                  <div className="mb-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 text-center font-bold animate-in fade-in slide-in-from-top-2">
+                    {error}
                   </div>
-                  <div className="relative group">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      dir="ltr"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="w-full pr-11 pl-11 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
-                    />
-                    <Lock className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 focus:outline-none transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
-                    </button>
+                )}
+
+                <form className="space-y-3.5" onSubmit={handleSubmit}>
+                  <div>
+                    <label className="block text-xs font-black text-zinc-800 mb-2">البريد الإلكتروني</label>
+                    <div className="relative group">
+                      <input
+                        type="email"
+                        dir="ltr"
+                        placeholder="name@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="w-full pr-11 pl-4 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
+                      />
+                      <Mail className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
+                    </div>
                   </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-xs font-black text-zinc-800">كلمة المرور</label>
+                      <Link to="/forgot-password" className="text-[11px] font-black text-zinc-500 hover:text-[#FF385C] transition-colors">
+                        نسيت كلمة المرور؟
+                      </Link>
+                    </div>
+                    <div className="relative group">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        dir="ltr"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="w-full pr-11 pl-11 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
+                      />
+                      <Lock className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 focus:outline-none transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-12 rounded-2xl bg-zinc-950 hover:bg-black text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                        جاري التحقق...
+                      </>
+                    ) : (
+                      <>
+                        تسجيل الدخول
+                        <ArrowLeft className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <div className="flex items-center gap-3 my-3 opacity-70">
+                  <div className="flex-1 h-px bg-zinc-200" />
+                  <span className="text-[11px] font-black text-zinc-400">أو</span>
+                  <div className="flex-1 h-px bg-zinc-200" />
                 </div>
 
                 <button
-                  type="submit"
+                  onClick={handleGoogle}
+                  type="button"
                   disabled={loading}
-                  className="w-full h-12 rounded-2xl bg-zinc-950 hover:bg-black text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
+                  className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                      جاري التحقق...
-                    </>
-                  ) : (
-                    <>
-                      تسجيل الدخول
-                      <ArrowLeft className="w-4 h-4" />
-                    </>
-                  )}
+                  <GoogleIcon className="w-5 h-5" />
+                  <span>الدخول بواسطة Google</span>
                 </button>
-              </form>
-
-              <div className="flex items-center gap-3 my-3 opacity-70">
-                <div className="flex-1 h-px bg-zinc-200" />
-                <span className="text-[11px] font-black text-zinc-400">أو</span>
-                <div className="flex-1 h-px bg-zinc-200" />
               </div>
-
-              <button
-                onClick={handleGoogle}
-                type="button"
-                disabled={loading}
-                className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
-              >
-                <GoogleIcon className="w-5 h-5" />
-                <span>الدخول بواسطة Google</span>
-              </button>
             </div>
 
-            <p className="text-center mt-6 text-sm text-zinc-500 font-bold">
+            <p className="text-center mt-5 text-sm text-zinc-500 font-bold">
               ليس لديك حساب؟{' '}
               <Link to="/register" className="font-black text-zinc-950 hover:text-[#FF385C] transition-colors">
                 ابدأ كمالك أو وسيط
