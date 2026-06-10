@@ -43,7 +43,7 @@ const VENUE_TYPES=[
   {id:'مزرعة',Icon:IconTree},{id:'استراحة',Icon:IconCouch},
 ];
 const THEME_COLORS=['#15317E','#c9a96e','#0f3d36','#7c2d3a','#5b3a70','#1d7874','#2f3640','#b56576'];
-const BTN='bg-[#2d2d2d] hover:bg-[#1a1a1a] text-white';
+const BTN='bg-[#222222] hover:bg-[#000000] text-white';
 const STORAGE_KEY='complete_profile_state';
 const SUCCESS_STORAGE_KEY='complete_profile_success';
 const saveState=(s)=>{try{sessionStorage.setItem(STORAGE_KEY,JSON.stringify(s));}catch(_){}};
@@ -135,45 +135,44 @@ export default function CompleteProfile() {
     const isBroker=success.type==='broker';
     const dashboardPath=isBroker?'/':'/venue';
     const goDashboard=()=>{clearSuccess();clearState();window.location.href=dashboardPath;};
-    const goSubscriptions=()=>{window.location.href='/subscriptions';};
-    return(
-      <div dir="rtl" className="min-h-screen bg-[#f4f7fb] flex items-center justify-center px-4 py-10 relative overflow-hidden"
-        style={{backgroundImage:'radial-gradient(at 0% 0%, hsla(225,39%,30%,0.08) 0px, transparent 45%), radial-gradient(at 100% 0%, hsla(40,45%,61%,0.10) 0px, transparent 45%)',backgroundAttachment:'fixed'}}>
+        return(
+      <div dir="rtl" className="min-h-screen bg-[#f7f7f7] flex items-center justify-center px-4 py-10 relative overflow-hidden"
+        style={{backgroundImage:'radial-gradient(at 0% 0%, rgba(255,56,92,.08) 0px, transparent 45%), radial-gradient(at 100% 0%, rgba(34,34,34,.05) 0px, transparent 45%)',backgroundAttachment:'fixed'}}>
         <style dangerouslySetInnerHTML={{__html:`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');*{font-family:'IBM Plex Sans Arabic',sans-serif;}@keyframes floatUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}@keyframes pop{0%{transform:scale(.75);opacity:0}70%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}`}}/>
-        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#15317E]/10 blur-3xl"/>
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#c9a96e]/20 blur-3xl"/>
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#FF385C]/10 blur-3xl"/>
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-black/5 blur-3xl"/>
 
         <div className="w-full max-w-5xl grid lg:grid-cols-[1.05fr_.95fr] gap-6 items-stretch relative z-10">
-          <section className="bg-white rounded-[2.25rem] shadow-[0_25px_70px_-30px_rgba(21,49,126,.25)] border border-white p-6 md:p-10 overflow-hidden relative" style={{animation:'floatUp .55s ease-out both'}}>
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-l from-[#15317E] via-[#c9a96e] to-[#15317E]"/>
-            <div className="w-24 h-24 rounded-[2rem] bg-[#15317E] text-white flex items-center justify-center shadow-xl shadow-[#15317E]/20 mb-7" style={{animation:'pop .6s cubic-bezier(.16,1,.3,1) both'}}>
+          <section className="bg-white rounded-[2.25rem] shadow-[0_25px_70px_-30px_rgba(0,0,0,.18)] border border-white p-6 md:p-10 overflow-hidden relative" style={{animation:'floatUp .55s ease-out both'}}>
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-l from-[#FF385C] via-[#222222] to-[#FF385C]"/>
+            <div className="w-24 h-24 rounded-[2rem] bg-[#222222] text-white flex items-center justify-center shadow-xl shadow-black/20 mb-7" style={{animation:'pop .6s cubic-bezier(.16,1,.3,1) both'}}>
               <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/><path d="M3 12l4 4L21 2" opacity=".35"/></svg>
             </div>
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#15317E]/5 text-[#15317E] text-xs font-extrabold mb-4">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF385C]/10 text-[#FF385C] text-xs font-extrabold mb-4">
               <Sparkles className="w-4 h-4"/> تم تجهيز حسابك
             </span>
-            <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight mb-4">مبروك! صفحتك صارت جاهزة 🎉</h1>
-            <p className="text-slate-500 text-base md:text-lg leading-relaxed mb-8">
+            <h1 className="text-2xl md:text-4xl font-black text-slate-900 leading-tight mb-4">مبروك! صفحتك صارت جاهزة 🎉</h1>
+            <p className="text-slate-500 text-sm md:text-base leading-relaxed mb-8">
               {isBroker?'تم إكمال ملف الوسيط العقاري بنجاح. تقدر الآن تدخل لوحة التحكم وتبدأ إضافة عقاراتك وإدارة بياناتك.':'تم إنشاء صفحة مكانك بنجاح. تقدر تشارك الرابط مع عملائك، أو تدخل لوحة التحكم لإدارة الصور والأسعار والحجوزات.'}
             </p>
 
             <div className="grid sm:grid-cols-3 gap-3 mb-8">
               <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#15317E] flex items-center justify-center mb-3 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#FF385C] flex items-center justify-center mb-3 shadow-sm">
                   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>
                 </div>
                 <h3 className="font-extrabold text-slate-800 text-sm">صفحة جاهزة</h3>
                 <p className="text-xs text-slate-400 mt-1">رابط مستقل لعملائك</p>
               </div>
               <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#15317E] flex items-center justify-center mb-3 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#FF385C] flex items-center justify-center mb-3 shadow-sm">
                   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v18M3 12h18"/><path d="M7 7h10v10H7z"/></svg>
                 </div>
                 <h3 className="font-extrabold text-slate-800 text-sm">إدارة سهلة</h3>
                 <p className="text-xs text-slate-400 mt-1">أسعار وصور ومميزات</p>
               </div>
               <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#15317E] flex items-center justify-center mb-3 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-white text-[#FF385C] flex items-center justify-center mb-3 shadow-sm">
                   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a4 4 0 01-4 4H7l-4 3V7a4 4 0 014-4h10a4 4 0 014 4z"/><path d="M8 9h8M8 13h5"/></svg>
                 </div>
                 <h3 className="font-extrabold text-slate-800 text-sm">جاهز للحجوزات</h3>
@@ -182,28 +181,28 @@ export default function CompleteProfile() {
             </div>
 
             <div className="space-y-3">
-              {success.url&&(<button type="button" onClick={()=>window.open(success.url,'_blank')} className="w-full py-4 rounded-2xl font-extrabold text-base shadow-xl shadow-[#15317E]/20 transition-all flex items-center justify-center gap-2 active:scale-95 bg-[#15317E] text-white hover:bg-[#0d1e4c]"><Eye className="w-5 h-5"/> مشاهدة صفحتي</button>)}
-              <button type="button" onClick={goDashboard} className="w-full py-4 rounded-2xl font-extrabold text-base border transition-all flex items-center justify-center gap-2 active:scale-95 bg-white text-slate-800 border-slate-200 hover:border-[#15317E] hover:text-[#15317E]"><LayoutDashboard className="w-5 h-5"/> الدخول إلى لوحة التحكم</button>
-              <button type="button" onClick={goSubscriptions} className="w-full py-3.5 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 active:scale-95 bg-[#c9a96e]/12 text-[#8a6d35] hover:bg-[#c9a96e]/20">
-                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>
-                صفحة الاشتراكات
-              </button>
+              <button type="button" onClick={goDashboard} className="w-full py-4 rounded-2xl font-extrabold text-sm md:text-base shadow-xl shadow-[#FF385C]/20 transition-all flex items-center justify-center gap-2 active:scale-95 bg-[#FF385C] text-white hover:bg-[#E31C5F]"><LayoutDashboard className="w-5 h-5"/> دخول لوحة التحكم</button>
+              {success.url&&(<button type="button" onClick={()=>window.open(success.url,'_blank')} className="w-full py-4 rounded-2xl font-extrabold text-sm md:text-base border transition-all flex items-center justify-center gap-2 active:scale-95 bg-white text-[#222222] border-slate-200 hover:border-[#FF385C] hover:text-[#FF385C]"><Eye className="w-5 h-5"/> مشاهدة صفحتي</button>)}
+              <div className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-100">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16.5 9"/></svg>
+                اشتراك ١٤ يوم مفعّل
+              </div>
             </div>
           </section>
 
-          <aside className="bg-[#15317E] rounded-[2.25rem] p-6 md:p-8 text-white shadow-[0_25px_70px_-30px_rgba(21,49,126,.45)] relative overflow-hidden" style={{animation:'floatUp .65s ease-out .08s both'}}>
+          <aside className="bg-[#222222] rounded-[2.25rem] p-6 md:p-8 text-white shadow-[0_25px_70px_-30px_rgba(0,0,0,.45)] relative overflow-hidden" style={{animation:'floatUp .65s ease-out .08s both'}}>
             <div className="absolute -top-20 -left-20 w-56 h-56 rounded-full bg-white/10 blur-3xl"/>
-            <div className="absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-[#c9a96e]/25 blur-3xl"/>
+            <div className="absolute -bottom-20 -right-20 w-56 h-56 rounded-full bg-[#FF385C]/25 blur-3xl"/>
             <div className="relative z-10 h-full flex flex-col justify-between">
               <div>
                 <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center mb-6">
                   <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
                 </div>
-                <h2 className="text-2xl font-black mb-3">وش تسوي بعدين؟</h2>
+                <h2 className="text-xl font-black mb-3">خطوتك الجاية</h2>
                 <div className="space-y-4 text-sm text-white/75 leading-relaxed">
                   <p>١. عاين صفحتك وتأكد أن الصور والمعلومات ظاهرة بالشكل المطلوب.</p>
-                  <p>٢. ارجع هنا واضغط لوحة التحكم لإدارة بياناتك وإكمال أي تفاصيل لاحقًا.</p>
-                  <p>٣. زر الاشتراكات موجود الآن كتجهيز، وتقدر تربطه بصفحة الاشتراكات بعد ما تسويها.</p>
+                  <p>٢. ارجع هنا واضغط دخول لوحة التحكم لإدارة بياناتك.</p>
+                  <p>٣. تجربتك المجانية مفعّلة لمدة ١٤ يوم من الآن.</p>
                 </div>
               </div>
               <div className="mt-8 rounded-3xl bg-white/10 border border-white/15 p-5">
@@ -219,9 +218,9 @@ export default function CompleteProfile() {
   }
 
   return(
-    <div dir="rtl" className="min-h-screen bg-[#f4f7fb] flex flex-col items-center py-8 px-4"
-      style={{backgroundImage:'radial-gradient(at 0% 0%, hsla(225,39%,30%,0.05) 0px, transparent 50%), radial-gradient(at 100% 0%, hsla(40,45%,61%,0.05) 0px, transparent 50%)',backgroundAttachment:'fixed'}}>
-      <style dangerouslySetInnerHTML={{__html:`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');body{font-family:'IBM Plex Sans Arabic',sans-serif;}.feature-bubble.selected{background:#2d2d2d;color:white;transform:scale(1.03);}.choice-card:hover{transform:translateY(-3px);}.choice-card:active{transform:scale(0.98);}`}}/>
+    <div dir="rtl" className="min-h-screen bg-[#f7f7f7] flex flex-col items-center py-8 px-4"
+      style={{backgroundImage:'radial-gradient(at 0% 0%, rgba(255,56,92,.06) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(34,34,34,.04) 0px, transparent 50%)',backgroundAttachment:'fixed'}}>
+      <style dangerouslySetInnerHTML={{__html:`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');body{font-family:'IBM Plex Sans Arabic',sans-serif;}.feature-bubble.selected{background:#FF385C;color:white;transform:scale(1.03);}.choice-card:hover{transform:translateY(-3px);}.choice-card:active{transform:scale(0.98);}`}}/>
       <div className="w-full max-w-xl mx-auto">
 
         {/* شريط التقدم */}
@@ -231,14 +230,23 @@ export default function CompleteProfile() {
           </button>
           <div className="flex-1 px-6">
             <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-              <div className="h-full transition-all duration-500 rounded-full bg-[#2d2d2d]" style={{width:`${progress}%`}}/>
+              <div className="h-full transition-all duration-500 rounded-full bg-[#FF385C]" style={{width:`${progress}%`}}/>
             </div>
             {step>0&&step!==0.5&&<p className="text-center text-[11px] text-slate-400 font-bold mt-1.5">{step} من {totalSteps}</p>}
           </div>
           <div className="w-10"/>
         </div>
 
-        <div className="bg-white rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] p-6 md:p-10 min-h-[480px] flex flex-col">
+        <div className="bg-white rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] p-5 md:p-8 min-h-[480px] flex flex-col border border-white">
+          <div className="mb-5 rounded-3xl border border-[#FF385C]/15 bg-[#FF385C]/5 p-4 flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-[#FF385C] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#FF385C]/20">
+              <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-black text-[#222222]">تجربة ١٤ يوم مفعّلة</p>
+              <p className="text-xs text-slate-500 mt-0.5">جهّز صفحتك وشاركها الآن، والاشتراك لاحقًا.</p>
+            </div>
+          </div>
           <div className="flex-1">
 
             {/* خطوة 0: الدور */}
@@ -246,7 +254,7 @@ export default function CompleteProfile() {
               <div>
                 <div className="text-center mb-8 mt-2">
                   <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold mb-3">مرحباً بك!</span>
-                  <h2 className="text-2xl md:text-3xl font-bold text-slate-800">وش نوع نشاطك؟</h2>
+                  <h2 className="text-xl md:text-2xl font-bold text-slate-800">وش نوع نشاطك؟</h2>
                   <p className="text-slate-500 mt-2 text-sm">اختر المناسب لك</p>
                 </div>
                 <div className="grid grid-cols-1 gap-4 max-w-sm mx-auto">
@@ -267,7 +275,7 @@ export default function CompleteProfile() {
               <div>
                 <div className="text-center mb-8 mt-2">
                   
-                  <h2 className="text-2xl md:text-3xl font-bold text-slate-800">وش نوع المكان اللي بتضيفه؟</h2>
+                  <h2 className="text-xl md:text-2xl font-bold text-slate-800">وش نوع المكان اللي بتضيفه؟</h2>
                   <p className="text-slate-500 mt-2 text-sm">اختر النوع المناسب عشان نجهز لك الخيارات الصح.</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -275,7 +283,7 @@ export default function CompleteProfile() {
                     <button key={t.id} onClick={()=>{setRole(t.id);setStep(1);}}
                       className="choice-card bg-white border-2 border-slate-100 rounded-2xl p-6 flex flex-col items-center gap-3 transition-all">
                       <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center"><t.Icon className="w-8 h-8 text-slate-600"/></div>
-                      <span className="font-bold text-slate-700 text-lg">{t.id}</span>
+                      <span className="font-bold text-slate-700 text-base">{t.id}</span>
                     </button>
                   ))}
                 </div>
@@ -286,27 +294,27 @@ export default function CompleteProfile() {
             {!isVenue&&role&&step===1&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">اسم مكتبك؟</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">اسم مكتبك؟</h2>
                 <p className="text-slate-500 text-sm mb-8">الاسم اللي راح يظهر للعملاء</p>
                 <input value={broker.office_name} onChange={e=>setBroker(p=>({...p,office_name:e.target.value}))} placeholder="مثال: مكتب النخبة العقاري"
-                  className="w-full border-b-2 border-slate-200 focus:border-slate-700 outline-none py-3 text-xl font-bold text-slate-800 bg-transparent transition-all placeholder:text-slate-300"/>
+                  className="w-full border-b-2 border-slate-200 focus:border-[#FF385C] outline-none py-3 text-lg font-bold text-slate-800 bg-transparent transition-all placeholder:text-slate-300"/>
               </div>
             )}
             {!isVenue&&role&&step===2&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">في أي مدينة؟</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">في أي مدينة؟</h2>
                 <div className="relative mt-8">
                   <IconPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"/>
                   <input value={broker.city} onChange={e=>setBroker(p=>({...p,city:e.target.value}))} placeholder="اكتب اسم المدينة"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 pr-12 text-base font-medium outline-none focus:border-slate-700 transition-all"/>
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 pr-12 text-base font-medium outline-none focus:border-[#FF385C] transition-all"/>
                 </div>
               </div>
             )}
             {!isVenue&&role&&step===3&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">شعار المكتب</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">شعار المكتب</h2>
                 <p className="text-slate-500 text-sm mb-8">اختياري</p>
                 <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={uploadLogo}/>
                 {broker.office_logo_url?(
@@ -324,16 +332,16 @@ export default function CompleteProfile() {
             {!isVenue&&role&&step===4&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">بيانات التواصل</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">بيانات التواصل</h2>
                 <p className="text-slate-500 text-sm mb-8">اختياري — تقدر تكملها لاحقاً</p>
                 <div className="space-y-4">
                   <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-slate-400 transition-all">
                     <label className="block text-xs font-bold text-slate-400 mb-1">رقم واتساب</label>
-                    <input value={broker.phone} onChange={e=>setBroker(p=>({...p,phone:e.target.value}))} placeholder="9665xxxxxxxx" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-lg text-slate-800"/>
+                    <input value={broker.phone} onChange={e=>setBroker(p=>({...p,phone:e.target.value}))} placeholder="9665xxxxxxxx" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-base text-slate-800"/>
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-slate-400 transition-all">
                     <label className="block text-xs font-bold text-slate-400 mb-1">رقم الرخصة (اختياري)</label>
-                    <input value={broker.license_number} onChange={e=>setBroker(p=>({...p,license_number:e.target.value}))} placeholder="1234567890" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-lg text-slate-800"/>
+                    <input value={broker.license_number} onChange={e=>setBroker(p=>({...p,license_number:e.target.value}))} placeholder="1234567890" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-base text-slate-800"/>
                   </div>
                 </div>
               </div>
@@ -343,10 +351,10 @@ export default function CompleteProfile() {
             {isVenue&&step===1&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">أهلاً بك! وش اسم {role}ك؟</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">أهلاً بك! وش اسم {role}ك؟</h2>
                 <p className="text-slate-500 mt-1 text-sm mb-8">اكتب الاسم اللي راح يظهر للعملاء.</p>
                 <input value={venue.name} onChange={e=>setV('name',e.target.value)} placeholder={`مثال: ${role} الريم الفاخر`}
-                  className="w-full border-b-2 border-slate-200 focus:border-slate-700 outline-none py-3 text-xl font-bold text-slate-800 bg-transparent transition-all placeholder:text-slate-300"/>
+                  className="w-full border-b-2 border-slate-200 focus:border-[#FF385C] outline-none py-3 text-lg font-bold text-slate-800 bg-transparent transition-all placeholder:text-slate-300"/>
                 {!venue.name.trim()&&<p className="text-xs text-red-400 font-bold mt-2">مطلوب</p>}
               </div>
             )}
@@ -359,13 +367,13 @@ export default function CompleteProfile() {
                   <div className="w-14 h-14 bg-slate-50 rounded-2xl mx-auto flex items-center justify-center mb-4">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-slate-800">اختر رابطك المخصص</h2>
+                  <h2 className="text-xl md:text-2xl font-bold text-slate-800">اختر رابطك المخصص</h2>
                   <p className="text-slate-500 mt-2 text-sm">هذا الرابط اللي بتشاركه مع عملائك — اختياري، إنجليزي فقط</p>
                 </div>
-                <div className="flex items-center w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-2 focus-within:border-slate-700 focus-within:ring-4 focus-within:ring-slate-700/10 transition-all" dir="ltr">
+                <div className="flex items-center w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-2 focus-within:border-[#FF385C] focus-within:ring-4 focus-within:ring-[#FF385C]/10 transition-all" dir="ltr">
                   <input value={venue.slug} onChange={e=>setV('slug',e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'').replace(/--+/g,'-'))}
                     placeholder="my-chalet"
-                    className="flex-1 bg-transparent border-none outline-none font-mono text-lg text-slate-700 font-bold p-2"/>
+                    className="flex-1 bg-transparent border-none outline-none font-mono text-base text-slate-700 font-bold p-2"/>
                   <span className="pr-3 pl-4 text-slate-400 font-mono text-xs border-r border-slate-200">aqacloud.com/place/</span>
                 </div>
                 <p className="text-xs text-slate-400 mt-4 text-center">تقدر تتخطى هذه الخطوة وسنولّد لك رابط تلقائياً</p>
@@ -376,12 +384,12 @@ export default function CompleteProfile() {
             {isVenue&&step===3&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">في أي مدينة؟</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">في أي مدينة؟</h2>
                 <p className="text-slate-500 text-sm mb-8">اكتب اسم المدينة اللي فيها {role}ك</p>
                 <div className="relative">
                   <IconPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"/>
                   <input value={venue.city} onChange={e=>setV('city',e.target.value)} placeholder="مثال: الرياض"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 pr-12 text-base font-medium outline-none focus:border-slate-700 transition-all"/>
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 pr-12 text-base font-medium outline-none focus:border-[#FF385C] transition-all"/>
                 </div>
               </div>
             )}
@@ -390,11 +398,11 @@ export default function CompleteProfile() {
             {isVenue&&step===4&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">وش يميّز مكانك؟</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">وش يميّز مكانك؟</h2>
                 <p className="text-slate-500 text-sm mb-2">وصف جميل يجذب العملاء — يمكن إعداده لاحقاً</p>
                 <textarea value={venue.description} onChange={e=>setV('description',e.target.value)} rows={5}
                   placeholder="اكتب وصفاً يجذب العملاء — الأجواء، المميزات، التجربة..."
-                  className="w-full border-b-2 border-slate-200 focus:border-slate-700 outline-none py-3 text-base font-medium text-slate-700 bg-transparent transition-all placeholder:text-slate-300 resize-none mt-4"/>
+                  className="w-full border-b-2 border-slate-200 focus:border-[#FF385C] outline-none py-3 text-base font-medium text-slate-700 bg-transparent transition-all placeholder:text-slate-300 resize-none mt-4"/>
               </div>
             )}
 
@@ -402,7 +410,7 @@ export default function CompleteProfile() {
             {isVenue&&step===5&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">الصور تجذب العملاء! 📸</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">الصور تجذب العملاء! 📸</h2>
                 <p className="text-slate-500 text-sm mb-4">ارفع أجمل صور {role}ك — حتى ١٠ صور</p>
                 <div className="flex items-center gap-2 mb-5">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -452,12 +460,12 @@ export default function CompleteProfile() {
             {isVenue&&step===6&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">جولة فيديو للمكان</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">جولة فيديو للمكان</h2>
                 <p className="text-slate-500 text-sm mb-8">حتى ٥ روابط يوتيوب — اختياري</p>
                 <div className="space-y-3">
                   {venue.youtube_urls.map((url,i)=>(
                     <div key={i} className="flex gap-2">
-                      <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 px-4 focus-within:border-slate-700 transition-all">
+                      <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3 px-4 focus-within:border-[#FF385C] transition-all">
                         <svg viewBox="0 0 24 24" fill="#ef4444" className="w-5 h-5 flex-shrink-0"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 00.5 6.2C0 8 0 12 0 12s0 4 .5 5.8a3 3 0 002.1 2.1C4.4 20.4 12 20.4 12 20.4s7.6 0 9.4-.5a3 3 0 002.1-2.1C24 16 24 12 24 12s0-4-.5-5.8zM9.75 15.5v-7l6.5 3.5-6.5 3.5z"/></svg>
                         <input value={url} onChange={e=>{const a=[...venue.youtube_urls];a[i]=e.target.value;setV('youtube_urls',a);}} placeholder="https://youtube.com/..." dir="ltr"
                           className="flex-1 bg-transparent border-none outline-none text-sm py-3.5 text-slate-700"/>
@@ -474,21 +482,21 @@ export default function CompleteProfile() {
             {isVenue&&step===7&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">كيف تبي شكل صفحتك؟ 🎨</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">كيف تبي شكل صفحتك؟ 🎨</h2>
                 <p className="text-slate-500 text-sm mb-6">اختر الثيم اللي يناسب هوية مكانك.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <button onClick={()=>setV('page_theme','classic')}
                     className={`choice-card relative bg-white border-2 rounded-[2rem] p-6 text-right overflow-hidden transition-all ${venue.page_theme==='classic'?'border-slate-700':'border-slate-100'}`}>
                     <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-blue-400 to-emerald-400"/>
                     <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-4"><Sun className="w-6 h-6 text-amber-500"/></div>
-                    <h3 className="font-bold text-lg text-slate-800">الكلاسيكي الفاتح</h3>
+                    <h3 className="font-bold text-base text-slate-800">الكلاسيكي الفاتح</h3>
                     <p className="text-sm text-slate-500 mt-1">مشرق، نظيف، وتقدر تختار لونه.</p>
                   </button>
                   <button onClick={()=>{setV('page_theme','royal');setTimeout(next,280);}}
                     className={`choice-card relative bg-slate-900 border-2 rounded-[2rem] p-6 text-right overflow-hidden transition-all hover:border-yellow-500 ${venue.page_theme==='royal'?'border-yellow-500':'border-slate-800'}`}>
                     <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-yellow-600 to-yellow-300"/>
                     <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-4"><Crown className="w-6 h-6 text-yellow-400"/></div>
-                    <h3 className="font-bold text-lg text-white">الأسود الملكي</h3>
+                    <h3 className="font-bold text-base text-white">الأسود الملكي</h3>
                     <p className="text-sm text-slate-400 mt-1">فخامة داكنة بلمسات ذهبية.</p>
                   </button>
                 </div>
@@ -507,7 +515,7 @@ export default function CompleteProfile() {
             {isVenue&&step===8&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">الأسعار والمواعيد 💰</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">الأسعار والمواعيد 💰</h2>
                 <p className="text-slate-500 text-sm mb-6">حدد أسعارك المبدئية، وتقدر تعدلها بأي وقت لاحقاً بكل سهولة.</p>
                 <div className="space-y-4">
                   <div className="flex gap-3">
@@ -526,7 +534,7 @@ export default function CompleteProfile() {
                     </div>
                     <div className="flex-1">
                       <label className="block text-xs font-bold text-slate-400 mb-1">رقم واتساب للحجوزات *</label>
-                      <input value={venue.whatsapp} onChange={e=>setV('whatsapp',e.target.value)} placeholder="9665xxxxxxxx" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-lg text-slate-800"/>
+                      <input value={venue.whatsapp} onChange={e=>setV('whatsapp',e.target.value)} placeholder="9665xxxxxxxx" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-base text-slate-800"/>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -554,7 +562,7 @@ export default function CompleteProfile() {
             {isVenue&&step===9&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">أخيراً، وش يتميز فيه مكانك؟ ✨</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">أخيراً، وش يتميز فيه مكانك؟ ✨</h2>
                 <p className="text-slate-500 text-sm mb-6">اختر المرافق المتوفرة عشان تظهر للعملاء بشكل أيقونات جميلة.</p>
                 <div className="flex flex-wrap gap-2.5">
                   {ALL_FEATURES.map(f=>(
@@ -571,7 +579,7 @@ export default function CompleteProfile() {
             {isVenue&&step===10&&(
               <div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">اجلب تقييمات عملائك من Google Maps</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-1">اجلب تقييمات عملائك من Google Maps</h2>
                 <p className="text-slate-500 text-sm mb-3 leading-relaxed">أدخل اسم مكانك بالضبط كما يظهر في Google Maps ليتم جلب أفضل التقييمات الإيجابية وعرضها في صفحتك تلقائياً</p>
                 <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2 mb-5 border border-slate-100">
                   <div className={`w-2 h-2 rounded-full ${reviewsLeft>1?'bg-emerald-400':reviewsLeft===1?'bg-amber-400':'bg-red-400'}`}/>
@@ -580,7 +588,7 @@ export default function CompleteProfile() {
                 {reviewsLeft>0?(
                   <>
                     <div className="flex gap-2 mb-4">
-                      <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 flex items-center gap-3 focus-within:border-slate-700 transition-all">
+                      <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 flex items-center gap-3 focus-within:border-[#FF385C] transition-all">
                         <IconGoogleMaps className="w-5 h-5 flex-shrink-0"/>
                         <input value={reviewsQuery} onChange={e=>setReviewsQuery(e.target.value)} placeholder={`مثال: شاليه الواحة جدة`} className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700"/>
                       </div>
