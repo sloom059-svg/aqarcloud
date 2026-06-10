@@ -57,11 +57,12 @@ export default function CompleteProfile() {
   const logoRef=useRef();
   const imgRef=useRef();
   const saved=loadState();
+  const validSaved = (saved?.step > 0 && !saved?.mainRole) ? null : saved;
 
-  const [mainRole,setMainRole]=useState(saved?.mainRole||'');
-  const [role,setRole]=useState(saved?.role||'');
+  const [mainRole,setMainRole]=useState(validSaved?.mainRole||'');
+  const [role,setRole]=useState(validSaved?.role||'');
   const [step,setStep]=useState(()=>{
-    const s=saved?.step;
+    const s=validSaved?.step;
     if(s===undefined||s===null)return 0;
     return Number(s);
   });
@@ -69,8 +70,8 @@ export default function CompleteProfile() {
   const [uploadingLogo,setUploadingLogo]=useState(false);
   const [uploadingImgs,setUploadingImgs]=useState(false);
   const [success,setSuccess]=useState(null);
-  const [broker,setBroker]=useState(saved?.broker||{office_name:'',city:'',office_logo_url:'',phone:'',license_number:''});
-  const [venue,setVenue]=useState(saved?.venue||{
+  const [broker,setBroker]=useState(validSaved?.broker||{office_name:'',city:'',office_logo_url:'',phone:'',license_number:''});
+  const [venue,setVenue]=useState(validSaved?.venue||{
     name:'',city:'',description:'',images:[],youtube_urls:[''],
     features:[],social:{instagram:'',snapchat:'',tiktok:'',x:''},
     page_theme:'classic',theme_color:'#c9a96e',
