@@ -39,7 +39,7 @@ function ProfileMenu({ onLogout }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="h-11 w-11 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 backdrop-blur-md transition-all text-white flex items-center justify-center gap-1"
+        className="h-11 w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]"
         title="القائمة"
       >
         <LogOut className="w-4 h-4" />
@@ -201,10 +201,9 @@ export default function VenueDashboard() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-16 relative overflow-x-hidden text-zinc-950">
-      <div className="absolute inset-x-0 top-0 h-[190px] bg-zinc-950 rounded-b-[2.5rem] sm:rounded-b-[3rem] overflow-hidden">
-        <div className="absolute -top-28 -right-20 w-80 h-80 rounded-full blur-3xl opacity-25" style={{ backgroundColor: AIRBNB }} />
-        <div className="absolute bottom-[-90px] left-[-70px] w-80 h-80 rounded-full bg-white/10 blur-3xl" />
-      </div>
+      <div className="absolute inset-x-0 top-0 h-[170px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
+      <div className="absolute -top-32 -right-28 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ backgroundColor: AIRBNB }} />
+      <div className="absolute top-24 left-[-90px] w-72 h-72 rounded-full bg-zinc-900/5 blur-3xl pointer-events-none" />
 
       {toastMessage && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-zinc-950 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10">
@@ -245,105 +244,120 @@ export default function VenueDashboard() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="pt-6 sm:pt-7 pb-5 text-white">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="relative flex-shrink-0">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border border-white/15 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg backdrop-blur-md">
-                  {user?.office_logo_url ? (
-                    <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-xl font-black text-white">
-                      {(user?.full_name || user?.office_name || 'م')[0]}
-                    </span>
-                  )}
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-2 border-zinc-950 rounded-full" style={{ backgroundColor: AIRBNB }} />
-              </div>
+        <header className="pt-5 sm:pt-7 pb-4">
+          <div className="rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_18px_60px_rgba(0,0,0,0.08)] backdrop-blur-xl p-3.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 
-              <div className="min-w-0">
-                <p className="text-[11px] sm:text-xs text-white/55 mb-1 font-bold">مرحباً بك،</p>
-                <h1 className="text-base sm:text-xl font-black truncate">{user?.full_name || user?.office_name || 'المالك'}</h1>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="relative" ref={notifsRef}>
-                <button
-                  onClick={() => setShowNotifs(!showNotifs)}
-                  className={`relative h-11 w-11 rounded-2xl border border-white/10 backdrop-blur-md transition-all flex items-center justify-center ${showNotifs ? 'bg-white text-zinc-950' : 'bg-white/10 hover:bg-white/15 text-white'}`}
-                  title="الإشعارات"
-                >
-                  <Bell className="w-4.5 h-4.5" />
-                  {hasNotifications && (
-                    <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,56,92,0.9)]" style={{ backgroundColor: AIRBNB }} />
-                  )}
-                </button>
-
-                {showNotifs && (
-                  <div className="absolute top-full left-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                    <div className="px-4 py-3 bg-zinc-950 text-white flex items-center justify-between">
-                      <span className="text-sm font-black">الإشعارات</span>
-                      {hasNotifications && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{newBookings.length}</span>
-                      )}
-                    </div>
-                    {newBookings.length === 0 ? (
-                      <div className="px-4 py-7 text-center">
-                        <p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p>
-                      </div>
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative flex-shrink-0">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[1.25rem] bg-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200">
+                    {user?.office_logo_url ? (
+                      <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="max-h-72 overflow-y-auto">
-                        {newBookings.map(b => {
-                          const v = venues.find(x => x.id === b.venue_id);
-                          return (
-                            <Link
-                              key={b.id}
-                              to={`/venue/bookings/${b.venue_id}`}
-                              onClick={() => setShowNotifs(false)}
-                              className="flex items-start gap-3 px-4 py-3.5 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
-                            >
-                              <div className="w-10 h-10 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Calendar className="w-4 h-4" style={{ color: AIRBNB }} />
-                              </div>
-                              <div className="flex-1 min-w-0 text-right">
-                                <p className="text-sm font-black text-zinc-800">حجز جديد</p>
-                                <p className="text-xs text-zinc-500 truncate font-medium">
-                                  {b.client_name || 'عميل'} — {v?.name || 'شاليه'}
-                                </p>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
+                      <span className="text-xl font-black text-zinc-950">
+                        {(user?.full_name || user?.office_name || 'م')[0]}
+                      </span>
                     )}
                   </div>
-                )}
-              </div>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 border-2 border-white rounded-full" style={{ backgroundColor: AIRBNB }} />
+                </div>
 
-              <div className="relative" ref={revenueRef}>
-                <button
-                  onClick={() => setShowRevenue(!showRevenue)}
-                  className={`h-11 w-11 rounded-2xl border border-white/10 backdrop-blur-md transition-all flex items-center justify-center ${showRevenue ? 'bg-white text-zinc-950' : 'bg-white/10 hover:bg-white/15 text-white'}`}
-                  title="إيرادات الشهر"
-                >
-                  <Wallet className="w-4.5 h-4.5" />
-                </button>
-
-                {showRevenue && (
-                  <div className="absolute top-full left-0 mt-3 w-60 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
-                    <p className="text-[11px] text-zinc-500 font-bold mb-1">إيرادات الشهر المؤكدة</p>
-                    <p className="text-2xl font-black text-zinc-950" dir="ltr">
-                      {monthlyRevenue.toLocaleString('en-US')} <span className="text-[11px] font-bold text-zinc-400">ر.س</span>
-                    </p>
+                <div className="min-w-0">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C]/10 px-2.5 py-1 text-[10px] font-black text-[#FF385C] mb-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
+                    لوحة التحكم
                   </div>
-                )}
+                  <h1 className="text-base sm:text-lg font-black text-zinc-950 truncate">
+                    {user?.full_name || user?.office_name || 'المالك'}
+                  </h1>
+                  <p className="text-xs font-bold text-zinc-500 mt-0.5 truncate">
+                    إدارة الأماكن والحجوزات من مكان واحد
+                  </p>
+                </div>
               </div>
 
-              <ProfileMenu onLogout={handleLogout} />
+              <div className="flex items-center justify-between sm:justify-end gap-2">
+                <div className="hidden md:inline-flex items-center gap-2 rounded-2xl bg-zinc-50 border border-zinc-200 px-3.5 py-2.5">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
+                  <span className="text-xs font-black text-zinc-700">{venues.length} وحدات</span>
+                </div>
+
+                <div className="relative" ref={notifsRef}>
+                  <button
+                    onClick={() => setShowNotifs(!showNotifs)}
+                    className={`relative h-11 w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    title="الإشعارات"
+                  >
+                    <Bell className="w-4.5 h-4.5" />
+                    {hasNotifications && (
+                      <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,56,92,0.9)]" style={{ backgroundColor: AIRBNB }} />
+                    )}
+                  </button>
+
+                  {showNotifs && (
+                    <div className="absolute top-full left-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="px-4 py-3 bg-zinc-950 text-white flex items-center justify-between">
+                        <span className="text-sm font-black">الإشعارات</span>
+                        {hasNotifications && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{newBookings.length}</span>
+                        )}
+                      </div>
+                      {newBookings.length === 0 ? (
+                        <div className="px-4 py-7 text-center">
+                          <p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p>
+                        </div>
+                      ) : (
+                        <div className="max-h-72 overflow-y-auto">
+                          {newBookings.map(b => {
+                            const v = venues.find(x => x.id === b.venue_id);
+                            return (
+                              <Link
+                                key={b.id}
+                                to={`/venue/bookings/${b.venue_id}`}
+                                onClick={() => setShowNotifs(false)}
+                                className="flex items-start gap-3 px-4 py-3.5 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
+                              >
+                                <div className="w-10 h-10 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Calendar className="w-4 h-4" style={{ color: AIRBNB }} />
+                                </div>
+                                <div className="flex-1 min-w-0 text-right">
+                                  <p className="text-sm font-black text-zinc-800">حجز جديد</p>
+                                  <p className="text-xs text-zinc-500 truncate font-medium">
+                                    {b.client_name || 'عميل'} — {v?.name || 'شاليه'}
+                                  </p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative" ref={revenueRef}>
+                  <button
+                    onClick={() => setShowRevenue(!showRevenue)}
+                    className={`h-11 w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    title="إيرادات الشهر"
+                  >
+                    <Wallet className="w-4.5 h-4.5" />
+                  </button>
+
+                  {showRevenue && (
+                    <div className="absolute top-full left-0 mt-3 w-60 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
+                      <p className="text-[11px] text-zinc-500 font-bold mb-1">إيرادات الشهر المؤكدة</p>
+                      <p className="text-2xl font-black text-zinc-950" dir="ltr">
+                        {monthlyRevenue.toLocaleString('en-US')} <span className="text-[11px] font-bold text-zinc-400">ر.س</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <ProfileMenu onLogout={handleLogout} />
+              </div>
             </div>
           </div>
-
         </header>
 
         <main className="space-y-6">
