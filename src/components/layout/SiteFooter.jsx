@@ -1,23 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Headphones, ShieldCheck, FileText, Info, MessageCircle, ArrowUpLeft } from 'lucide-react';
-import logo from '@/aqar-cloud-logo.png';
+import { Mail, Headphones, ExternalLink } from 'lucide-react';
 
 const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || 'support@aqarcloud.com';
 const SUPPORT_WHATSAPP = (import.meta.env.VITE_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
+const SUPPORT_X = import.meta.env.VITE_SUPPORT_X || '';
 
 const footerLinks = [
   { to: '/terms', label: 'الشروط والأحكام' },
+  { to: '/refund', label: 'سياسة الاسترجاع' },
   { to: '/privacy', label: 'سياسة الخصوصية' },
-  { to: '/about', label: 'من نحن' },
-  { to: '/contact', label: 'اتصل بنا' },
-  { to: '/support', label: 'الدعم الفني' },
-];
-
-const quickItems = [
-  { icon: ShieldCheck, label: 'خصوصية البيانات' },
-  { icon: FileText, label: 'شروط واضحة' },
-  { icon: Headphones, label: 'دعم فني' },
 ];
 
 function WhatsAppIcon({ className = 'w-4 h-4' }) {
@@ -28,87 +20,78 @@ function WhatsAppIcon({ className = 'w-4 h-4' }) {
   );
 }
 
+function XIcon({ className = 'w-4 h-4' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817-5.966 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+    </svg>
+  );
+}
+
 function getWhatsappHref(message = 'مرحباً، أحتاج مساعدة بخصوص عقار كلاود') {
   return SUPPORT_WHATSAPP ? `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}` : '/support';
 }
 
-export { SUPPORT_EMAIL, SUPPORT_WHATSAPP, WhatsAppIcon, getWhatsappHref };
+export { SUPPORT_EMAIL, SUPPORT_WHATSAPP, SUPPORT_X, WhatsAppIcon, XIcon, getWhatsappHref };
 
 export default function SiteFooter({ className = '' }) {
   const whatsappHref = getWhatsappHref();
+  const xHref = SUPPORT_X || '/support';
 
   return (
-    <footer className={`mt-12 border-t border-[#EBEBEB] bg-[#F7F7F7] ${className}`} dir="rtl">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        <div className="grid gap-7 lg:grid-cols-[1.2fr_1fr_1.1fr] lg:items-start">
-          <div className="space-y-4">
-            <Link to="/" className="inline-flex items-center gap-3 min-w-0">
-              <span className="h-12 w-12 rounded-2xl bg-white border border-[#EBEBEB] shadow-sm flex items-center justify-center overflow-hidden shrink-0">
-                <img src={logo} alt="Aqar Cloud" className="w-9 h-9 object-contain" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-base font-black text-[#222222]">Aqar Cloud</span>
-                <span className="block text-xs font-bold text-[#717171] mt-0.5">إدارة وعرض العقارات بواجهة عملية وواضحة.</span>
-              </span>
+    <footer className={`mt-10 border-t border-zinc-200 bg-[#F7F7F7] font-body ${className}`} dir="rtl">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-6">
+        <div className="mx-auto w-full max-w-md sm:max-w-none rounded-2xl border border-zinc-200 bg-white px-3 py-2.5 shadow-sm">
+          <div className="flex items-center justify-center gap-2 sm:gap-3">
+            <Link
+              to="/support"
+              className="h-9 px-3 rounded-xl bg-[#FF385C] text-white inline-flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-bold hover:bg-[#E31C5F] transition-colors"
+            >
+              <Headphones className="w-3.5 h-3.5" />
+              الدعم الفني
             </Link>
-
-            <div className="flex flex-wrap gap-2">
-              {quickItems.map(({ icon: Icon, label }) => (
-                <span key={label} className="inline-flex items-center gap-1.5 rounded-full border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-bold text-[#717171]">
-                  <Icon className="w-3.5 h-3.5 text-[#FF385C]" />
-                  {label}
-                </span>
-              ))}
-            </div>
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="h-9 w-9 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-700 inline-flex items-center justify-center hover:bg-white hover:text-[#FF385C] transition-colors"
+              aria-label="البريد الإلكتروني"
+            >
+              <Mail className="w-4 h-4" />
+            </a>
+            <a
+              href={whatsappHref}
+              target={SUPPORT_WHATSAPP ? '_blank' : undefined}
+              rel={SUPPORT_WHATSAPP ? 'noreferrer' : undefined}
+              className="h-9 w-9 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-700 inline-flex items-center justify-center hover:bg-white hover:text-[#25D366] transition-colors"
+              aria-label="واتساب"
+            >
+              <WhatsAppIcon className="w-4 h-4" />
+            </a>
+            <a
+              href={xHref}
+              target={SUPPORT_X ? '_blank' : undefined}
+              rel={SUPPORT_X ? 'noreferrer' : undefined}
+              className="h-9 w-9 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-700 inline-flex items-center justify-center hover:bg-white hover:text-zinc-950 transition-colors"
+              aria-label="منصة إكس"
+            >
+              <XIcon className="w-3.5 h-3.5" />
+            </a>
           </div>
+        </div>
 
-          <nav className="grid grid-cols-2 gap-2 text-sm font-bold text-[#222222]">
-            {footerLinks.map(({ to, label }) => (
-              <Link key={to} to={to} className="rounded-2xl px-3 py-2.5 hover:bg-white hover:text-[#FF385C] transition-colors">
-                {label}
+        <nav className="mt-4 flex flex-nowrap items-center justify-center gap-2 sm:gap-4 overflow-x-auto whitespace-nowrap text-[11px] sm:text-xs font-medium text-zinc-500 [-ms-overflow-style:none] [scrollbar-width:none]">
+          {footerLinks.map((link, index) => (
+            <React.Fragment key={link.to}>
+              {index > 0 && <span className="text-zinc-300">-</span>}
+              <Link to={link.to} className="hover:text-[#FF385C] transition-colors">
+                {link.label}
               </Link>
-            ))}
-          </nav>
+            </React.Fragment>
+          ))}
+        </nav>
 
-          <div className="rounded-[1.5rem] border border-[#EBEBEB] bg-white p-4 shadow-[0_18px_45px_rgba(34,34,34,0.05)]">
-            <div className="flex items-start gap-3">
-              <span className="h-11 w-11 rounded-2xl bg-[#FFF1F4] text-[#FF385C] flex items-center justify-center shrink-0">
-                <Headphones className="w-5 h-5" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-black text-[#222222]">الدعم الفني</p>
-                <p className="mt-1 text-xs leading-6 font-bold text-[#717171]">للاستفسارات والمساعدة في الحسابات أو صفحات العقارات.</p>
-              </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <a
-                href={whatsappHref}
-                target={SUPPORT_WHATSAPP ? '_blank' : undefined}
-                rel={SUPPORT_WHATSAPP ? 'noreferrer' : undefined}
-                className="h-11 rounded-full bg-[#FF385C] text-white text-xs font-black flex items-center justify-center gap-2 hover:bg-[#E31C5F] transition-colors"
-              >
-                <WhatsAppIcon className="w-4 h-4" />
-                واتساب
-              </a>
-              <a
-                href={`mailto:${SUPPORT_EMAIL}`}
-                className="h-11 rounded-full border border-[#EBEBEB] bg-[#F7F7F7] text-[#222222] text-xs font-black flex items-center justify-center gap-2 hover:bg-white transition-colors"
-              >
-                <Mail className="w-4 h-4" />
-                البريد
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-7 pt-5 border-t border-[#EBEBEB] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-bold text-[#717171]">
-          <p>© {new Date().getFullYear()} Aqar Cloud. جميع الحقوق محفوظة.</p>
-          <Link to="/support" className="inline-flex items-center gap-1.5 hover:text-[#FF385C] transition-colors">
-            مركز الدعم
-            <ArrowUpLeft className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+        <p className="mt-3 text-center text-[11px] sm:text-xs font-medium text-zinc-400">
+          © {new Date().getFullYear()} عقار كلاود. جميع الحقوق محفوظة.
+        </p>
       </div>
     </footer>
   );
