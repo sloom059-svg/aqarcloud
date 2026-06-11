@@ -83,6 +83,8 @@ export default function CompleteProfile() {
   const [fetchingReviews,setFetchingReviews]=useState(false);
   const [reviewsLeft,setReviewsLeft]=useState(()=>{try{return parseInt(sessionStorage.getItem('reviews_left')??'3');}catch(_){return 3;}});
   const [reviewsFetched,setReviewsFetched]=useState(false);
+  const [fetchedReviews,setFetchedReviews]=useState([]); // التقييمات الـ5 المسحوبة للاختيار منها
+  const [selectedReviewIdx,setSelectedReviewIdx]=useState([]); // مؤشرات التقييمات المختارة (٣ كحد أقصى)
 
   useEffect(()=>{
     if(success)return;
@@ -100,28 +102,80 @@ export default function CompleteProfile() {
   const uploadLogo=async(e)=>{const file=e.target.files?.[0];if(!file)return;setUploadingLogo(true);try{const{file_url}=await base44.integrations.Core.UploadFile({file});setBroker(p=>({...p,office_logo_url:file_url}));}catch(_){}setUploadingLogo(false);};
   const uploadImgs=async(e)=>{const files=Array.from(e.target.files);if(!files.length)return;setUploadingImgs(true);const urls=[...venue.images];for(const file of files.slice(0,10-urls.length)){try{const{file_url}=await base44.integrations.Core.UploadFile({file});urls.push(file_url);}catch(_){}}setV('images',urls);setUploadingImgs(false);};
 
+  // جلب البيانات عبر بروكسي لتجاوز CORS (نفس الطريقة المجرّبة)
+  const serpFetch=async(url)=>{
+    try{
+      const proxy1=`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+      const res1=await fetch(proxy1);
+      if(res1.ok){const text=await res1.text();if(text.trim().startsWith('{'))return JSON.parse(text);}
+    }catch(_){}
+    try{
+      const proxy2=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const res2=await fetch(proxy2);
+      const data2=await res2.json();
+      if(data2.contents&&data2.contents.trim().startsWith('{'))return JSON.parse(data2.contents);
+    }catch(_){}
+    throw new Error('يوجد ضغط على الخادم حالياً، حاول مرة أخرى');
+  };
+
+  const SERP_API_KEY="62a86551bf15b07e99f8c94b14153a8709fe7c0956bcba960ffc23cfb5df435a";
+
   const fetchGoogleReviews=async()=>{
     if(reviewsLeft<=0||!reviewsQuery.trim())return;
     setFetchingReviews(true);
     try{
-      const res=await fetch(`/api/getReviews?query=${encodeURIComponent(reviewsQuery)}`);
-      const data=await res.json();
-      if(data?.error){alert('تعذّر جلب التقييمات: '+data.error);setFetchingReviews(false);return;}
-      const positive=(data?.reviews||[]);
-      setV('google_reviews',positive);
+      // الخطوة 1: ابحث عن المكان للحصول على data_id
+      const searchUrl=`https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(reviewsQuery)}&type=search&hl=ar&gl=sa&api_key=${SERP_API_KEY}`;
+      const searchData=await serpFetch(searchUrl);
+      const place=searchData.place_results||(searchData.local_results&&searchData.local_results[0]);
+      if(!place){alert('لم يتم العثور على المكان، جرّب اسماً أدق كما يظهر في Google Maps');setFetchingReviews(false);return;}
+      const dataId=place.data_id;
+
+      // الخطوة 2: اجلب التقييمات
+      let reviews=[];
+      if(dataId){
+        const reviewsUrl=`https://serpapi.com/search.json?engine=google_maps_reviews&data_id=${encodeURIComponent(dataId)}&hl=ar&api_key=${SERP_API_KEY}`;
+        const reviewsData=await serpFetch(reviewsUrl);
+        reviews=reviewsData?.reviews||[];
+      }
+      if(reviews.length===0&&place.user_reviews?.most_relevant)reviews=place.user_reviews.most_relevant;
+
+      // صفّي الإيجابية (4 نجوم فأعلى) وخذ أفضل 5
+      const positive=reviews
+        .filter(r=>(r.rating||r.stars||0)>=4&&(r.snippet||r.description||r.text))
+        .slice(0,5)
+        .map(r=>({
+          author:r.user?.name||r.username||'ضيف',
+          text:r.snippet||r.description||r.text||'',
+          rating:r.rating||r.stars||5,
+        }));
+
       const newLeft=reviewsLeft-1;
       setReviewsLeft(newLeft);
       sessionStorage.setItem('reviews_left',String(newLeft));
       setReviewsFetched(true);
-      if(positive.length===0)alert('لم يتم العثور على تقييمات لهذا المكان، جرّب اسماً أدق كما يظهر في Google Maps');
-    }catch(e){alert('حدث خطأ في الاتصال: '+e.message);}
 
+      if(positive.length===0){alert('لم يتم العثور على تقييمات إيجابية لهذا المكان');setFetchingReviews(false);return;}
+
+      setFetchedReviews(positive);
+      // اختر تلقائياً أول 3 كبداية
+      setSelectedReviewIdx(positive.slice(0,3).map((_,i)=>i));
+    }catch(e){alert('حدث خطأ: '+e.message);}
     setFetchingReviews(false);
+  };
+
+  // اختيار/إلغاء اختيار تقييم (بحد أقصى 3)
+  const toggleReview=(idx)=>{
+    setSelectedReviewIdx(prev=>{
+      if(prev.includes(idx))return prev.filter(i=>i!==idx);
+      if(prev.length>=3)return prev; // لا يتجاوز 3
+      return [...prev,idx];
+    });
   };
 
   const saveBroker=async()=>{setSaving(true);try{await base44.auth.updateMe({...broker,business_type:role});const successData={type:'broker',theme:'classic'};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
-  const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const created=await base44.entities.Venue.create({...venue,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});await base44.auth.updateMe({business_type:role,office_name:venue.name,phone:venue.whatsapp});const finalSlug=created?.slug||slug;const successData={type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const chosenReviews=selectedReviewIdx.map(i=>fetchedReviews[i]).filter(Boolean);const created=await base44.entities.Venue.create({...venue,google_reviews:chosenReviews.length?chosenReviews:venue.google_reviews,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});await base44.auth.updateMe({business_type:role,office_name:venue.name,phone:venue.whatsapp});const finalSlug=created?.slug||slug;const successData={type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
   const next=()=>{
     if(step===0.5){setStep(1);return;}
@@ -604,18 +658,36 @@ export default function CompleteProfile() {
                 ):(
                   <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4"><p className="text-red-600 text-sm font-bold">انتهت المحاولات المتاحة</p></div>
                 )}
-                {venue.google_reviews?.length>0&&(
+                {fetchedReviews.length>0&&(
                   <div className="space-y-3 mt-4">
-                    <p className="text-xs font-bold text-emerald-600">✓ تم جلب {venue.google_reviews.length} تقييمات إيجابية</p>
-                    {venue.google_reviews.map((r,i)=>(
-                      <div key={i} className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-bold text-sm text-slate-700">{r.author}</span>
-                          <div className="flex gap-0.5">{Array(r.rating).fill(0).map((_,j)=><IconStar key={j} className="w-3 h-3 text-amber-400"/>)}</div>
-                        </div>
-                        <p className="text-xs text-slate-500 leading-relaxed">{r.text?.slice(0,150)}{r.text?.length>150?'...':''}</p>
-                      </div>
-                    ))}
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold text-emerald-600">✓ تم جلب {fetchedReviews.length} تقييمات — اختر حتى ٣ لعرضها</p>
+                      <span className={`text-xs font-black px-2.5 py-1 rounded-full ${selectedReviewIdx.length===3?'bg-emerald-100 text-emerald-700':'bg-slate-100 text-slate-500'}`}>{selectedReviewIdx.length} / 3</span>
+                    </div>
+                    {fetchedReviews.map((r,i)=>{
+                      const isSelected=selectedReviewIdx.includes(i);
+                      const isDisabled=!isSelected&&selectedReviewIdx.length>=3;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={()=>toggleReview(i)}
+                          disabled={isDisabled}
+                          className={`w-full text-right rounded-2xl p-4 border-2 transition-all ${isSelected?'border-[#FF385C] bg-rose-50/40':'border-slate-100 bg-slate-50 hover:border-slate-200'} ${isDisabled?'opacity-40 cursor-not-allowed':'cursor-pointer'}`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm text-slate-700">{r.author}</span>
+                              <div className="flex gap-0.5">{Array(r.rating).fill(0).map((_,j)=><IconStar key={j} className="w-3 h-3 text-amber-400"/>)}</div>
+                            </div>
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected?'bg-[#FF385C]':'bg-slate-200'}`}>
+                              {isSelected&&<Check className="w-3 h-3 text-white"/>}
+                            </div>
+                          </div>
+                          <p className="text-xs text-slate-500 leading-relaxed">{r.text?.slice(0,150)}{r.text?.length>150?'...':''}</p>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
                 <p className="text-xs text-slate-400 mt-4">يمكنك تخطي هذه الخطوة</p>
