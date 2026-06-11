@@ -106,19 +106,19 @@ export default function Login() {
         />
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-start justify-center px-5 pt-4 pb-8 sm:px-8 sm:pt-6 md:pt-12 lg:px-12 lg:pt-14">
+      <div className="relative z-10 min-h-screen flex items-start justify-center px-5 pt-4 pb-4 sm:px-8 sm:pt-6 sm:pb-6 md:pt-12 md:pb-10 lg:px-12 lg:pt-14">
         <div className="w-full max-w-6xl grid lg:grid-cols-[1.05fr_.95fr] gap-8 items-start">
           {/* Right area / form */}
           <section className="order-2 lg:order-1 flex justify-center lg:justify-end">
             <div className="w-full max-w-[440px] animate-login-up">
               <div className="rounded-[2rem] bg-white border border-zinc-200 shadow-[0_28px_70px_rgba(0,0,0,0.08)] p-5 sm:p-7">
                 <div className="mb-5 text-right">
-                  <div className="md:hidden mb-5 flex justify-center">
+                  <div className="md:hidden mb-4 flex justify-center">
                     <BrandMark
                       imageError={imageError}
                       setImageError={setImageError}
                       className="flex items-center justify-center"
-                      imgClassName="max-h-[62px] max-w-[170px]"
+                      imgClassName="max-h-[88px] max-w-[220px]"
                     />
                   </div>
                   <h1 className="text-[1.75rem] sm:text-[2rem] font-black tracking-tight text-zinc-950">
@@ -134,6 +134,22 @@ export default function Login() {
                     {error}
                   </div>
                 )}
+
+                <button
+                  onClick={handleGoogle}
+                  type="button"
+                  disabled={loading}
+                  className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
+                >
+                  <GoogleIcon className="w-5 h-5" />
+                  <span>الدخول بواسطة Google</span>
+                </button>
+
+                <div className="flex items-center gap-3 my-3 opacity-70">
+                  <div className="flex-1 h-px bg-zinc-200" />
+                  <span className="text-[11px] font-black text-zinc-400">أو</span>
+                  <div className="flex-1 h-px bg-zinc-200" />
+                </div>
 
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   <div>
@@ -198,25 +214,9 @@ export default function Login() {
                     )}
                   </button>
                 </form>
-
-                <div className="flex items-center gap-3 my-3 opacity-70">
-                  <div className="flex-1 h-px bg-zinc-200" />
-                  <span className="text-[11px] font-black text-zinc-400">أو</span>
-                  <div className="flex-1 h-px bg-zinc-200" />
-                </div>
-
-                <button
-                  onClick={handleGoogle}
-                  type="button"
-                  disabled={loading}
-                  className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
-                >
-                  <GoogleIcon className="w-5 h-5" />
-                  <span>الدخول بواسطة Google</span>
-                </button>
               </div>
 
-              <p className="text-center mt-5 text-sm text-zinc-500 font-bold">
+              <p className="text-center mt-4 md:mt-5 text-sm text-zinc-500 font-bold">
                 ليس لديك حساب؟{' '}
                 <Link to="/register" className="font-black text-zinc-950 hover:text-[#FF385C] transition-colors">
                   ابدأ كمالك أو وسيط
