@@ -111,7 +111,7 @@ export default function CompleteProfile() {
       const data=await res.json();
       if(data?.error){alert('تعذّر جلب التقييمات: '+data.error);setFetchingReviews(false);return;}
 
-      const positive=(data?.reviews||[]).slice(0,5).map(r=>({
+      const positive=(data?.reviews||[]).slice(0,6).map(r=>({
         author:r.author||'ضيف',
         text:r.text||'',
         rating:r.rating||5,
@@ -125,7 +125,7 @@ export default function CompleteProfile() {
       if(positive.length===0){alert('لم يتم العثور على تقييمات إيجابية لهذا المكان، جرّب اسماً أدق');setFetchingReviews(false);return;}
 
       setFetchedReviews(positive);
-      setSelectedReviewIdx(positive.slice(0,3).map((_,i)=>i));
+      setSelectedReviewIdx(positive.slice(0,4).map((_,i)=>i));
     }catch(e){alert('حدث خطأ: '+e.message);}
     setFetchingReviews(false);
   };
@@ -133,8 +133,8 @@ export default function CompleteProfile() {
   // اختيار/إلغاء اختيار تقييم (بحد أقصى 3)
   const toggleReview=(idx)=>{
     setSelectedReviewIdx(prev=>{
-      if(prev.includes(idx))return prev.filter(i=>i!==idx);
-      if(prev.length>=3)return prev; // لا يتجاوز 3
+      if(prev.includes(idx))return prev.filter(i=>i!==idx); // إلغاء الاختيار
+      if(prev.length>=4)return [...prev.slice(1),idx];       // استبدال الأقدم تلقائياً
       return [...prev,idx];
     });
   };
@@ -637,33 +637,34 @@ export default function CompleteProfile() {
                 {fetchedReviews.length>0&&(
                   <div className="space-y-3 mt-4">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-bold text-emerald-600">✓ تم جلب {fetchedReviews.length} تقييمات — اختر حتى ٣ لعرضها</p>
-                      <span className={`text-xs font-black px-2.5 py-1 rounded-full ${selectedReviewIdx.length===3?'bg-emerald-100 text-emerald-700':'bg-slate-100 text-slate-500'}`}>{selectedReviewIdx.length} / 3</span>
+                      <p className="text-xs font-bold text-emerald-600">✓ تم جلب {fetchedReviews.length} تقييمات — اختر ٤ لعرضها</p>
+                      <span className={`text-xs font-black px-2.5 py-1 rounded-full ${selectedReviewIdx.length===4?'bg-slate-900 text-white':'bg-slate-100 text-slate-500'}`}>{selectedReviewIdx.length} / 4</span>
                     </div>
                     {fetchedReviews.map((r,i)=>{
                       const isSelected=selectedReviewIdx.includes(i);
-                      const maxReached=!isSelected&&selectedReviewIdx.length>=3;
                       return (
                         <button
                           key={i}
                           type="button"
-                          onClick={()=>!maxReached&&toggleReview(i)}
-                          className={`w-full text-right rounded-2xl p-4 border-2 transition-all ${isSelected?'border-[#FF385C] bg-rose-50/40':'border-slate-100 bg-slate-50'} ${maxReached?'opacity-40':'hover:border-slate-300 cursor-pointer'}`}
+                          onClick={()=>toggleReview(i)}
+                          className={`w-full text-right rounded-2xl p-4 border-2 transition-all cursor-pointer ${isSelected?'border-slate-900 bg-slate-900/[0.04]':'border-slate-100 bg-slate-50 hover:border-slate-300'}`}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-sm text-slate-700">{r.author}</span>
                               <div className="flex gap-0.5">{Array(r.rating).fill(0).map((_,j)=><IconStar key={j} className="w-3 h-3 text-amber-400"/>)}</div>
                             </div>
-                            {/* دائرة الاختيار */}
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${isSelected?'bg-[#FF385C] border-[#FF385C]':'border-slate-300 bg-white'}`}>
-                              {isSelected&&<Check className="w-3 h-3 text-white"/>}
-                            </div>
+                            {isSelected&&(
+                              <div className="w-5 h-5 rounded-md bg-slate-900 flex items-center justify-center flex-shrink-0">
+                                <Check className="w-3 h-3 text-white"/>
+                              </div>
+                            )}
                           </div>
                           <p className="text-xs text-slate-500 leading-relaxed">{r.text?.slice(0,150)}{r.text?.length>150?'...':''}</p>
                         </button>
                       );
                     })}
+                    <p className="text-[11px] text-slate-400 text-center">عند اختيار الخامسة سيتم استبدال الأقدم تلقائياً</p>
                   </div>
                 )}
                 <p className="text-xs text-slate-400 mt-4">يمكنك تخطي هذه الخطوة</p>
