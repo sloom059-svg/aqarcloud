@@ -57,6 +57,11 @@ const SocialIcons = {
       <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
     </svg>
   ),
+  snapchat: () => (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+      <path d="M12.206 1.5c.394.006 2.124.063 3.379 1.456.844.938 1.146 2.221 1.146 3.625 0 .49-.028.95-.06 1.36.139.073.32.142.524.142.318-.012.69-.118 1.085-.379.131-.087.288-.13.448-.13.18 0 .36.054.51.158.247.169.37.43.327.71-.06.39-.5.69-1.09.93-.07.03-.16.06-.26.09-.35.11-.88.28-1.02.61-.073.17-.045.39.082.654.013.027 1.262 2.886 4.043 3.345.218.036.376.23.363.45-.004.063-.02.126-.048.186-.203.476-1.06.825-2.62 1.068-.05.067-.1.305-.13.448-.027.127-.055.258-.094.396-.046.166-.165.247-.346.247h-.016c-.087 0-.21-.018-.366-.05-.276-.06-.654-.117-1.124-.117-.276 0-.562.024-.85.072-.557.093-1.033.434-1.584.828-.783.561-1.67 1.196-3.018 1.196l-.16-.003-.13.003c-1.347 0-2.234-.635-3.017-1.196-.55-.394-1.026-.735-1.583-.828-.288-.048-.575-.072-.85-.072-.49 0-.877.063-1.124.116-.146.03-.27.05-.367.05-.234 0-.33-.142-.362-.247-.039-.138-.067-.27-.094-.397-.03-.142-.08-.38-.13-.447-1.56-.243-2.417-.592-2.62-1.07-.028-.058-.044-.12-.048-.185-.013-.22.145-.414.363-.45 2.78-.458 4.03-3.317 4.043-3.345.127-.265.155-.484.082-.654-.14-.33-.67-.5-1.02-.61-.1-.03-.19-.06-.26-.09-.79-.312-1.156-.693-1.09-1.135.05-.32.378-.566.748-.566.13 0 .25.03.36.084.42.276.81.378 1.14.39.24 0 .43-.07.57-.144-.033-.41-.06-.87-.06-1.36 0-1.404.302-2.687 1.146-3.625C9.93 1.563 11.66 1.506 12.054 1.5h.152z"/>
+    </svg>
+  ),
 };
 
 const SOCIAL_LIST = [
@@ -667,6 +672,7 @@ export default function VenuePublicPage() {
                 <div className="flex gap-5">
                   {activeSocials.map(s => {
                     const Icon = SocialIcons[s.key];
+                    if (!Icon) return null;
                     return (
                       <a key={s.key} href={buildSocialUrl(s.key, social[s.key])} target="_blank" rel="noreferrer" title={s.label}
                         className="w-12 h-12 rounded-full bg-[#0f172a] border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37] hover:bg-[#d4af37] hover:text-[#020617] hover:-translate-y-1 transition-all duration-300">
@@ -1002,6 +1008,7 @@ export default function VenuePublicPage() {
               <div className="flex gap-4">
                 {activeSocials.map(s => {
                   const Icon = SocialIcons[s.key];
+                    if (!Icon) return null;
                   return (
                     <a key={s.key} href={buildSocialUrl(s.key, social[s.key])} target="_blank" rel="noreferrer" title={s.label}
                       className="w-12 h-12 rounded-full bg-white border flex items-center justify-center hover:-translate-y-1 transition-all duration-300 shadow-sm"
