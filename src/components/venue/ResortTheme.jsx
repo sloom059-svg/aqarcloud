@@ -34,9 +34,9 @@ export default function ResortTheme({
   const GOLD_LIGHT = '#d8b978';
 
   return (
-    <div dir="rtl" style={{ fontFamily: "'Tajawal', ui-rounded, system-ui, sans-serif", color: '#16130f', background: 'linear-gradient(180deg,#fbf6ec,#fffdf8 45%,#f8f0e2)', minHeight: '100vh', overflowX: 'hidden' }}>
+    <div dir="rtl" style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif", color: '#16130f', background: 'linear-gradient(180deg,#fbf6ec,#fffdf8 45%,#f8f0e2)', minHeight: '100vh', overflowX: 'hidden' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
         .rt-container{width:min(1200px,calc(100% - 36px));margin-inline:auto}
         .rt-btn{min-height:58px;border:0;cursor:pointer;border-radius:20px;padding:0 28px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:900;transition:.2s ease;font-family:inherit;font-size:16px}
         .rt-btn:hover{transform:translateY(-2px)}
