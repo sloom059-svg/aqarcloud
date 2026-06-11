@@ -340,16 +340,27 @@ export default function Dashboard() {
                           <Trash2 className="w-3.5 h-3.5 text-white" />
                         </button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>حذف العقار</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            هل أنت متأكد من حذف هذا العقار؟ لا يمكن التراجع عن هذا الإجراء.
+                      <AlertDialogContent className="max-w-xs rounded-3xl p-0 overflow-hidden border-0 shadow-2xl" style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
+                        <div className="px-6 pt-6 pb-2 text-right">
+                          <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-3 mr-auto" style={{ backgroundColor: '#FFF1F2' }}>
+                            <Trash2 className="w-5 h-5" style={{ color: AIRBNB }} />
+                          </div>
+                          <AlertDialogTitle className="text-base font-bold text-zinc-900 mb-1">حذف العقار</AlertDialogTitle>
+                          <AlertDialogDescription className="text-sm text-zinc-400 font-medium leading-relaxed">
+                            هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.
                           </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter className="gap-2">
-                          <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => deleteMutation.mutate(property.id)}>حذف</AlertDialogAction>
+                        </div>
+                        <AlertDialogFooter className="flex flex-row-reverse gap-2 px-6 pb-5 pt-3">
+                          <AlertDialogAction
+                            onClick={() => deleteMutation.mutate(property.id)}
+                            className="flex-1 h-10 rounded-2xl text-sm font-bold text-white border-0"
+                            style={{ backgroundColor: AIRBNB }}
+                          >
+                            حذف
+                          </AlertDialogAction>
+                          <AlertDialogCancel className="flex-1 h-10 rounded-2xl text-sm font-bold bg-zinc-100 text-zinc-700 border-0 hover:bg-zinc-200">
+                            إلغاء
+                          </AlertDialogCancel>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
