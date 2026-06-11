@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 import logo from '../aqar-cloud-logo.png';
+import SiteFooter from '@/components/layout/SiteFooter';
 
 const AIRBNB = '#FF385C';
 
@@ -253,6 +254,8 @@ export default function Login() {
                 <StatChip>إدارة سهلة للحجوزات</StatChip>
                 <StatChip>دخول سريع عبر Google</StatChip>
               </div>
+
+              <SiteFooter className="!mt-8 !border-t-0 !bg-transparent" />
             </div>
           </section>
         </div>

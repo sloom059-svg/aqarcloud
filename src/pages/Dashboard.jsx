@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import PropertyCard from '@/components/property/PropertyCard';
 import PropertyCardExport from '@/components/property/PropertyCardExport';
+import SiteFooter from '@/components/layout/SiteFooter';
 
 const AIRBNB = '#FF385C';
 
@@ -357,6 +358,8 @@ export default function Dashboard() {
           )}
         </main>
       </div>
+
+      <SiteFooter className="mt-4" />
 
       {/* Export Dialog */}
       <Dialog open={!!exportProperty} onOpenChange={() => setExportProperty(null)}>
