@@ -121,20 +121,23 @@ export default function BookingSheet({
               />
             </div>
 
-            {/* التواريخ */}
+            {/* التواريخ — معبّأة من الصفحة، قابلة للتعديل بالنقر */}
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: labelColor, marginBottom: 6 }}>فترة الإقامة <span style={{ color: '#f87171' }}>*</span></label>
-              {(bookingForm.check_in && bookingForm.check_out) ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 12, border: `2px solid ${accent}50`, background: inputBg, padding: '10px 14px' }}>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: textColor }}>{bookingForm.check_in} ← {bookingForm.check_out}</span>
-                  <button onClick={() => setBookingForm(p => ({ ...p, check_in: '', check_out: '' }))}
-                    style={{ fontSize: 11, fontWeight: 700, color: '#f87171', background: 'none', border: 'none', cursor: 'pointer' }}>تغيير</button>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div style={{ borderRadius: 12, border: `2px solid ${inputBorder}`, background: inputBg, padding: '8px 12px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: labelColor, marginBottom: 2 }}>الوصول</div>
+                  <input type="date" value={bookingForm.check_in || ''}
+                    onChange={e => setBookingForm(p => ({ ...p, check_in: e.target.value }))}
+                    style={{ width: '100%', background: 'transparent', border: 'none', color: textColor, fontFamily: "'Tajawal', sans-serif", fontSize: 13, fontWeight: 700, outline: 'none', cursor: 'pointer', padding: 0, colorScheme: dark ? 'dark' : 'light' }} />
                 </div>
-              ) : (
-                <div style={{ border: `2px solid ${inputBorder}`, borderRadius: 12, padding: 8, background: inputBg }}>
-                  <VenueCalendar bookedDates={bookedDates} onRangeSelect={(start, end) => setBookingForm(p => ({ ...p, check_in: start, check_out: end }))} readOnly={false} accent={accent} />
+                <div style={{ borderRadius: 12, border: `2px solid ${inputBorder}`, background: inputBg, padding: '8px 12px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: labelColor, marginBottom: 2 }}>المغادرة</div>
+                  <input type="date" value={bookingForm.check_out || ''}
+                    onChange={e => setBookingForm(p => ({ ...p, check_out: e.target.value }))}
+                    style={{ width: '100%', background: 'transparent', border: 'none', color: textColor, fontFamily: "'Tajawal', sans-serif", fontSize: 13, fontWeight: 700, outline: 'none', cursor: 'pointer', padding: 0, colorScheme: dark ? 'dark' : 'light' }} />
                 </div>
-              )}
+              </div>
             </div>
 
             {/* ملاحظات */}
