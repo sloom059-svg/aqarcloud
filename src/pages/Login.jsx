@@ -203,7 +203,7 @@ export default function Login() {
       </section>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
 
         :root {
           --aq-brand:#ff385c;
@@ -226,7 +226,7 @@ export default function Login() {
           padding:28px;
           display:grid;
           place-items:center;
-          font-family:"IBM Plex Sans Arabic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          font-family:"Tajawal", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           color:var(--aq-ink);
           background:
             radial-gradient(circle at 12% 13%, rgba(255,56,92,.12), transparent 28%),
@@ -691,9 +691,10 @@ export default function Login() {
 
         @media (max-width:680px) {
           .aq-login-page {
-            padding:0;
-            display:block;
+            padding:16px;
             min-height:100vh;
+            display:grid;
+            place-items:start center;
             background:
               radial-gradient(circle at 18% 5%, rgba(255,56,92,.12), transparent 26%),
               linear-gradient(135deg, #fff 0%, #fff8f7 100%);
@@ -701,13 +702,15 @@ export default function Login() {
 
           .aq-login-shell {
             width:100%;
-            min-height:100vh;
+            min-height:auto;
             display:block;
-            border:0;
-            border-radius:0;
-            box-shadow:none;
-            background:#fff;
-            overflow:visible;
+            border:1px solid rgba(255,255,255,.92);
+            border-radius:28px;
+            box-shadow:0 22px 58px rgba(30,23,20,.10);
+            background:rgba(255,255,255,.82);
+            overflow:hidden;
+            backdrop-filter:blur(20px);
+            margin-top:10px;
           }
 
           .aq-text-side {
@@ -715,12 +718,12 @@ export default function Login() {
           }
 
           .aq-login-side {
-            min-height:100vh;
-            padding:44px 20px 28px;
+            min-height:auto;
+            padding:32px 20px 24px;
             align-items:flex-start;
             background:
               radial-gradient(circle at 90% 8%, rgba(255,56,92,.09), transparent 28%),
-              linear-gradient(135deg, #fff, #fff8f7);
+              linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,248,247,.96));
           }
 
           .aq-login-card {
@@ -729,19 +732,21 @@ export default function Login() {
 
           .aq-login-logo {
             width:68px;
-            margin-bottom:16px;
+            margin-bottom:15px;
           }
 
           .aq-welcome {
-            margin-bottom:26px;
+            margin-bottom:24px;
           }
 
           .aq-welcome h1 {
             font-size:30px;
+            letter-spacing:-.6px;
           }
 
           .aq-welcome p {
             font-size:14.5px;
+            line-height:1.65;
           }
 
           .aq-form-tools {
