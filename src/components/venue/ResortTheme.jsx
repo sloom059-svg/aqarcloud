@@ -16,7 +16,7 @@ const FEATURE_ICONS = {
 };
 
 export default function ResortTheme({
-  venue, imgs = [], reviews = [], youtubeVideos = [], getYoutubeId,
+  venue, imgs = [], logo = '', reviews = [], youtubeVideos = [], getYoutubeId,
   bookingsEnabled, onBook,
 }) {
   const heroImg = imgs[0] || 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1600&q=80';
@@ -77,9 +77,13 @@ export default function ResortTheme({
       <header style={{ position: 'fixed', width: '100%', top: 0, zIndex: 40, background: 'rgba(255,255,255,.9)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${SOFT}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 40, height: 40, background: TEAL, color: GOLD, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transform: 'rotate(45deg)' }}>
-              <Gem size={18} style={{ transform: 'rotate(-45deg)' }} />
-            </div>
+            {logo ? (
+              <img src={logo} alt={venue.name} style={{ width: 46, height: 46, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${GOLD}`, boxShadow: '0 4px 12px rgba(10,38,41,.15)' }} />
+            ) : (
+              <div style={{ width: 40, height: 40, background: TEAL, color: GOLD, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transform: 'rotate(45deg)' }}>
+                <Gem size={18} style={{ transform: 'rotate(-45deg)' }} />
+              </div>
+            )}
             <span style={{ fontWeight: 700, fontSize: 20, letterSpacing: 2 }}>{venue.name}</span>
           </div>
           {bookingsEnabled && (
