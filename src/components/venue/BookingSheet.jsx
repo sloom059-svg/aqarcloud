@@ -168,12 +168,6 @@ export default function BookingSheet({
               {isPending ? <><Loader2 size={16} className="animate-spin" /> جاري الإرسال...</> : 'تأكيد إرسال الطلب'}
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <div style={{ width: 4, height: 4, borderRadius: '50%', background: accent }} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: labelColor, letterSpacing: 2 }}>Powered by Aqar Cloud</span>
-              <div style={{ width: 4, height: 4, borderRadius: '50%', background: accent }} />
-            </div>
-
           </div>
         )}
       </div>
