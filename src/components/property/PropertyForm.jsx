@@ -243,11 +243,16 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
     setFetchingPlaces(true);
     setPlacesError('');
     try {
-      const res = await base44.functions.invoke('getNearbyPlaces', { maps_url: form.maps_url });
-      if (res.data?.places) {
-        setForm(prev => ({ ...prev, nearby_places: res.data.places }));
+      const res = await fetch('/api/getNearbyPlaces', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maps_url: form.maps_url }),
+      });
+      const data = await res.json();
+      if (data?.places?.length) {
+        setForm(prev => ({ ...prev, nearby_places: data.places }));
       } else {
-        setPlacesError(res.data?.error || 'تعذر جلب الأماكن القريبة');
+        setPlacesError(data?.error || 'لم يتم العثور على أماكن قريبة، جرّب رابطاً مختلفاً');
       }
     } catch (_) {
       setPlacesError('تعذر جلب الأماكن القريبة');
