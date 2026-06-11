@@ -245,6 +245,12 @@ export default function Login() {
           --shadow-soft:0 14px 35px rgba(30, 23, 20, .08);
         }
 
+        html[lang="ar"] body,
+        .aq-login-page,
+        .aq-login-page *{
+          font-family:"Tajawal", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+        }
+
         .aq-login-page,
         .aq-login-page *{box-sizing:border-box}
 
@@ -254,7 +260,7 @@ export default function Login() {
           padding:28px;
           display:grid;
           place-items:center;
-          font-family:"Tajawal", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          font-family:"Tajawal", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
           color:var(--ink);
           background:
             radial-gradient(circle at 12% 13%, rgba(255,56,92,.12), transparent 28%),
