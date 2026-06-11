@@ -335,7 +335,6 @@ export default function Dashboard() {
                       <AlertDialogTrigger asChild>
                         <button
                           className="h-8 w-8 bg-rose-500 shadow-lg rounded-xl flex items-center justify-center hover:bg-rose-600 transition-colors"
-                          onClick={(e) => e.preventDefault()}
                           title="حذف"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-white" />
