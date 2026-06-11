@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import VenueCalendar from '@/components/venue/VenueCalendar';
 import BookingSheet from '@/components/venue/BookingSheet';
+import ResortTheme from '@/components/venue/ResortTheme';
 import {
   MapPin, Clock, Loader2, ChevronLeft, ChevronRight,
   Star, ShieldCheck, Waves, Coffee, Wifi, Gamepad2, UtensilsCrossed,
@@ -179,7 +180,7 @@ export default function VenuePublicPage() {
     });
   };
 
-  const accent = isRoyal ? ROYAL_GOLD : (venue?.theme_color || DEFAULT_ACCENT);
+  const accent = isRoyal ? ROYAL_GOLD : (venue?.page_theme === 'resort' ? '#b58b3b' : (venue?.theme_color || DEFAULT_ACCENT));
 
   if (isLoading) return (
     <div className={`min-h-screen flex items-center justify-center ${isRoyal ? 'bg-[#020617]' : 'bg-[#fcfcfc]'}`}>
@@ -301,6 +302,39 @@ export default function VenuePublicPage() {
       </button>
     );
   };
+
+  /* ════════════════════════════════════════════════════════
+     ثيم المنتجع الفاخر (resort)
+  ════════════════════════════════════════════════════════ */
+  if (venue?.page_theme === 'resort') {
+    return (
+      <>
+        <ResortTheme
+          venue={venue}
+          accent={accent}
+          imgs={imgs}
+          reviews={venue.google_reviews || []}
+          youtubeVideos={youtubeVideos}
+          getYoutubeId={getYoutubeId}
+          bookingsEnabled={bookingsEnabled}
+          onBook={() => setBookingOpen(true)}
+        />
+        <BookingSheet
+          open={bookingOpen}
+          onClose={() => setBookingOpen(false)}
+          accent={accent}
+          venueName={venue.name}
+          bookingForm={bookingForm}
+          setBookingForm={setBookingForm}
+          bookingDone={bookingDone}
+          setBookingDone={setBookingDone}
+          bookedDates={bookedDates}
+          handleBook={handleBook}
+          isPending={bookMutation.isPending}
+        />
+      </>
+    );
+  }
 
   /* ════════════════════════════════════════════════════════
      الثيم الأسود الملكي
