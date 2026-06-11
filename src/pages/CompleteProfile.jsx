@@ -223,7 +223,7 @@ export default function CompleteProfile() {
                 </div>
                 <h2 className="text-xl font-black mb-3">خطوتك الجاية</h2>
                 <div className="space-y-4 text-sm text-white/75 leading-relaxed">
-                  <p>١. عاين صفحتك وتأكد أن الصور والمعلومات ظاهرة بالشكل المطلوب.</p>
+                  <p>١. شاهد صفحتك وتأكد أن الصور والمعلومات ظاهرة بالشكل المطلوب.</p>
                   <p>٢. ارجع هنا واضغط دخول لوحة التحكم لإدارة بياناتك.</p>
                   <p>٣. تجربتك المجانية مفعّلة لمدة ٣٠ يوم من الآن.</p>
                 </div>
