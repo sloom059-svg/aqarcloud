@@ -507,7 +507,7 @@ export default function CompleteProfile() {
                 
                 <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">كيف تبي شكل صفحتك؟ 🎨</h2>
                 <p className="text-slate-500 text-sm mb-6">اختر الثيم اللي يناسب هوية مكانك.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <button onClick={()=>setV('page_theme','classic')}
                     className={`choice-card relative bg-white border-2 rounded-[2rem] p-6 text-right overflow-hidden transition-all ${venue.page_theme==='classic'?'border-slate-700':'border-slate-100'}`}>
                     <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-blue-400 to-emerald-400"/>
@@ -521,6 +521,14 @@ export default function CompleteProfile() {
                     <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-4"><Crown className="w-6 h-6 text-yellow-400"/></div>
                     <h3 className="font-bold text-base text-white">الأسود الملكي</h3>
                     <p className="text-sm text-slate-400 mt-1">فخامة داكنة بلمسات ذهبية.</p>
+                  </button>
+                  <button onClick={()=>{setV('page_theme','resort');setTimeout(next,280);}}
+                    className={`choice-card relative border-2 rounded-[2rem] p-6 text-right overflow-hidden transition-all hover:border-[#b58b3b] ${venue.page_theme==='resort'?'border-[#b58b3b]':'border-amber-100'}`}
+                    style={{background:'linear-gradient(180deg,#fbf6ec,#f5efe4)'}}>
+                    <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-[#526343] to-[#d8b978]"/>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{background:'#172419'}}><Sparkles className="w-6 h-6" style={{color:'#d8b978'}}/></div>
+                    <h3 className="font-bold text-base" style={{color:'#16130f'}}>المنتجع الفاخر</h3>
+                    <p className="text-sm mt-1" style={{color:'#71685f'}}>طابع عالمي ذهبي وزيتوني راقٍ.</p>
                   </button>
                 </div>
                 {venue.page_theme==='classic'&&(
