@@ -56,7 +56,7 @@ const item = (Icon, label, value) => {
   if (value === undefined || value === null || value === '' || value === 0) return null;
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-600">
-      <Icon className="w-3.5 h-3.5 text-zinc-400" />
+      <Icon className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
       <span className="text-zinc-400">{label}</span>
       <span className="text-zinc-800">{value}</span>
     </span>
