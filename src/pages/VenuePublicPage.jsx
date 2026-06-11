@@ -143,12 +143,8 @@ export default function VenuePublicPage() {
 
   const bookMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
-    onSuccess: (_, vars) => {
+    onSuccess: () => {
       setBookingDone(true);
-      if (venue?.whatsapp) {
-        const msg = `طلب حجز\nالاسم: ${vars.client_name}\nالجوال: ${vars.client_phone}\nدخول: ${vars.check_in}\nخروج: ${vars.check_out}\nملاحظات: ${vars.notes || 'لا يوجد'}`;
-        window.open(`https://wa.me/${venue.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
-      }
     }
   });
 
@@ -643,6 +639,7 @@ export default function VenuePublicPage() {
           bookedDates={bookedDates}
           handleBook={handleBook}
           isPending={bookMutation.isPending}
+          dark={true}
         />
       </>
     );
