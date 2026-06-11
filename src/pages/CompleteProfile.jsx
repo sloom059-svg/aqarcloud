@@ -632,21 +632,21 @@ export default function CompleteProfile() {
                     </div>
                     {fetchedReviews.map((r,i)=>{
                       const isSelected=selectedReviewIdx.includes(i);
-                      const isDisabled=!isSelected&&selectedReviewIdx.length>=3;
+                      const maxReached=!isSelected&&selectedReviewIdx.length>=3;
                       return (
                         <button
                           key={i}
                           type="button"
-                          onClick={()=>toggleReview(i)}
-                          disabled={isDisabled}
-                          className={`w-full text-right rounded-2xl p-4 border-2 transition-all ${isSelected?'border-[#FF385C] bg-rose-50/40':'border-slate-100 bg-slate-50 hover:border-slate-200'} ${isDisabled?'opacity-40 cursor-not-allowed':'cursor-pointer'}`}
+                          onClick={()=>!maxReached&&toggleReview(i)}
+                          className={`w-full text-right rounded-2xl p-4 border-2 transition-all ${isSelected?'border-[#FF385C] bg-rose-50/40':'border-slate-100 bg-slate-50'} ${maxReached?'opacity-40':'hover:border-slate-300 cursor-pointer'}`}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-sm text-slate-700">{r.author}</span>
                               <div className="flex gap-0.5">{Array(r.rating).fill(0).map((_,j)=><IconStar key={j} className="w-3 h-3 text-amber-400"/>)}</div>
                             </div>
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected?'bg-[#FF385C]':'bg-slate-200'}`}>
+                            {/* دائرة الاختيار */}
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${isSelected?'bg-[#FF385C] border-[#FF385C]':'border-slate-300 bg-white'}`}>
                               {isSelected&&<Check className="w-3 h-3 text-white"/>}
                             </div>
                           </div>
