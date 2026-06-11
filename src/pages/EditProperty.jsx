@@ -135,7 +135,7 @@ export default function EditProperty() {
               </div>
               <h2 className="text-xl font-black text-zinc-950">تعديل بيانات العقار</h2>
               <p className="text-sm font-bold text-zinc-500 leading-7 mt-2">
-                نفس تجربة لوحة تحكم الوسيط بثيم BNB الفاتح، عدّل التفاصيل والصور والسعر ثم احفظ التغييرات.
+                حدّث بيانات العقار وتأكد من صحة التفاصيل والصور والسعر قبل حفظ التغييرات.
               </p>
 
               <div className="mt-5 grid gap-2 text-xs font-bold text-zinc-500">
