@@ -120,6 +120,9 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ['my-properties'] });
       showToast('تم حذف العقار بنجاح');
     },
+    onError: (err) => {
+      showToast('فشل الحذف: ' + (err?.message || 'تحقق من صلاحيات RLS في Supabase'));
+    },
   });
 
 
