@@ -104,15 +104,18 @@ export default function CompleteProfile() {
     if(reviewsLeft<=0||!reviewsQuery.trim())return;
     setFetchingReviews(true);
     try{
-      const res=await fetch(`/api/getNearbyPlaces?query=${encodeURIComponent(reviewsQuery)}&type=reviews`);
+      const res=await fetch(`/api/getReviews?query=${encodeURIComponent(reviewsQuery)}`);
       const data=await res.json();
-      const positive=(data?.reviews||[]).filter(r=>r.rating>=4).slice(0,4).map(r=>({author:r.author_name,text:r.text,rating:r.rating}));
+      if(data?.error){alert('تعذّر جلب التقييمات: '+data.error);setFetchingReviews(false);return;}
+      const positive=(data?.reviews||[]);
       setV('google_reviews',positive);
       const newLeft=reviewsLeft-1;
       setReviewsLeft(newLeft);
       sessionStorage.setItem('reviews_left',String(newLeft));
       setReviewsFetched(true);
-    }catch(_){}
+      if(positive.length===0)alert('لم يتم العثور على تقييمات لهذا المكان، جرّب اسماً أدق كما يظهر في Google Maps');
+    }catch(e){alert('حدث خطأ في الاتصال: '+e.message);}
+
     setFetchingReviews(false);
   };
 
