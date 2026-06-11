@@ -522,11 +522,11 @@ export default function VenueForm() {
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'resort' }))}
                 className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'resort' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
                 {form.page_theme === 'resort' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
-                <div className="h-16 rounded-xl mb-3 border border-[#d8b978]/40 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#fbf6ec,#f5efe4)' }}>
-                  <Sparkles className="w-6 h-6" style={{ color: '#b58b3b' }} />
+                <div className="h-16 rounded-xl mb-3 border border-[#D4B982]/40 flex items-center justify-center" style={{ background: '#E8F0F0' }}>
+                  <Sparkles className="w-6 h-6" style={{ color: '#0A2629' }} />
                 </div>
                 <div className="font-bold text-sm">المنتجع الفاخر</div>
-                <div className="text-xs text-muted-foreground mt-0.5">طابع عالمي ذهبي وزيتوني</div>
+                <div className="text-xs text-muted-foreground mt-0.5">تيل داكن فاخر بلمسات ذهبية</div>
               </button>
             </div>
 
@@ -561,7 +561,7 @@ export default function VenueForm() {
             )}
             {form.page_theme === 'resort' && (
               <p className="text-xs text-muted-foreground pt-2 border-t border-border">
-                ثيم المنتجع الفاخر يستخدم تدرجات ذهبية وزيتونية تلقائياً، لذلك لا حاجة لاختيار لون.
+                ثيم المنتجع الفاخر يستخدم ألوان التيل الداكن والذهبي تلقائياً، لذلك لا حاجة لاختيار لون.
               </p>
             )}
           </CardContent>
