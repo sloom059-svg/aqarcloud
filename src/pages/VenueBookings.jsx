@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { base44, supabase } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -176,6 +176,24 @@ export default function VenueBookings() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // ── Realtime: يحدّث الإشعارات فوراً لما يجي حجز جديد ──
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel('bookings-realtime-vb')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'booking',
+        filter: `owner_id=eq.${user.id}`,
+      }, () => {
+        qc.invalidateQueries({ queryKey: ['bookings-all', user.id] });
+        qc.invalidateQueries({ queryKey: ['venue-bookings', id] });
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [user?.id, id, qc]);
 
   const showToast = (msg) => { setToastMessage(msg); setTimeout(() => setToastMessage(''), 3000); };
   const handleLogout = async () => { await logout(false); navigate('/login'); };
