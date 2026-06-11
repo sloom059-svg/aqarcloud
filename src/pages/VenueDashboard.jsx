@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { base44, supabase } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -139,6 +139,23 @@ export default function VenueDashboard() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // ── Realtime: يحدّث الإشعارات فوراً لما يجي حجز جديد ──
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel('bookings-realtime')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'booking',
+        filter: `owner_id=eq.${user.id}`,
+      }, () => {
+        qc.invalidateQueries({ queryKey: ['bookings-all', user.id] });
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [user?.id, qc]);
 
   const { data: venues = [], isLoading } = useQuery({
     queryKey: ['venues', user?.id],
