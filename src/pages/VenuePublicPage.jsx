@@ -952,26 +952,6 @@ export default function VenuePublicPage() {
             </div>
           )}
 
-          {bookingsEnabled && venue.booking_terms && (
-            <div className="mb-8">
-              <button onClick={() => setTermsOpen(o => !o)}
-                className="w-full flex items-center justify-between bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-gray-50">
-                    <Info className="w-5 h-5 text-gray-500" />
-                  </div>
-                  <span className="font-black text-sm text-gray-900">شروط الإقامة</span>
-                </div>
-                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${termsOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {termsOpen && (
-                <div className="bg-gray-50 border border-gray-100 border-t-0 rounded-b-2xl px-5 py-4 -mt-2">
-                  <p className="text-sm text-gray-600 font-medium leading-relaxed whitespace-pre-wrap pt-2">{venue.booking_terms}</p>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* تقييمات Google — classic */}
           {venue.google_reviews?.length > 0 && (
             <div className="py-12 border-t border-gray-100">
