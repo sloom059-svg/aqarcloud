@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown,
+  Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown, Sparkles,
   Star, ShieldCheck, Waves, Wifi, UtensilsCrossed, Tv, Dumbbell, Bath,
   Wind, Music, Camera, Heart, Gift, Mountain, Car, Bed, Flame, Trees, Instagram, ChevronDown,
   Bell, Wallet, LogOut, User, ChevronRight, CalendarCheck
@@ -498,10 +498,10 @@ export default function VenueForm() {
         <Card>
           <CardHeader><CardTitle className="text-base">شكل صفحة العرض (الثيم)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'classic' }))}
-                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${isClassic ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
-                {isClassic && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
+                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'classic' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'classic' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
                 <div className="h-16 rounded-xl mb-3 bg-gradient-to-br from-gray-50 to-gray-200 border border-gray-200 flex items-center justify-center">
                   <Sun className="w-6 h-6 text-amber-500" />
                 </div>
@@ -510,13 +510,23 @@ export default function VenueForm() {
               </button>
 
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'royal' }))}
-                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${!isClassic ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
-                {!isClassic && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
+                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'royal' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'royal' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
                 <div className="h-16 rounded-xl mb-3 bg-gradient-to-br from-[#020617] to-[#0f172a] border border-[#d4af37]/30 flex items-center justify-center">
                   <Crown className="w-6 h-6 text-[#d4af37]" />
                 </div>
                 <div className="font-bold text-sm">الأسود الملكي</div>
                 <div className="text-xs text-muted-foreground mt-0.5">فخامة سوداء بلمسات ذهبية</div>
+              </button>
+
+              <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'resort' }))}
+                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'resort' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'resort' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
+                <div className="h-16 rounded-xl mb-3 border border-[#d8b978]/40 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#fbf6ec,#f5efe4)' }}>
+                  <Sparkles className="w-6 h-6" style={{ color: '#b58b3b' }} />
+                </div>
+                <div className="font-bold text-sm">المنتجع الفاخر</div>
+                <div className="text-xs text-muted-foreground mt-0.5">طابع عالمي ذهبي وزيتوني</div>
               </button>
             </div>
 
@@ -544,9 +554,14 @@ export default function VenueForm() {
                 </div>
               </div>
             )}
-            {!isClassic && (
+            {form.page_theme === 'royal' && (
               <p className="text-xs text-muted-foreground pt-2 border-t border-border">
                 الثيم الأسود الملكي يستخدم اللون الذهبي تلقائياً، لذلك لا حاجة لاختيار لون.
+              </p>
+            )}
+            {form.page_theme === 'resort' && (
+              <p className="text-xs text-muted-foreground pt-2 border-t border-border">
+                ثيم المنتجع الفاخر يستخدم تدرجات ذهبية وزيتونية تلقائياً، لذلك لا حاجة لاختيار لون.
               </p>
             )}
           </CardContent>
