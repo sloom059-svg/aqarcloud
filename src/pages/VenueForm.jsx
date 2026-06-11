@@ -14,7 +14,7 @@ import {
   Upload, X, Loader2, Plus, Trash2, Check, Sun, Crown,
   Star, ShieldCheck, Waves, Wifi, UtensilsCrossed, Tv, Dumbbell, Bath,
   Wind, Music, Camera, Heart, Gift, Mountain, Car, Bed, Flame, Trees, Instagram, ChevronDown,
-  Bell, Wallet, LogOut, User, ChevronRight
+  Bell, Wallet, LogOut, User, ChevronRight, CalendarCheck
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CityCombobox from '@/components/venue/CityCombobox';
@@ -36,6 +36,7 @@ const CUSTOM_ICON_OPTIONS = [
 ];
 
 const MAX_YOUTUBE = 5;
+const AIRBNB = '#FF385C';
 
 const TikTokIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -145,17 +146,17 @@ function ProfileMenu({ onLogout }) {
   return (
     <div className="relative" ref={ref}>
       <button onClick={() => setOpen(!open)}
-        className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-all text-white/90 hover:text-white flex items-center gap-1">
+        className="h-9 w-9 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]">
         <LogOut className="w-4 h-4" />
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute left-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50">
-          <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium">
-            <User className="w-4 h-4 text-[#15317E]" /> الملف الشخصي
+        <div className="absolute left-0 top-full mt-3 w-48 bg-white rounded-3xl shadow-2xl border border-zinc-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+          <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors font-bold">
+            <User className="w-4 h-4 text-[#FF385C]" /> الملف الشخصي
           </Link>
-          <div className="h-px bg-slate-100" />
-          <button onClick={() => { setOpen(false); onLogout(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-medium">
+          <div className="h-px bg-zinc-100" />
+          <button onClick={() => { setOpen(false); onLogout(); }} className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-bold">
             <LogOut className="w-4 h-4" /> تسجيل الخروج
           </button>
         </div>
@@ -182,6 +183,7 @@ export default function VenueForm() {
     page_theme: 'classic',
     price_weekday: '', price_weekend: '',
     whatsapp: '', check_in_time: '14:00', check_out_time: '12:00',
+    booking_enabled: true,
     booking_terms: '', features: [], status: 'نشط', slug: '',
     theme_color: '#c9a96e',
   });
@@ -209,6 +211,7 @@ export default function VenueForm() {
       page_theme: existing.page_theme || 'classic',
       theme_color: existing.theme_color || '#c9a96e',
       social: { instagram: '', snapchat: '', tiktok: '', x: '', ...(existing.social || {}) },
+      booking_enabled: existing.booking_enabled !== false,
     }));
   }, [existing]);
 
@@ -313,35 +316,35 @@ export default function VenueForm() {
 
   // ══ شاشة النجاح ══
   if (successVenue) return (
-    <div dir="rtl" className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center font-sans">
+    <div dir="rtl" className="fixed inset-0 z-50 bg-[#F7F7F7] flex flex-col items-center justify-center p-6 text-center">
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        body { font-family: 'Tajawal', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
       `}} />
       <div className="relative mb-8">
-        <div className="absolute inset-0 bg-[#15317E] rounded-full blur-2xl opacity-20 animate-pulse" />
-        <div className="w-28 h-28 bg-[#15317E] rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white">
+        <div className="absolute inset-0 bg-zinc-950 rounded-full blur-2xl opacity-20 animate-pulse" />
+        <div className="w-28 h-28 bg-zinc-950 rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white">
           <PartyPopper className="w-12 h-12 text-white" />
         </div>
       </div>
-      <h1 className="text-3xl font-black text-[#15317E] mb-3">تم الإضافة بنجاح</h1>
+      <h1 className="text-3xl font-black text-zinc-950 mb-3">تم الإضافة بنجاح</h1>
       <p className="text-slate-500 text-sm mb-10 max-w-[280px] leading-relaxed">
-        تم إعداد صفحة <span className="font-bold text-[#15317E]">{successVenue.name}</span> بنجاح. يمكنك الآن البدء في استقبال الحجوزات.
+        تم إعداد صفحة <span className="font-bold text-zinc-950">{successVenue.name}</span> بنجاح. يمكنك الآن البدء في استقبال الحجوزات.
       </p>
       <div className="w-full space-y-3 max-w-sm">
         <button onClick={() => navigate('/venue')}
-          className="w-full py-4 bg-[#15317E] hover:bg-[#0d1e4c] text-white rounded-2xl font-bold text-sm shadow-xl shadow-[#15317E]/30 transition-all flex items-center justify-center gap-2">
+          className="w-full py-4 bg-zinc-950 hover:bg-black text-white rounded-2xl font-bold text-sm shadow-xl shadow-zinc-950/20 transition-all flex items-center justify-center gap-2">
           <LayoutDashboard className="w-5 h-5" /> انتقل إلى لوحة التحكم
         </button>
         <button onClick={() => {
           if (navigator.share) { navigator.share({ title: successVenue.name, url: successVenue.url }).catch(() => {}); }
           else { navigator.clipboard.writeText(successVenue.url); toast.success('تم نسخ الرابط'); }
         }}
-          className="w-full py-4 bg-white border border-slate-200 hover:border-[#15317E] hover:text-[#15317E] text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+          className="w-full py-4 bg-white border border-slate-200 hover:border-[#FF385C] hover:text-zinc-950 text-slate-700 rounded-2xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
           <Share2 className="w-5 h-5" /> مشاركة الصفحة
         </button>
         <button onClick={() => window.open(successVenue.url, '_blank')}
-          className="w-full py-4 bg-transparent text-slate-500 hover:text-[#15317E] rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+          className="w-full py-4 bg-transparent text-slate-500 hover:text-zinc-950 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2">
           <Eye className="w-4 h-4" /> شاهد صفحة الشاليه
         </button>
       </div>
@@ -350,67 +353,94 @@ export default function VenueForm() {
 
   // ══ الصفحة الرئيسية ══
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F8FAFC] font-sans pb-10 relative">
+    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] pb-10 relative">
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        body { font-family: 'Tajawal', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
       `}} />
 
-      {/* الخلفية الزرقاء */}
-      <div className="absolute top-0 left-0 right-0 h-[120px] bg-[#15317E] rounded-b-[2.5rem] shadow-lg" />
-
-      <div className="relative z-10 max-w-2xl mx-auto px-4">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* الهيدر الموحّد */}
-        <header className="pt-7 pb-5 flex items-center justify-between text-white">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/venue')} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all">
-              <ChevronRight className="w-5 h-5" />
-            </button>
-            <div className="relative flex-shrink-0">
-              <div className="w-11 h-11 rounded-full border-2 border-white/30 bg-white/10 overflow-hidden flex items-center justify-center shadow-lg">
-                {user?.office_logo_url ? (
-                  <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-lg font-bold text-white">{(form.name || 'ش')[0]}</span>
-                )}
+        <header className="pt-4 sm:pt-5 pb-3">
+          <div className="rounded-[1.6rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-3.5">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <button
+                  type="button"
+                  onClick={() => navigate('/venue')}
+                  className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center shadow-sm active:scale-[0.98] shrink-0"
+                  title="العودة للوحة التحكم"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+
+                <div className="relative flex-shrink-0">
+                  <div className="w-[58px] h-[58px] sm:w-[68px] sm:h-[68px] rounded-[1.45rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                    {user?.office_logo_url ? (
+                      <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-2xl font-black text-zinc-950">
+                        {(user?.full_name || user?.office_name || form.name || 'م')[0]}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-[11px] sm:text-xs font-black text-zinc-400 leading-none mb-1">
+                    لوحة التحكم
+                  </p>
+                  <h1 className="text-[15px] sm:text-xl font-black text-zinc-950 flex items-center gap-1.5 min-w-0 leading-tight">
+                    <span className="truncate min-w-0 max-w-[160px] sm:max-w-none">{isEdit ? 'تعديل الشاليه' : 'إضافة مكان جديد'}</span>
+                  </h1>
+                  <p className="text-[11px] sm:text-xs text-zinc-500 font-bold mt-1 truncate max-w-[190px] sm:max-w-none">
+                    {form.name || user?.office_name || 'بيانات المكان'}
+                  </p>
+                </div>
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#15317E] rounded-full" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold leading-tight">{isEdit ? 'تعديل المكان' : 'إضافة مكان جديد'}</h1>
-              <p className="text-[11px] text-white/70 mt-0.5">{form.name || 'منشأتي'}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <button onClick={() => setShowNotifs(!showNotifs)}
-                className={`relative p-2.5 rounded-xl backdrop-blur-md transition-all ${showNotifs ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
-                <Bell className="w-4 h-4" />
-              </button>
-              {showNotifs && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
-                  <div className="px-4 py-3 bg-[#15317E] text-white"><span className="text-sm font-bold">الإشعارات</span></div>
-                  <div className="px-4 py-6 text-center"><p className="text-sm text-slate-400">لا توجد إشعارات جديدة</p></div>
+
+              <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-nowrap shrink-0">
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowNotifs(!showNotifs)}
+                    className={`relative h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    title="الإشعارات"
+                  >
+                    <Bell className="w-4 h-4" />
+                  </button>
+                  {showNotifs && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[270px] max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="px-3.5 py-2.5 bg-zinc-950 text-white"><span className="text-sm font-black">الإشعارات</span></div>
+                      <div className="px-4 py-5 text-center"><p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p></div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="relative">
-              <button onClick={() => setShowRevenue(!showRevenue)}
-                className={`p-2.5 rounded-xl backdrop-blur-md transition-all ${showRevenue ? 'bg-white text-[#15317E]' : 'bg-white/10 hover:bg-white/20 text-white/90'}`}>
-                <Wallet className="w-4 h-4" />
-              </button>
-              {showRevenue && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-center">
-                  <p className="text-[11px] text-slate-500 font-medium">المحفظة</p>
-                  <p className="text-sm font-bold text-[#15317E] mt-1">قريباً</p>
+
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowRevenue(!showRevenue)}
+                    className={`h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
+                    title="المحفظة"
+                  >
+                    <Wallet className="w-4 h-4" />
+                  </button>
+                  {showRevenue && (
+                    <div className="absolute top-full left-0 mt-3 w-52 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
+                      <p className="text-[11px] text-zinc-500 font-bold">المحفظة</p>
+                      <p className="text-sm font-black text-zinc-950 mt-1">قريباً</p>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                <ProfileMenu onLogout={handleLogout} />
+              </div>
             </div>
-            <ProfileMenu onLogout={handleLogout} />
           </div>
         </header>
 
-      <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+      <form onSubmit={handleSubmit} className="space-y-5 pt-3">
         {/* Basic Info */}
         <Card>
           <CardHeader><CardTitle className="text-base">المعلومات الأساسية</CardTitle></CardHeader>
@@ -574,7 +604,7 @@ export default function VenueForm() {
         <Card>
           <CardHeader><CardTitle className="text-base">الأسعار والمواعيد</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>سعر أيام الأسبوع (ر.س)</Label>
                 <Input type="number" value={form.price_weekday} onChange={e => setForm(p => ({ ...p, price_weekday: e.target.value }))} placeholder="0" />
@@ -584,7 +614,7 @@ export default function VenueForm() {
                 <Input type="number" value={form.price_weekend} onChange={e => setForm(p => ({ ...p, price_weekend: e.target.value }))} placeholder="0" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>وقت الدخول</Label>
                 <Select value={form.check_in_time} onValueChange={v => setForm(p => ({ ...p, check_in_time: v }))}>
@@ -604,6 +634,29 @@ export default function VenueForm() {
                 </Select>
               </div>
             </div>
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${form.booking_enabled !== false ? 'bg-[#FF385C]/10 text-[#FF385C]' : 'bg-zinc-200 text-zinc-500'}`}>
+                  <CalendarCheck className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-zinc-950">تفعيل الحجوزات</p>
+                  <p className="text-xs text-zinc-500 font-medium mt-0.5 leading-relaxed">
+                    عند التعطيل يتم إخفاء زر الحجز من صفحة العميل.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setForm(p => ({ ...p, booking_enabled: p.booking_enabled === false }))}
+                className={`relative w-14 h-8 rounded-full transition-all shrink-0 ${form.booking_enabled !== false ? 'bg-[#FF385C]' : 'bg-zinc-300'}`}
+                aria-pressed={form.booking_enabled !== false}
+                title={form.booking_enabled !== false ? 'الحجوزات مفعلة' : 'الحجوزات معطلة'}
+              >
+                <span className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${form.booking_enabled !== false ? 'right-7' : 'right-1'}`} />
+              </button>
+            </div>
+
             <div className="space-y-2">
               <Label>رقم واتساب للتواصل *</Label>
               <Input value={form.whatsapp} onChange={e => setForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="مثال: 0512345678" />
@@ -620,7 +673,7 @@ export default function VenueForm() {
               {showTerms && (
                 <div className="p-3 border-t border-border">
                   <Textarea value={form.booking_terms} onChange={e => setForm(p => ({ ...p, booking_terms: e.target.value }))} placeholder="اكتب شروط الحجز..." rows={3} />
-                  <p className="text-[11px] text-[#15317E] font-bold mt-2 flex items-center gap-1.5 bg-[#15317E]/5 px-3 py-2 rounded-xl">
+                  <p className="text-[11px] text-zinc-950 font-bold mt-2 flex items-center gap-1.5 bg-zinc-950/5 px-3 py-2 rounded-xl">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 flex-shrink-0"><path d="M9 12h6m-3-3v6M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
                     الشروط تضاف تلقائياً مع سند الاستلام
                   </p>
@@ -689,7 +742,7 @@ export default function VenueForm() {
           </CardContent>
         </Card>
 
-        <Button type="submit" size="lg" className="w-full" disabled={saving}>
+        <Button type="submit" size="lg" className="w-full h-14 rounded-2xl bg-zinc-950 hover:bg-black text-white font-black shadow-[0_14px_30px_rgba(0,0,0,0.16)]" disabled={saving}>
           {saving ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : isEdit ? 'حفظ التعديلات' : 'إضافة المكان'}
         </Button>
       </form>
