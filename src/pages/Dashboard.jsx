@@ -314,7 +314,7 @@ export default function Dashboard() {
               {properties.map((property, i) => (
                 <div key={property.id} className="relative group">
                   <PropertyCard property={property} index={i} />
-                  <div className="absolute top-3 left-3 flex gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="absolute top-3 left-3 flex gap-1.5 z-10">
                     <button
                       className="h-8 w-8 bg-white shadow-lg rounded-xl flex items-center justify-center hover:bg-zinc-50 transition-colors"
                       onClick={(e) => { e.preventDefault(); navigate(`/edit-property/${property.id}`); }}
