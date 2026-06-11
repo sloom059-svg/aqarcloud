@@ -241,9 +241,7 @@ export default function Login() {
               </div>
 
               <h2 className="mt-6 text-4xl lg:text-[3.2rem] font-black leading-[1.15] tracking-tight text-zinc-950">
-                كل إدارة موقعك
-                <br />
-                في مكان واحد.
+                مكان واحد يجمعك
               </h2>
               <p className="mt-4 text-sm lg:text-base leading-8 text-zinc-500 font-medium max-w-lg">
                 جهّز صفحتك، تابع الحجوزات، وشارك رابطك مع العملاء بسهولة من لوحة تحكم واحدة بتجربة حديثة وواضحة.
