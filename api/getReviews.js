@@ -29,17 +29,19 @@ export default async function handler(req, res) {
     }
 
     const place = searchData.local_results[0];
-    const placeId = place.place_id || place.data_id;
+    // SerpAPI يستخدم data_id للتقييمات، مو place_id
+    const dataId = place.data_id || place.place_id;
 
-    if (!placeId) {
+    if (!dataId) {
       return res.status(200).json({ reviews: [], message: 'لم يتم العثور على معرّف المكان' });
     }
 
-    // الخطوة 2: جيب التقييمات بالـ place_id
+    // الخطوة 2: جيب التقييمات بالـ data_id
     const reviewParams = new URLSearchParams({
       engine: 'google_maps_reviews',
-      place_id: placeId,
+      data_id: dataId,
       hl: 'ar',
+      sort_by: 'ratingHigh',
       api_key: SERP_KEY,
     });
 
@@ -50,14 +52,14 @@ export default async function handler(req, res) {
 
     // صفّي التقييمات الإيجابية فقط (4 نجوم وأعلى)
     const positive = allReviews
-      .filter(r => r.rating >= 4 && r.snippet)
+      .filter(r => r.rating >= 4 && (r.snippet || r.text))
       .slice(0, 4)
       .map(r => ({
-        author: r.user?.name || 'مجهول',
-        text: r.snippet,
+        author: r.user?.name || r.author_name || 'مجهول',
+        text: r.snippet || r.text || '',
         rating: r.rating,
-        date: r.date || '',
-        avatar: r.user?.thumbnail || null,
+        date: r.date || r.relative_time_description || '',
+        avatar: r.user?.thumbnail || r.profile_photo_url || null,
       }));
 
     return res.status(200).json({
@@ -65,6 +67,8 @@ export default async function handler(req, res) {
       place_name: place.title,
       total_rating: place.rating,
       total_reviews: place.reviews,
+      _debug_data_id: dataId,
+      _debug_raw_count: allReviews.length,
     });
 
   } catch (err) {
