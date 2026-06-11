@@ -614,7 +614,6 @@ export default function VenuePublicPage() {
                           </div>
                         </div>
                       </div>
-                      </div>
                       <p className="text-slate-400 text-sm leading-relaxed">{r.text?.slice(0,160)}{r.text?.length>160?'...':''}</p>
                     </div>
                   ))}
@@ -951,7 +950,6 @@ export default function VenuePublicPage() {
                           ))}
                         </div>
                       </div>
-                    </div>
                     </div>
                     <p className="text-gray-500 text-sm leading-relaxed">{r.text?.slice(0,160)}{r.text?.length>160?'...':''}</p>
                   </div>
