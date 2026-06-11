@@ -142,6 +142,17 @@ export default function VenuePublicPage() {
     enabled: !!venue?.id,
   });
 
+  // جلب صورة المالك (الشعار) من ملفه الشخصي
+  const { data: ownerProfile } = useQuery({
+    queryKey: ['venue-owner', venue?.owner_id],
+    queryFn: async () => {
+      const rows = await base44.entities.User.filter({ id: venue.owner_id });
+      return rows?.[0] || null;
+    },
+    enabled: !!venue?.owner_id,
+  });
+  const venueLogo = venue?.logo_url || ownerProfile?.office_logo_url || '';
+
   const bookMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
     onSuccess: () => {
@@ -313,6 +324,7 @@ export default function VenuePublicPage() {
           venue={venue}
           accent={accent}
           imgs={imgs}
+          logo={venueLogo}
           reviews={venue.google_reviews || []}
           youtubeVideos={youtubeVideos}
           getYoutubeId={getYoutubeId}
