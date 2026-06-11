@@ -102,63 +102,29 @@ export default function CompleteProfile() {
   const uploadLogo=async(e)=>{const file=e.target.files?.[0];if(!file)return;setUploadingLogo(true);try{const{file_url}=await base44.integrations.Core.UploadFile({file});setBroker(p=>({...p,office_logo_url:file_url}));}catch(_){}setUploadingLogo(false);};
   const uploadImgs=async(e)=>{const files=Array.from(e.target.files);if(!files.length)return;setUploadingImgs(true);const urls=[...venue.images];for(const file of files.slice(0,10-urls.length)){try{const{file_url}=await base44.integrations.Core.UploadFile({file});urls.push(file_url);}catch(_){}}setV('images',urls);setUploadingImgs(false);};
 
-  // جلب البيانات عبر بروكسي لتجاوز CORS (نفس الطريقة المجرّبة)
-  const serpFetch=async(url)=>{
-    try{
-      const proxy1=`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
-      const res1=await fetch(proxy1);
-      if(res1.ok){const text=await res1.text();if(text.trim().startsWith('{'))return JSON.parse(text);}
-    }catch(_){}
-    try{
-      const proxy2=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-      const res2=await fetch(proxy2);
-      const data2=await res2.json();
-      if(data2.contents&&data2.contents.trim().startsWith('{'))return JSON.parse(data2.contents);
-    }catch(_){}
-    throw new Error('يوجد ضغط على الخادم حالياً، حاول مرة أخرى');
-  };
-
-  const SERP_API_KEY="62a86551bf15b07e99f8c94b14153a8709fe7c0956bcba960ffc23cfb5df435a";
-
   const fetchGoogleReviews=async()=>{
     if(reviewsLeft<=0||!reviewsQuery.trim())return;
     setFetchingReviews(true);
     try{
-      // الخطوة 1: ابحث عن المكان للحصول على data_id
-      const searchUrl=`https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(reviewsQuery)}&type=search&hl=ar&gl=sa&api_key=${SERP_API_KEY}`;
-      const searchData=await serpFetch(searchUrl);
-      const place=searchData.place_results||(searchData.local_results&&searchData.local_results[0]);
-      if(!place){alert('لم يتم العثور على المكان، جرّب اسماً أدق كما يظهر في Google Maps');setFetchingReviews(false);return;}
-      const dataId=place.data_id;
+      // المفتاح محمي في الخادم — نكلم الـ API الداخلي فقط
+      const res=await fetch(`/api/getReviews?query=${encodeURIComponent(reviewsQuery)}`);
+      const data=await res.json();
+      if(data?.error){alert('تعذّر جلب التقييمات: '+data.error);setFetchingReviews(false);return;}
 
-      // الخطوة 2: اجلب التقييمات
-      let reviews=[];
-      if(dataId){
-        const reviewsUrl=`https://serpapi.com/search.json?engine=google_maps_reviews&data_id=${encodeURIComponent(dataId)}&hl=ar&api_key=${SERP_API_KEY}`;
-        const reviewsData=await serpFetch(reviewsUrl);
-        reviews=reviewsData?.reviews||[];
-      }
-      if(reviews.length===0&&place.user_reviews?.most_relevant)reviews=place.user_reviews.most_relevant;
-
-      // صفّي الإيجابية (4 نجوم فأعلى) وخذ أفضل 5
-      const positive=reviews
-        .filter(r=>(r.rating||r.stars||0)>=4&&(r.snippet||r.description||r.text))
-        .slice(0,5)
-        .map(r=>({
-          author:r.user?.name||r.username||'ضيف',
-          text:r.snippet||r.description||r.text||'',
-          rating:r.rating||r.stars||5,
-        }));
+      const positive=(data?.reviews||[]).slice(0,5).map(r=>({
+        author:r.author||'ضيف',
+        text:r.text||'',
+        rating:r.rating||5,
+      }));
 
       const newLeft=reviewsLeft-1;
       setReviewsLeft(newLeft);
       sessionStorage.setItem('reviews_left',String(newLeft));
       setReviewsFetched(true);
 
-      if(positive.length===0){alert('لم يتم العثور على تقييمات إيجابية لهذا المكان');setFetchingReviews(false);return;}
+      if(positive.length===0){alert('لم يتم العثور على تقييمات إيجابية لهذا المكان، جرّب اسماً أدق');setFetchingReviews(false);return;}
 
       setFetchedReviews(positive);
-      // اختر تلقائياً أول 3 كبداية
       setSelectedReviewIdx(positive.slice(0,3).map((_,i)=>i));
     }catch(e){alert('حدث خطأ: '+e.message);}
     setFetchingReviews(false);
