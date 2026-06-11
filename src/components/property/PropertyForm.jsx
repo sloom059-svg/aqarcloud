@@ -403,10 +403,16 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
           )}
 
           <Field label="المدينة" icon={MapPin}>
-            <select value={form.city} onChange={e => handleChange('city', e.target.value)} className={inputClass}>
-              <option value="">اختر المدينة</option>
-              {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <input
+              list="cities-list"
+              value={form.city}
+              onChange={e => handleChange('city', e.target.value)}
+              placeholder="اكتب اسم المدينة"
+              className={inputClass}
+            />
+            <datalist id="cities-list">
+              {CITIES.map(c => <option key={c} value={c} />)}
+            </datalist>
           </Field>
 
           <Field label="الحي" icon={MapPin} optional>
