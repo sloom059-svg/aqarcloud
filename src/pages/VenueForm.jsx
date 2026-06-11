@@ -182,6 +182,7 @@ export default function VenueForm() {
   const [form, setForm] = useState({
     name: '', venue_type: '', description: '', city: '',
     maps_url: '', images: [], video_url: '',
+    hero_badge: '', hero_title: '', footer_text: '',
     youtube_urls: [],
     custom_features: [],
     social: { instagram: '', snapchat: '', tiktok: '', x: '' },
@@ -214,6 +215,9 @@ export default function VenueForm() {
       youtube_urls: existing.youtube_urls || [],
       page_theme: existing.page_theme || 'classic',
       theme_color: existing.theme_color || '#c9a96e',
+      hero_badge: existing.hero_badge || '',
+      hero_title: existing.hero_title || '',
+      footer_text: existing.footer_text || '',
       social: { instagram: '', snapchat: '', tiktok: '', x: '', ...(existing.social || {}) },
       booking_enabled: existing.booking_enabled !== false,
       booking_terms: existing.booking_terms || prev.booking_terms || DEFAULT_BOOKING_TERMS,
@@ -498,7 +502,7 @@ export default function VenueForm() {
         <Card>
           <CardHeader><CardTitle className="text-base">شكل صفحة العرض (الثيم)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'classic' }))}
                 className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'classic' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
                 {form.page_theme === 'classic' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
@@ -528,7 +532,53 @@ export default function VenueForm() {
                 <div className="font-bold text-sm">المنتجع الفاخر</div>
                 <div className="text-xs text-muted-foreground mt-0.5">تيل داكن فاخر بلمسات ذهبية</div>
               </button>
+
+              <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'orchid' }))}
+                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'orchid' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'orchid' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
+                <div className="h-16 rounded-xl mb-3 border flex items-center justify-center" style={{ background: '#FCFBF8', borderColor: '#F4EAE6' }}>
+                  <span style={{ fontSize: 28 }}>🌸</span>
+                </div>
+                <div className="font-bold text-sm">أوركيد الناعم</div>
+                <div className="text-xs text-muted-foreground mt-0.5">روز جولد ناعم وأنيق</div>
+              </button>
             </div>
+
+            {/* تخصيص نصوص ثيم أوركيد */}
+            {form.page_theme === 'orchid' && (
+              <div className="space-y-3 pt-3 border-t border-border">
+                <p className="text-xs font-bold text-foreground">✏️ تخصيص نصوص الثيم</p>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">الشارة الصغيرة (فوق العنوان)</Label>
+                  <Input
+                    placeholder="اللطافة في كل تفصيلة"
+                    value={form.hero_badge || ''}
+                    onChange={e => setForm(p => ({ ...p, hero_badge: e.target.value }))}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">العنوان الرئيسي (الهيرو)</Label>
+                  <Input
+                    placeholder="الهدوء الذي تستحقه"
+                    value={form.hero_title || ''}
+                    onChange={e => setForm(p => ({ ...p, hero_title: e.target.value }))}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">نص الفوتر التسويقي</Label>
+                  <Textarea
+                    placeholder="صممنا هذا المكان بحب، ليكون وجهتك الأولى للراحة والسكينة..."
+                    value={form.footer_text || ''}
+                    onChange={e => setForm(p => ({ ...p, footer_text: e.target.value }))}
+                    className="text-sm resize-none"
+                    rows={2}
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">اتركها فاضية لاستخدام النصوص الافتراضية</p>
+              </div>
+            )}
 
             {isClassic && (
               <div className="space-y-2 pt-2 border-t border-border">
