@@ -77,7 +77,7 @@ export default function CompleteProfile() {
     page_theme:'classic',theme_color:'#c9a96e',
     price_weekday:'',price_weekend:'',whatsapp:'',
     check_in_time:'14:00',check_out_time:'12:00',
-    booking_terms:'',slug:'',maps_url:'',google_reviews:[],
+    booking_terms:'',slug:'',maps_url:'',google_reviews:[],google_rating:null,google_reviews_count:null,
   });
   const [reviewsQuery,setReviewsQuery]=useState('');
   const [fetchingReviews,setFetchingReviews]=useState(false);
@@ -116,6 +116,10 @@ export default function CompleteProfile() {
         text:r.text||'',
         rating:r.rating||5,
       }));
+
+      // حفظ التقييم العام وعدد التقييمات الحقيقية
+      if(data?.rating)setV('google_rating',parseFloat(data.rating));
+      if(data?.reviews_count)setV('google_reviews_count',parseInt(String(data.reviews_count).replace(/[^0-9]/g,''))||null);
 
       const newLeft=reviewsLeft-1;
       setReviewsLeft(newLeft);
