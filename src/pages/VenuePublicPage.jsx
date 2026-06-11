@@ -258,6 +258,7 @@ export default function VenuePublicPage() {
   const activeUrl = youtubeVideos[activeVideo] || youtubeVideos[0];
   const social = venue.social || {};
   const activeSocials = SOCIAL_LIST.filter(s => social[s.key] && social[s.key].trim());
+  const bookingsEnabled = venue.booking_enabled !== false;
 
   const fontStyle = (
     <style>{`
@@ -267,7 +268,10 @@ export default function VenuePublicPage() {
   );
 
   /* ── مكوّن الحجز المشترك ── */
-  const BookingDialog = ({ dark }) => (
+  const BookingDialog = ({ dark }) => {
+    if (!bookingsEnabled) return null;
+
+    return (
     <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
       <DialogTrigger asChild>
         {dark ? (
@@ -364,6 +368,7 @@ export default function VenuePublicPage() {
       </DialogContent>
     </Dialog>
   );
+  };
 
   /* ════════════════════════════════════════════════════════
      الثيم الأسود الملكي
@@ -587,7 +592,7 @@ export default function VenuePublicPage() {
             )}
 
             {/* شروط الإقامة */}
-            {venue.booking_terms && (
+            {bookingsEnabled && venue.booking_terms && (
               <div className="mb-12">
                 <button onClick={() => setTermsOpen(o => !o)}
                   className="w-full flex items-center justify-between glass-dark-r border border-[#d4af37]/20 rounded-2xl p-4 transition hover:border-[#d4af37]/40">
@@ -911,7 +916,7 @@ export default function VenuePublicPage() {
             </div>
           )}
 
-          {venue.booking_terms && (
+          {bookingsEnabled && venue.booking_terms && (
             <div className="mb-8">
               <button onClick={() => setTermsOpen(o => !o)}
                 className="w-full flex items-center justify-between bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition">

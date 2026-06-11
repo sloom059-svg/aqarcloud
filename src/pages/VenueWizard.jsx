@@ -10,6 +10,7 @@ import {
   Bath,
   Bed,
   Camera,
+  CalendarDays,
   Check,
   Clock,
   Crown,
@@ -45,6 +46,12 @@ import {
 
 const TOTAL_STEPS = 9;
 const MAX_YOUTUBE = 5;
+
+const DEFAULT_BOOKING_TERMS = `- يتم تأكيد الحجز بعد دفع العربون المتفق عليه.
+- وقت الدخول حسب الموعد المحدد في الصفحة، ووقت الخروج حسب الموعد المحدد.
+- يرجى المحافظة على نظافة المكان والممتلكات.
+- يمنع إزعاج الجيران أو استخدام المكان بما يخالف الأنظمة.
+- في حال الإلغاء أو تغيير الموعد يتم التنسيق مسبقاً مع الإدارة.`;
 
 const BRAND = '#FF385C';
 const BRAND_DARK = '#E31C5F';
@@ -178,7 +185,8 @@ export default function VenueWizard() {
     whatsapp: '',
     check_in_time: '14:00',
     check_out_time: '12:00',
-    booking_terms: '',
+    booking_enabled: true,
+    booking_terms: DEFAULT_BOOKING_TERMS,
     features: [],
     status: 'نشط',
     slug: '',
@@ -280,8 +288,8 @@ export default function VenueWizard() {
   const canProceed = () => {
     if (step === 1) return !!form.venue_type;
     if (step === 2) return !!form.name.trim() && !!form.city.trim();
-    if (step === 5) return !!form.whatsapp.trim();
-    if (step === 6) return form.images.length > 0;
+    if (step === 3) return form.images.length > 0;
+    if (step === 6) return !!form.whatsapp.trim();
     return true;
   };
 
@@ -443,6 +451,38 @@ export default function VenueWizard() {
 
             {step === 3 && (
               <div>
+                <StepBadge icon={Camera}>الصور</StepBadge>
+                <h2 className="text-2xl font-extrabold text-zinc-950 mb-1">صور المكان</h2>
+                <p className="text-zinc-500 text-sm mb-3">أضف صوراً جذابة، أول صورة ستكون الغلاف.</p>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-2.5 mb-6 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <p className="text-[12px] text-amber-700 font-bold">أول صورة تظهر كغلاف أعلى صفحة الشاليه</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {form.images.map((img, index) => (
+                    <div key={img} className="relative aspect-square rounded-2xl overflow-hidden group bg-zinc-100">
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      {index === 0 && <span className="absolute top-1.5 right-1.5 bg-[#FF385C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full">الغلاف</span>}
+                      <button type="button" onClick={() => removeImg(index)} className="absolute top-1.5 left-1.5 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {form.images.length < 10 && (
+                    <label className="aspect-square rounded-2xl border-2 border-dashed border-zinc-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#FF385C] hover:bg-zinc-50 transition-all">
+                      {uploading ? <Loader2 className="w-6 h-6 text-[#FF385C] animate-spin" /> : <><Upload className="w-6 h-6 text-zinc-500" /><span className="text-[10px] text-zinc-400 font-semibold">إضافة</span></>}
+                      <input type="file" accept="image/*" multiple onChange={handleImgUpload} className="hidden" disabled={uploading} />
+                    </label>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div>
                 <StepBadge icon={Youtube}>الموقع والوسائط</StepBadge>
                 <h2 className="text-2xl font-extrabold text-zinc-950 mb-1">أضف الموقع والمقاطع</h2>
                 <p className="text-zinc-500 text-sm mb-8">هذه الحقول تظهر في صفحة الشاليه للعملاء.</p>
@@ -488,7 +528,7 @@ export default function VenueWizard() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <div>
                 <StepBadge icon={Sparkles}>المميزات</StepBadge>
                 <h2 className="text-2xl font-extrabold text-zinc-950 mb-1">ما الذي يميز المكان؟</h2>
@@ -545,7 +585,7 @@ export default function VenueWizard() {
               </div>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <div>
                 <StepBadge icon={Clock}>الحجز والتواصل</StepBadge>
                 <h2 className="text-2xl font-extrabold text-zinc-950 mb-1">الأسعار والمواعيد</h2>
@@ -584,6 +624,22 @@ export default function VenueWizard() {
                     </div>
                   </div>
 
+                  <div className="rounded-3xl border border-zinc-200 bg-zinc-50 p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${form.booking_enabled ? 'bg-[#FF385C]/10 text-[#FF385C]' : 'bg-zinc-200 text-zinc-500'}`}>
+                        <CalendarDays className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-extrabold text-zinc-900">تفعيل الحجوزات</p>
+                        <p className="text-xs text-zinc-500 leading-6">مفعّلة تلقائياً. عند تعطيلها يختفي زر الحجز من صفحة المكان.</p>
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => set('booking_enabled', !form.booking_enabled)}
+                      className={`relative w-14 h-8 rounded-full transition-all shrink-0 ${form.booking_enabled ? 'bg-[#FF385C]' : 'bg-zinc-300'}`}>
+                      <span className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${form.booking_enabled ? 'right-7' : 'right-1'}`} />
+                    </button>
+                  </div>
+
                   <div>
                     <label className={labelClass}>رقم واتساب للحجز *</label>
                     <div className="relative">
@@ -595,40 +651,8 @@ export default function VenueWizard() {
                   <div>
                     <label className={labelClass}>شروط الحجز</label>
                     <textarea value={form.booking_terms} onChange={(event) => set('booking_terms', event.target.value)} rows={4} placeholder="اكتب شروط الحجز، العربون، وقت الدخول والخروج، أو أي تعليمات مهمة..." className={`${inputClass} resize-none leading-7`} />
-                    <p className="text-[11px] text-zinc-400 mt-2">تظهر هذه الشروط للعميل وتضاف مع سند الاستلام عند الحاجة.</p>
+                    <p className="text-[11px] text-zinc-400 mt-2">تظهر هذه الشروط للعميل، ويمكن تعديلها أو حذف أي بند منها قبل النشر.</p>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {step === 6 && (
-              <div>
-                <StepBadge icon={Camera}>الصور</StepBadge>
-                <h2 className="text-2xl font-extrabold text-zinc-950 mb-1">صور المنشأة</h2>
-                <p className="text-zinc-500 text-sm mb-3">أضف صوراً جذابة، أول صورة ستكون الغلاف.</p>
-
-                <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-2.5 mb-6 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  <p className="text-[12px] text-amber-700 font-bold">أول صورة تظهر كغلاف أعلى صفحة الشاليه</p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  {form.images.map((img, index) => (
-                    <div key={img} className="relative aspect-square rounded-2xl overflow-hidden group bg-zinc-100">
-                      <img src={img} alt="" className="w-full h-full object-cover" />
-                      {index === 0 && <span className="absolute top-1.5 right-1.5 bg-[#FF385C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full">الغلاف</span>}
-                      <button type="button" onClick={() => removeImg(index)} className="absolute top-1.5 left-1.5 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-
-                  {form.images.length < 10 && (
-                    <label className="aspect-square rounded-2xl border-2 border-dashed border-zinc-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#FF385C] hover:bg-zinc-50 transition-all">
-                      {uploading ? <Loader2 className="w-6 h-6 text-[#FF385C] animate-spin" /> : <><Upload className="w-6 h-6 text-zinc-500" /><span className="text-[10px] text-zinc-400 font-semibold">إضافة</span></>}
-                      <input type="file" accept="image/*" multiple onChange={handleImgUpload} className="hidden" disabled={uploading} />
-                    </label>
-                  )}
                 </div>
               </div>
             )}
@@ -712,6 +736,7 @@ export default function VenueWizard() {
                     { Icon: Youtube, label: 'يوتيوب', val: `${(form.youtube_urls || []).filter((url) => url && url.trim()).length} رابط` },
                     { Icon: Sparkles, label: 'المميزات', val: `${form.features.length + (form.custom_features || []).filter((feature) => feature.label && feature.label.trim()).length} ميزة` },
                     { Icon: Clock, label: 'المواعيد', val: `${form.check_in_time} - ${form.check_out_time}` },
+                    { Icon: CalendarDays, label: 'الحجوزات', val: form.booking_enabled ? 'مفعّلة' : 'معطّلة' },
                     { Icon: Phone, label: 'واتساب', val: form.whatsapp || '—' },
                     { Icon: Palette, label: 'الثيم', val: `${form.page_theme === 'royal' ? 'ملكي فاخر' : 'كلاسيكي'} · ${activeThemeColor}` },
                     { Icon: ImageIcon, label: 'الصور', val: `${form.images.length} صورة` },
