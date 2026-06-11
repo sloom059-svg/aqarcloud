@@ -180,7 +180,7 @@ export default function VenuePublicPage() {
     });
   };
 
-  const accent = isRoyal ? ROYAL_GOLD : (venue?.page_theme === 'resort' ? '#b58b3b' : (venue?.theme_color || DEFAULT_ACCENT));
+  const accent = isRoyal ? ROYAL_GOLD : (venue?.page_theme === 'resort' ? '#0A2629' : (venue?.theme_color || DEFAULT_ACCENT));
 
   if (isLoading) return (
     <div className={`min-h-screen flex items-center justify-center ${isRoyal ? 'bg-[#020617]' : 'bg-[#fcfcfc]'}`}>
