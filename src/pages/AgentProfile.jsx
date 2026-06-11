@@ -28,6 +28,7 @@ import {
   Wifi,
   Plug,
   Phone,
+  ArrowUpLeft,
 } from 'lucide-react';
 
 const AIRBNB = '#FF385C';
@@ -59,7 +60,7 @@ function SpecPill({ icon: Icon, children }) {
   if (!children) return null;
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-600">
-      <Icon className="w-3.5 h-3.5 text-zinc-400" />
+      <Icon className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
       {children}
     </span>
   );
@@ -168,6 +169,16 @@ function PropertyPublicCard({ property }) {
             )}
           </div>
         )}
+
+        <div className="flex items-center justify-end pt-2">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-100 bg-zinc-50 px-3 py-1.5 text-[11px] font-black text-zinc-700 transition-all group-hover:border-[#FF385C]/20 group-hover:bg-[#FFF1F2] group-hover:text-[#FF385C]"
+            aria-hidden="true"
+          >
+            عرض التفاصيل
+            <ArrowUpLeft className="w-3.5 h-3.5" />
+          </span>
+        </div>
       </div>
     </Link>
   );
