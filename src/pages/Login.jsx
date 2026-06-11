@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 import logo from '../aqar-cloud-logo.png';
+import logoSmall from '../aqar-cloud-logo-small.png';
 import SiteFooter from '@/components/layout/SiteFooter';
 
 const AIRBNB = '#FF385C';
@@ -26,11 +27,11 @@ const GoogleIcon = ({ className }) => (
   </svg>
 );
 
-const BrandMark = ({ imageError, setImageError, className = '', imgClassName = '' }) => (
+const BrandMark = ({ src = logo, imageError, setImageError, className = '', imgClassName = '' }) => (
   <div className={className}>
     {!imageError ? (
       <img
-        src={logo}
+        src={src}
         alt="Aqar Cloud Logo"
         className={`object-contain ${imgClassName}`}
         onError={() => setImageError(true)}
@@ -96,43 +97,27 @@ export default function Login() {
         <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-zinc-900/5 blur-3xl" />
       </div>
 
-      {/* Desktop / tablet logo in corner */}
-      <div className="hidden md:flex absolute top-8 left-8 lg:top-10 lg:left-10 z-20">
-        <BrandMark
-          imageError={imageError}
-          setImageError={setImageError}
-          className="flex items-center justify-center"
-          imgClassName="max-h-14 lg:max-h-16 max-w-[160px] lg:max-w-[185px]"
-        />
-      </div>
-
       <div className="relative z-10 min-h-screen flex items-start justify-center px-5 pt-8 pb-10 sm:px-8 md:pt-12 lg:px-12 lg:pt-14">
         <div className="w-full max-w-6xl grid lg:grid-cols-[1.05fr_.95fr] gap-8 items-start">
           {/* Right area / form */}
           <section className="order-2 lg:order-1 flex justify-center lg:justify-end">
             <div className="w-full max-w-[440px] animate-login-up">
-              {/* Mobile logo */}
-              <div className="md:hidden mb-5 text-center">
-                <BrandMark
-                  imageError={imageError}
-                  setImageError={setImageError}
-                  className="mx-auto mb-3 flex items-center justify-center"
-                  imgClassName="max-h-[70px] max-w-[190px]"
-                />
-                <p className="text-sm font-black text-zinc-950">إدارة الشاليهات والحجوزات بسهولة</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">صفحتك، أسعارك، وحجوزاتك في مكان واحد.</p>
-              </div>
+
 
               <div className="rounded-[2rem] bg-white border border-zinc-200 shadow-[0_28px_70px_rgba(0,0,0,0.08)] p-5 sm:p-7">
-                <div className="mb-5 text-right">
-                  <span className="inline-flex items-center rounded-full bg-[#FF385C]/10 px-3 py-1 text-[11px] font-black text-[#FF385C]">
-                    دخول آمن وسريع
-                  </span>
-                  <h1 className="mt-3 text-[1.75rem] sm:text-[2rem] font-black tracking-tight text-zinc-950">
-                    تسجيل الدخول
+                <div className="mb-6 text-center">
+                  <BrandMark
+                    src={logoSmall}
+                    imageError={imageError}
+                    setImageError={setImageError}
+                    className="mx-auto mb-4 flex items-center justify-center"
+                    imgClassName="max-h-[74px] max-w-[74px] sm:max-h-[84px] sm:max-w-[84px]"
+                  />
+                  <h1 className="text-[1.9rem] sm:text-[2.1rem] font-black tracking-tight text-zinc-950">
+                    مرحباً بعودتك
                   </h1>
-                  <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium">
-                    ادخل إلى لوحة التحكم وتابع عقاراتك وحجوزاتك من مكان واحد.
+                  <p className="mt-3 text-sm leading-7 text-zinc-500 font-medium max-w-[360px] mx-auto">
+                    سجّل دخولك لإدارة الشاليهات، متابعة الحجوزات، وتحديث عروضك بكل سهولة.
                   </p>
                 </div>
 
@@ -219,7 +204,7 @@ export default function Login() {
                   className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
                 >
                   <GoogleIcon className="w-5 h-5" />
-                  <span>الدخول بواسطة Google</span>
+                  <span>تسجيل الدخول باستخدام Google</span>
                 </button>
               </div>
 
@@ -235,22 +220,27 @@ export default function Login() {
           {/* Left supporting content on desktop/tablet */}
           <section className="order-1 lg:order-2 hidden md:flex items-center lg:justify-start justify-center pt-8 lg:pt-20">
             <div className="w-full max-w-[430px] lg:max-w-[500px] text-right animate-login-fade">
-              <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/85 px-4 py-2 text-xs font-black text-zinc-700 backdrop-blur-sm shadow-sm">
-                <CheckCircle2 className="w-4 h-4" style={{ color: AIRBNB }} />
-                تجربة سهلة لأصحاب الشاليهات والوسطاء
+              <div className="mb-6 inline-flex max-w-full items-center justify-center rounded-[2rem] border border-zinc-200 bg-white/90 px-8 py-6 shadow-[0_20px_50px_rgba(0,0,0,0.08)]">
+                <BrandMark
+                  src={logo}
+                  imageError={imageError}
+                  setImageError={setImageError}
+                  className="flex items-center justify-center"
+                  imgClassName="max-h-[105px] lg:max-h-[120px] max-w-[290px] lg:max-w-[330px]"
+                />
               </div>
 
-              <h2 className="mt-6 text-4xl lg:text-[3.2rem] font-black leading-[1.15] tracking-tight text-zinc-950">
+              <h2 className="text-4xl lg:text-[3.2rem] font-black leading-[1.15] tracking-tight text-zinc-950">
                 مكان واحد يجمعك
               </h2>
               <p className="mt-4 text-sm lg:text-base leading-8 text-zinc-500 font-medium max-w-lg">
-                جهّز صفحتك، تابع الحجوزات، وشارك رابطك مع العملاء بسهولة من لوحة تحكم واحدة بتجربة حديثة وواضحة.
+                سجّل دخولك لإدارة الشاليهات والحجوزات بتجربة أنيقة، سريعة، وواضحة.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2.5">
                 <StatChip>صفحة مخصصة لكل عقار</StatChip>
                 <StatChip>إدارة سهلة للحجوزات</StatChip>
-                <StatChip>دخول سريع عبر Google</StatChip>
+                <StatChip>تسجيل الدخول باستخدام Google</StatChip>
               </div>
 
               <SiteFooter className="!mt-8 !border-t-0 !bg-transparent" />
