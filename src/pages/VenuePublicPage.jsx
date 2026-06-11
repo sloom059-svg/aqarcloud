@@ -13,7 +13,7 @@ import {
   Star, ShieldCheck, Waves, Coffee, Wifi, Gamepad2, UtensilsCrossed,
   Car, CheckCircle2, Info, Flame, Snowflake, Trees, Baby, Users, Bed, Zap, KeyRound,
   ChevronDown, ExternalLink, AlertCircle, PlayCircle, CalendarDays,
-  Sparkles, Tv, Dumbbell, Bath, Wind, Sun, Music, Camera, Heart, Gift, Crown, Mountain
+  Sparkles, Tv, Dumbbell, Bath, Wind, Sun, Music, Camera, Heart, Gift, Crown, Mountain, X
 } from 'lucide-react';
 
 
@@ -270,24 +270,176 @@ export default function VenuePublicPage() {
   /* ── مكوّن الحجز المشترك ── */
   const BookingDialog = ({ dark }) => {
     if (!bookingsEnabled) return null;
-
     return (
-    <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
-      <DialogTrigger asChild>
+      <>
+        {/* زر الفتح */}
         {dark ? (
-          <button className="text-[#020617] px-8 py-3.5 rounded-2xl font-black text-sm transition-all active:scale-95 flex items-center gap-2"
+          <button onClick={() => setBookingOpen(true)}
+            className="text-[#020617] px-8 py-3.5 rounded-2xl font-black text-sm transition-all active:scale-95 flex items-center gap-2"
             style={{ background: `linear-gradient(to right, #b5952f, ${ROYAL_GOLD})`, boxShadow: '0 0 20px rgba(212,175,55,0.3)' }}>
             <CalendarDays className="w-4 h-4" /> احجز إقامتك
           </button>
         ) : (
-          <button className="text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95"
+          <button onClick={() => setBookingOpen(true)}
+            className="text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95"
             style={{ background: accent }}>
             احجز الآن
           </button>
         )}
-      </DialogTrigger>
 
-      <DialogContent dir="rtl"
+        {/* النافذة — div ثابت بدون Dialog عشان الكيبورد يشتغل صح */}
+        {bookingOpen && (
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center"
+            style={{ fontFamily: "'Tajawal', sans-serif" }}>
+            {/* خلفية شفافة */}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => { setBookingOpen(false); setBookingDone(false); }} />
+
+            {/* النافذة */}
+            <div dir="rtl" className="relative w-full sm:max-w-sm bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden"
+              style={{ maxHeight: '85vh', overflowY: 'auto' }}>
+
+              {/* رأس بلون الثيم */}
+              <div className="px-5 pt-5 pb-4 sticky top-0 bg-white z-10"
+                style={{ borderBottom: `2px solid ${accent}20` }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: accent }}>
+                      <CalendarDays className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-black text-gray-900 leading-tight">{venue.name}</h2>
+                      <p className="text-[11px] font-bold" style={{ color: accent }}>طلب حجز إقامة</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-gray-400 border-r-2 pr-2" style={{ borderColor: accent }}>
+                      {new Date().toLocaleDateString('ar-SA', { day:'numeric', month:'long' })}
+                    </span>
+                    <button onClick={() => { setBookingOpen(false); setBookingDone(false); }}
+                      className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {bookingDone ? (
+                <div className="text-center py-10 px-6">
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3"
+                    style={{ background: `${accent}15`, color: accent }}>
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-black text-gray-900 mb-1">تم إرسال الطلب!</h3>
+                  <p className="text-sm text-gray-400 font-bold mb-5">سيتواصل معك صاحب الشاليه قريباً</p>
+                  <button onClick={() => { setBookingOpen(false); setBookingDone(false); }}
+                    className="w-full h-11 rounded-xl font-black text-white text-sm"
+                    style={{ background: accent }}>
+                    حسناً، شكراً
+                  </button>
+                </div>
+              ) : (
+                <div className="px-5 py-4 space-y-3.5">
+
+                  {/* تحذير تواريخ محجوزة */}
+                  {bookingForm.check_in && bookingForm.check_out && (() => {
+                    const s = new Set(bookedDates);
+                    let c = new Date(bookingForm.check_in), e = new Date(bookingForm.check_out);
+                    while (c <= e) { if (s.has(c.toISOString().split('T')[0])) return true; c.setDate(c.getDate()+1); }
+                    return false;
+                  })() && (
+                    <div className="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-bold border border-red-100 flex gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>الفترة المختارة تحتوي على أيام محجوزة، يرجى اختيار تواريخ أخرى.</span>
+                    </div>
+                  )}
+
+                  {/* الاسم */}
+                  <div>
+                    <label className="block text-xs font-black text-gray-500 mb-1">الاسم الكريم <span className="text-red-400">*</span></label>
+                    <input
+                      className="w-full h-11 rounded-xl border-2 bg-gray-50 px-3 text-sm font-bold text-gray-800 placeholder:text-gray-300 outline-none transition-colors"
+                      style={{ borderColor: '#e5e7eb' }}
+                      onFocus={e => e.target.style.borderColor = accent}
+                      onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                      value={bookingForm.client_name}
+                      onChange={e => setBookingForm(p => ({ ...p, client_name: e.target.value }))}
+                      placeholder="الاسم الثلاثي" />
+                  </div>
+
+                  {/* الجوال */}
+                  <div>
+                    <label className="block text-xs font-black text-gray-500 mb-1">رقم الجوال <span className="text-red-400">*</span></label>
+                    <input
+                      className="w-full h-11 rounded-xl border-2 bg-gray-50 px-3 text-sm font-bold text-gray-800 placeholder:text-gray-300 outline-none transition-colors"
+                      style={{ borderColor: '#e5e7eb' }}
+                      onFocus={e => e.target.style.borderColor = accent}
+                      onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                      dir="ltr"
+                      value={bookingForm.client_phone}
+                      onChange={e => setBookingForm(p => ({ ...p, client_phone: e.target.value }))}
+                      placeholder="05xxxxxxxx" />
+                  </div>
+
+                  {/* التواريخ */}
+                  <div>
+                    <label className="block text-xs font-black text-gray-500 mb-1">فترة الإقامة <span className="text-red-400">*</span></label>
+                    {(bookingForm.check_in && bookingForm.check_out) ? (
+                      <div className="flex items-center justify-between rounded-xl px-4 py-2.5 border-2 bg-gray-50"
+                        style={{ borderColor: `${accent}50` }}>
+                        <span className="text-sm font-black text-gray-800">{bookingForm.check_in} ← {bookingForm.check_out}</span>
+                        <button onClick={() => setBookingForm(p => ({ ...p, check_in: '', check_out: '' }))}
+                          className="text-xs font-bold text-red-400">تغيير</button>
+                      </div>
+                    ) : (
+                      <div className="border-2 rounded-xl p-2 bg-gray-50/50" style={{ borderColor: '#e5e7eb' }}>
+                        <VenueCalendar
+                          bookedDates={bookedDates}
+                          onRangeSelect={(start, end) => setBookingForm(p => ({ ...p, check_in: start, check_out: end }))}
+                          readOnly={false}
+                          accent={accent} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ملاحظات */}
+                  <div>
+                    <label className="block text-xs font-black text-gray-500 mb-1">ملاحظات <span className="text-gray-300">(اختياري)</span></label>
+                    <textarea
+                      className="w-full rounded-xl border-2 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800 placeholder:text-gray-300 outline-none resize-none transition-colors"
+                      style={{ borderColor: '#e5e7eb' }}
+                      onFocus={e => e.target.style.borderColor = accent}
+                      onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                      value={bookingForm.notes}
+                      onChange={e => setBookingForm(p => ({ ...p, notes: e.target.value }))}
+                      placeholder="أي طلبات خاصة..." rows={2} />
+                  </div>
+
+                  {/* زر الإرسال */}
+                  <button onClick={handleBook}
+                    className="w-full py-3 text-sm font-black text-white rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50"
+                    style={{ background: accent }}
+                    disabled={bookMutation.isPending || !bookingForm.client_name || !bookingForm.client_phone || !bookingForm.check_in || !bookingForm.check_out}>
+                    {bookMutation.isPending ? <><Loader2 className="w-4 h-4 inline ml-2 animate-spin" />جاري الإرسال...</> : 'تأكيد إرسال الطلب'}
+                  </button>
+
+                  <div className="flex items-center justify-center gap-1.5 pb-1">
+                    <div className="w-1 h-1 rounded-full" style={{ background: accent }} />
+                    <span className="text-[10px] font-bold text-gray-300 tracking-widest">Powered by Aqar Cloud</span>
+                    <div className="w-1 h-1 rounded-full" style={{ background: accent }} />
+                  </div>
+
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
+  /* ════════════════════════════════════════════════════════
+     الثيم الأسود الملكي
         className="max-w-sm w-[95vw] rounded-[2rem] shadow-2xl p-0 overflow-hidden border-0 overflow-y-auto max-h-[92vh]"
         style={{ fontFamily: "'Tajawal', sans-serif" }}>
 
@@ -416,9 +568,8 @@ export default function VenuePublicPage() {
 
           </div>
         )}
-      </DialogContent>
-    </Dialog>
-  );
+      </>
+    );
   };
 
   /* ════════════════════════════════════════════════════════
