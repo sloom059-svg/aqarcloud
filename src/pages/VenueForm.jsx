@@ -37,6 +37,11 @@ const CUSTOM_ICON_OPTIONS = [
 
 const MAX_YOUTUBE = 5;
 const AIRBNB = '#FF385C';
+const DEFAULT_BOOKING_TERMS = `- يتم تأكيد الحجز بعد دفع العربون المتفق عليه.
+- وقت الدخول حسب الموعد المحدد في الصفحة، ووقت الخروج حسب الموعد المحدد.
+- يرجى المحافظة على نظافة المكان والممتلكات.
+- يمنع إزعاج الجيران أو استخدام المكان بما يخالف الأنظمة.
+- في حال الإلغاء أو تغيير الموعد يتم التنسيق مسبقاً مع الإدارة.`;
 
 const TikTokIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -184,7 +189,7 @@ export default function VenueForm() {
     price_weekday: '', price_weekend: '',
     whatsapp: '', check_in_time: '14:00', check_out_time: '12:00',
     booking_enabled: true,
-    booking_terms: '', features: [], status: 'نشط', slug: '',
+    booking_terms: DEFAULT_BOOKING_TERMS, features: [], status: 'نشط', slug: '',
     theme_color: '#c9a96e',
   });
   const [uploading, setUploading] = useState(false);
@@ -193,7 +198,6 @@ export default function VenueForm() {
   const [showRevenue, setShowRevenue] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showSocial, setShowSocial] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
 
   const { data: existing } = useQuery({
     queryKey: ['venue', id],
@@ -212,16 +216,15 @@ export default function VenueForm() {
       theme_color: existing.theme_color || '#c9a96e',
       social: { instagram: '', snapchat: '', tiktok: '', x: '', ...(existing.social || {}) },
       booking_enabled: existing.booking_enabled !== false,
+      booking_terms: existing.booking_terms || prev.booking_terms || DEFAULT_BOOKING_TERMS,
     }));
   }, [existing]);
 
-  // افتح القسم تلقائياً عند تحميل البيانات لو فيها محتوى
+  // افتح قسم السوشيال تلقائياً عند تحميل البيانات لو فيه محتوى
   useEffect(() => {
     if (existing) {
       const hasSocial = Object.values(existing.social || {}).some(v => v?.trim());
-      const hasTerms = !!(existing.booking_terms?.trim());
       if (hasSocial) setShowSocial(true);
-      if (hasTerms) setShowTerms(true);
     }
   }, [existing]);
 
@@ -661,24 +664,33 @@ export default function VenueForm() {
               <Label>رقم واتساب للتواصل *</Label>
               <Input value={form.whatsapp} onChange={e => setForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="مثال: 0512345678" />
             </div>
-            <div className="border border-border rounded-xl overflow-hidden">
-              <button type="button" onClick={() => setShowTerms(v => !v)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-right bg-muted/30 hover:bg-muted/50 transition">
-                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all ${showTerms ? 'bg-primary border-primary' : 'border-border'}`}>
-                  {showTerms && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
-                </div>
-                <span className="font-medium text-sm flex-1">شروط الحجز</span>
-                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showTerms ? 'rotate-180' : ''}`} />
-              </button>
-              {showTerms && (
-                <div className="p-3 border-t border-border">
-                  <Textarea value={form.booking_terms} onChange={e => setForm(p => ({ ...p, booking_terms: e.target.value }))} placeholder="اكتب شروط الحجز..." rows={3} />
-                  <p className="text-[11px] text-zinc-950 font-bold mt-2 flex items-center gap-1.5 bg-zinc-950/5 px-3 py-2 rounded-xl">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 flex-shrink-0"><path d="M9 12h6m-3-3v6M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
-                    الشروط تضاف تلقائياً مع سند الاستلام
+            <div className="rounded-2xl border border-zinc-200 bg-white p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <Label className="text-sm font-black text-zinc-950">شروط الحجز</Label>
+                  <p className="text-xs text-zinc-500 font-medium leading-relaxed">
+                    هذه الشروط محفوظة مع بيانات الشاليه وتظهر تلقائياً في سند الاستلام، ويمكن تعديلها هنا في أي وقت.
                   </p>
                 </div>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setForm(p => ({ ...p, booking_terms: DEFAULT_BOOKING_TERMS }))}
+                  className="text-xs font-bold text-[#FF385C] hover:text-[#E31C5F] shrink-0"
+                >
+                  استعادة الافتراضي
+                </button>
+              </div>
+              <Textarea
+                value={form.booking_terms || ''}
+                onChange={e => setForm(p => ({ ...p, booking_terms: e.target.value }))}
+                placeholder="اكتب شروط الحجز، العربون، وقت الدخول والخروج، أو أي تعليمات مهمة..."
+                rows={5}
+                className="resize-none leading-7"
+              />
+              <p className="text-[11px] text-zinc-950 font-bold flex items-center gap-1.5 bg-zinc-950/5 px-3 py-2 rounded-xl">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 flex-shrink-0"><path d="M9 12h6m-3-3v6M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
+                يتم حفظ هذه الشروط في الحقل نفسه booking_terms المستخدم في سند الاستلام.
+              </p>
             </div>
           </CardContent>
         </Card>
