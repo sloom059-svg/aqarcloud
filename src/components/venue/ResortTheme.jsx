@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapPin, Star, CheckCircle2, Waves, Bed, Leaf, UtensilsCrossed, Car, ArrowLeft, Quote, Gem } from 'lucide-react';
+import { MapPin, Star, CheckCircle2, Waves, Bed, Leaf, UtensilsCrossed, Car, ArrowLeft, Quote, Gem, Heart } from 'lucide-react';
 
 /*
   ثيم "فيروز" — تيل فاخر داكن + ذهبي، خط Readex Pro.
@@ -277,9 +277,11 @@ export default function ResortTheme({
               <a href={`https://wa.me/${venue.whatsapp}`} dir="ltr" style={{ fontSize: 24, fontWeight: 700 }}>+{venue.whatsapp}</a>
             )}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: MUTED, fontSize: 14, flexWrap: 'wrap', gap: 8 }}>
-            <p>© 2026 {venue.name}. جميع الحقوق محفوظة.</p>
-            <p>Powered by Aqar Cloud</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: MUTED, fontSize: 14 }}>
+            <p>© {new Date().getFullYear()} {venue.name}. جميع الحقوق محفوظة.</p>
+            <p style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12 }}>
+              صُنع بكل <Heart size={12} fill={GOLD} color={GOLD} /> على منصة عقار كلاود
+            </p>
           </div>
         </div>
       </footer>
