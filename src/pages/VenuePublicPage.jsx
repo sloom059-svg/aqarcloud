@@ -330,6 +330,9 @@ export default function VenuePublicPage() {
           getYoutubeId={getYoutubeId}
           bookingsEnabled={bookingsEnabled}
           onBook={() => setBookingOpen(true)}
+          bookingForm={bookingForm}
+          setBookingForm={setBookingForm}
+          bookedDates={bookedDates}
         />
         <BookingSheet
           open={bookingOpen}
