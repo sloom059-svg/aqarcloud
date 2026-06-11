@@ -106,29 +106,22 @@ export default function Login() {
         />
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-start justify-center px-5 pt-8 pb-10 sm:px-8 md:pt-12 lg:px-12 lg:pt-14">
+      <div className="relative z-10 min-h-screen flex items-start justify-center px-5 pt-4 pb-8 sm:px-8 sm:pt-6 md:pt-12 lg:px-12 lg:pt-14">
         <div className="w-full max-w-6xl grid lg:grid-cols-[1.05fr_.95fr] gap-8 items-start">
           {/* Right area / form */}
           <section className="order-2 lg:order-1 flex justify-center lg:justify-end">
             <div className="w-full max-w-[440px] animate-login-up">
-              {/* Mobile logo */}
-              <div className="md:hidden mb-5 text-center">
-                <BrandMark
-                  imageError={imageError}
-                  setImageError={setImageError}
-                  className="mx-auto mb-3 flex items-center justify-center"
-                  imgClassName="max-h-[70px] max-w-[190px]"
-                />
-                <p className="text-sm font-black text-zinc-950">إدارة الشاليهات والحجوزات بسهولة</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">صفحتك، أسعارك، وحجوزاتك في مكان واحد.</p>
-              </div>
-
               <div className="rounded-[2rem] bg-white border border-zinc-200 shadow-[0_28px_70px_rgba(0,0,0,0.08)] p-5 sm:p-7">
                 <div className="mb-5 text-right">
-                  <span className="inline-flex items-center rounded-full bg-[#FF385C]/10 px-3 py-1 text-[11px] font-black text-[#FF385C]">
-                    دخول آمن وسريع
-                  </span>
-                  <h1 className="mt-3 text-[1.75rem] sm:text-[2rem] font-black tracking-tight text-zinc-950">
+                  <div className="md:hidden mb-5 flex justify-center">
+                    <BrandMark
+                      imageError={imageError}
+                      setImageError={setImageError}
+                      className="flex items-center justify-center"
+                      imgClassName="max-h-[62px] max-w-[170px]"
+                    />
+                  </div>
+                  <h1 className="text-[1.75rem] sm:text-[2rem] font-black tracking-tight text-zinc-950">
                     تسجيل الدخول
                   </h1>
                   <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium">
@@ -190,7 +183,7 @@ export default function Login() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-12 rounded-2xl bg-zinc-950 hover:bg-black text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
+                    className="w-full h-12 rounded-2xl bg-[#181818] hover:bg-[#111111] text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
                   >
                     {loading ? (
                       <>
