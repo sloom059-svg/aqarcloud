@@ -217,7 +217,7 @@ export default function ResortTheme({
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 32 }}>
-              {allReviews.slice(0, 3).map((r, i) => (
+              {allReviews.slice(0, 4).map((r, i) => (
                 <div key={i} className="fz-card-hover" data-reveal style={{ ...reveal('up', i * 100), background: 'rgba(255,255,255,.05)', padding: 40, border: '1px solid rgba(255,255,255,.1)', position: 'relative', transition: 'background .3s' }}>
                   <Quote size={48} style={{ position: 'absolute', top: 32, insetInlineStart: 32, color: 'rgba(255,255,255,.05)' }} />
                   <p style={{ color: 'rgba(232,240,240,.9)', fontSize: 18, lineHeight: 1.8, marginBottom: 40, fontWeight: 300, position: 'relative', zIndex: 1 }}>"{r.text}"</p>
