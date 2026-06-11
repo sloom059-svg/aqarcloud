@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import VenueCalendar from '@/components/venue/VenueCalendar';
 import BookingSheet from '@/components/venue/BookingSheet';
 import ResortTheme from '@/components/venue/ResortTheme';
+import OrchidTheme from '@/components/venue/OrchidTheme';
 import {
   MapPin, Clock, Loader2, ChevronLeft, ChevronRight,
   Star, ShieldCheck, Waves, Coffee, Wifi, Gamepad2, UtensilsCrossed,
@@ -313,6 +314,43 @@ export default function VenuePublicPage() {
       </button>
     );
   };
+
+  /* ════════════════════════════════════════════════════════
+     ثيم أوركيد (orchid)
+  ════════════════════════════════════════════════════════ */
+  if (venue?.page_theme === 'orchid') {
+    return (
+      <>
+        <OrchidTheme
+          venue={venue}
+          accent="#CBA396"
+          imgs={imgs}
+          logo={venueLogo}
+          reviews={venue.google_reviews || []}
+          youtubeVideos={youtubeVideos}
+          getYoutubeId={getYoutubeId}
+          bookingsEnabled={bookingsEnabled}
+          onBook={() => setBookingOpen(true)}
+          bookingForm={bookingForm}
+          setBookingForm={setBookingForm}
+          bookedDates={bookedDates}
+        />
+        <BookingSheet
+          open={bookingOpen}
+          onClose={() => setBookingOpen(false)}
+          accent="#CBA396"
+          venueName={venue.name}
+          bookingForm={bookingForm}
+          setBookingForm={setBookingForm}
+          bookingDone={bookingDone}
+          setBookingDone={setBookingDone}
+          bookedDates={bookedDates}
+          handleBook={handleBook}
+          isPending={bookMutation.isPending}
+        />
+      </>
+    );
+  }
 
   /* ════════════════════════════════════════════════════════
      ثيم المنتجع الفاخر (resort)
