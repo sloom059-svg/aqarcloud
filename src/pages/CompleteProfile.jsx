@@ -208,7 +208,7 @@ export default function CompleteProfile() {
               {success.url&&(<button type="button" onClick={()=>window.open(success.url,'_blank')} className="w-full py-4 rounded-2xl font-extrabold text-sm md:text-base border transition-all flex items-center justify-center gap-2 active:scale-95 bg-white text-[#222222] border-slate-200 hover:border-[#FF385C] hover:text-[#FF385C]"><Eye className="w-5 h-5"/> مشاهدة صفحتي</button>)}
               <div className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-100">
                 <svg viewBox="0 0 24 24" className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16.5 9"/></svg>
-                اشتراك ٣٠ يوم مفعّل مجاناً
+                اشتراك ٣٠ يوم مفعّل
               </div>
             </div>
           </section>
