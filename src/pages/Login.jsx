@@ -203,7 +203,7 @@ export default function Login() {
       </section>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap');
 
         :root {
           --aq-brand:#ff385c;
@@ -226,7 +226,7 @@ export default function Login() {
           padding:28px;
           display:grid;
           place-items:center;
-          font-family:"Tajawal", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          font-family:"IBM Plex Sans Arabic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           color:var(--aq-ink);
           background:
             radial-gradient(circle at 12% 13%, rgba(255,56,92,.12), transparent 28%),
