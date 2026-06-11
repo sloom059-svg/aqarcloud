@@ -523,12 +523,12 @@ export default function CompleteProfile() {
                     <p className="text-sm text-slate-400 mt-1">فخامة داكنة بلمسات ذهبية.</p>
                   </button>
                   <button onClick={()=>{setV('page_theme','resort');setTimeout(next,280);}}
-                    className={`choice-card relative border-2 rounded-[2rem] p-6 text-right overflow-hidden transition-all hover:border-[#b58b3b] ${venue.page_theme==='resort'?'border-[#b58b3b]':'border-amber-100'}`}
-                    style={{background:'linear-gradient(180deg,#fbf6ec,#f5efe4)'}}>
-                    <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-[#526343] to-[#d8b978]"/>
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{background:'#172419'}}><Sparkles className="w-6 h-6" style={{color:'#d8b978'}}/></div>
-                    <h3 className="font-bold text-base" style={{color:'#16130f'}}>المنتجع الفاخر</h3>
-                    <p className="text-sm mt-1" style={{color:'#71685f'}}>طابع عالمي ذهبي وزيتوني راقٍ.</p>
+                    className={`choice-card relative border-2 rounded-[2rem] p-6 text-right overflow-hidden transition-all hover:border-[#0A2629] ${venue.page_theme==='resort'?'border-[#0A2629]':'border-slate-100'}`}
+                    style={{background:'#E8F0F0'}}>
+                    <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-[#0A2629] to-[#D4B982]"/>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{background:'#0A2629'}}><Sparkles className="w-6 h-6" style={{color:'#D4B982'}}/></div>
+                    <h3 className="font-bold text-base" style={{color:'#0A2629'}}>المنتجع الفاخر</h3>
+                    <p className="text-sm mt-1" style={{color:'#8DA3A5'}}>تيل داكن فاخر بلمسات ذهبية.</p>
                   </button>
                 </div>
                 {venue.page_theme==='classic'&&(
