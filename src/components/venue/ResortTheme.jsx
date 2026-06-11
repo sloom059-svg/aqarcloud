@@ -376,9 +376,8 @@ export default function ResortTheme({
         ].filter(it => social[it.key] && social[it.key].trim());
         if (!items.length) return null;
         return (
-          <section style={{ padding: '0 0 64px', background: 'transparent' }}>
+          <section style={{ padding: '56px 0 64px', background: 'transparent' }}>
             <div className="rm-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-              <p style={{ color: SAND_DARK, fontWeight: 800, fontSize: 12, letterSpacing: 2 }}>ابق على تواصل معنا</p>
               <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
                 {items.map(it => (
                   <a key={it.key} href={it.url(social[it.key])} target="_blank" rel="noreferrer"
