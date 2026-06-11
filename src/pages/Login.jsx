@@ -113,19 +113,19 @@ export default function Login() {
             <div className="w-full max-w-[440px] animate-login-up">
               <div className="rounded-[2rem] bg-white border border-zinc-200 shadow-[0_28px_70px_rgba(0,0,0,0.08)] p-5 sm:p-7">
                 <div className="mb-5 text-right">
-                  <div className="md:hidden mb-4 flex justify-center">
+                  <div className="md:hidden mb-4 text-right">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/85 px-4 py-2 text-xs font-black text-zinc-700 backdrop-blur-sm shadow-sm">
+                      <CheckCircle2 className="w-4 h-4" style={{ color: AIRBNB }} />
+                      تجربة سهلة لإدارة عقاراتك
+                    </span>
+                  </div>
+                  <div className="md:hidden mb-5 flex justify-center">
                     <BrandMark
                       imageError={imageError}
                       setImageError={setImageError}
                       className="flex items-center justify-center"
                       imgClassName="max-h-[88px] max-w-[220px]"
                     />
-                  </div>
-                  <div className="md:hidden mb-3 text-right">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/85 px-4 py-2 text-xs font-black text-zinc-700 backdrop-blur-sm shadow-sm">
-                      <CheckCircle2 className="w-4 h-4" style={{ color: AIRBNB }} />
-                      تجربة سهلة لإدارة عقاراتك
-                    </span>
                   </div>
 
                   <h1 className="text-[1.75rem] sm:text-[2rem] font-black tracking-tight text-zinc-950">
