@@ -627,6 +627,17 @@ export default function CompleteProfile() {
                         {fetchingReviews?<Loader2 className="w-4 h-4 animate-spin"/>:<Sparkles className="w-4 h-4"/>} جلب
                       </button>
                     </div>
+
+                    {/* شريط تقدّم متحرك أثناء الجلب */}
+                    {fetchingReviews&&(
+                      <div className="mb-4 -mt-1">
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{width:'40%',background:'#222222',animation:'reviewsLoadBar 1.1s ease-in-out infinite'}}/>
+                        </div>
+                        <p className="text-[11px] text-slate-400 font-bold mt-1.5">جاري البحث وجلب التقييمات... قد يستغرق ثوانٍ</p>
+                        <style>{`@keyframes reviewsLoadBar{0%{margin-inline-start:-40%}100%{margin-inline-start:100%}}`}</style>
+                      </div>
+                    )}
                     {reviewsLeft===1&&!reviewsFetched&&(<div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-4"><p className="text-amber-700 text-xs font-bold">⚠️ هذه آخر محاولة متبقية</p></div>)}
                   </>
                 ):(
