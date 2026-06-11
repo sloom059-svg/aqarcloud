@@ -208,7 +208,7 @@ export default function CompleteProfile() {
               {success.url&&(<button type="button" onClick={()=>window.open(success.url,'_blank')} className="w-full py-4 rounded-2xl font-extrabold text-sm md:text-base border transition-all flex items-center justify-center gap-2 active:scale-95 bg-white text-[#222222] border-slate-200 hover:border-[#FF385C] hover:text-[#FF385C]"><Eye className="w-5 h-5"/> مشاهدة صفحتي</button>)}
               <div className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-100">
                 <svg viewBox="0 0 24 24" className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16.5 9"/></svg>
-                اشتراك ١٤ يوم مفعّل
+                اشتراك ٣٠ يوم مفعّل مجاناً
               </div>
             </div>
           </section>
@@ -225,12 +225,12 @@ export default function CompleteProfile() {
                 <div className="space-y-4 text-sm text-white/75 leading-relaxed">
                   <p>١. عاين صفحتك وتأكد أن الصور والمعلومات ظاهرة بالشكل المطلوب.</p>
                   <p>٢. ارجع هنا واضغط دخول لوحة التحكم لإدارة بياناتك.</p>
-                  <p>٣. تجربتك المجانية مفعّلة لمدة ١٤ يوم من الآن.</p>
+                  <p>٣. تجربتك المجانية مفعّلة لمدة ٣٠ يوم من الآن.</p>
                 </div>
               </div>
               <div className="mt-8 rounded-3xl bg-white/10 border border-white/15 p-5">
                 <p className="text-sm font-bold text-white/90">تجربتك المجانية</p>
-                <p className="text-3xl font-black mt-1">١٤ يوم</p>
+                <p className="text-3xl font-black mt-1">٣٠ يوم</p>
                 <p className="text-xs text-white/60 mt-2">ابدأ بإدارة صفحتك بدون تعقيد.</p>
               </div>
             </div>
@@ -261,15 +261,6 @@ export default function CompleteProfile() {
         </div>
 
         <div className="bg-white rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] p-5 md:p-8 min-h-[480px] flex flex-col border border-white">
-          <div className="mb-5 rounded-3xl border border-[#FF385C]/15 bg-[#FF385C]/5 p-4 flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#FF385C] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#FF385C]/20">
-              <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-black text-[#222222]">تجربة ١٤ يوم مفعّلة</p>
-              <p className="text-xs text-slate-500 mt-0.5">جهّز صفحتك وشاركها الآن، والاشتراك لاحقًا.</p>
-            </div>
-          </div>
           <div className="flex-1">
 
             {/* خطوة 0: الدور */}
