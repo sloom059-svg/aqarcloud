@@ -53,10 +53,10 @@ export default async function handler(req, res) {
       reviews = place.user_reviews.most_relevant;
     }
 
-    // صفّي الإيجابية (4 نجوم فأعلى) وخذ أفضل 5
+    // صفّي الإيجابية (4 نجوم فأعلى) وخذ أفضل 6
     const positive = reviews
       .filter(r => (r.rating || r.stars || 0) >= 4 && (r.snippet || r.description || r.text))
-      .slice(0, 5)
+      .slice(0, 6)
       .map(r => ({
         author: r.user?.name || r.username || 'ضيف',
         text: r.snippet || r.description || r.text || '',
@@ -66,6 +66,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       reviews: positive,
       place_name: place.title,
+      rating: place.rating || null,
+      reviews_count: place.reviews || place.user_reviews?.total || null,
     });
 
   } catch (err) {
