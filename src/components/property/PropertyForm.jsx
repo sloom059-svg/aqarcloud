@@ -545,34 +545,9 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
           <div className="mb-1"><h2 className="text-lg font-bold text-[#FF385C]">الموقع والخدمات</h2></div>
 
           <Field label="رابط الموقع (Google Maps)" icon={MapPin} optional>
-            <div className="flex gap-2">
-              <input dir="ltr" value={form.maps_url} onChange={e => handleChange('maps_url', e.target.value)}
-                placeholder="https://maps.google.com/..." className={inputClass + ' flex-1'} />
-              <button type="button" onClick={fetchNearbyPlaces} disabled={!form.maps_url || fetchingPlaces}
-                className="px-4 bg-zinc-950 text-white rounded-2xl font-black text-xs flex items-center gap-1.5 disabled:opacity-50 transition-all whitespace-nowrap shadow-sm shadow-zinc-950/10">
-                {fetchingPlaces ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                سحب
-              </button>
-            </div>
-            <p className="text-[10px] text-zinc-400 mt-1.5 flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> جلب الخدمات القريبة بالذكاء الاصطناعي
-            </p>
+            <input dir="ltr" value={form.maps_url} onChange={e => handleChange('maps_url', e.target.value)}
+              placeholder="https://maps.google.com/..." className={inputClass} />
           </Field>
-
-          {placesError && <p className="text-xs text-rose-500 font-medium">{placesError}</p>}
-
-          {form.nearby_places?.length > 0 && (
-            <div className="bg-white border border-zinc-100 rounded-2xl p-3 shadow-sm">
-              <p className="text-xs font-bold text-[#FF385C] mb-2">الخدمات القريبة:</p>
-              <div className="flex flex-wrap gap-2">
-                {form.nearby_places.map((p, i) => (
-                  <span key={i} className="flex items-center gap-1 bg-zinc-50 border border-zinc-100 px-2.5 py-1 rounded-lg text-[11px] font-medium text-zinc-600">
-                    <MapPin className="w-3 h-3 text-[#FF385C]" /> {p.label} · {p.distance_label}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
 
           <NextButton onClick={() => setStep(4)} />
         </div>
