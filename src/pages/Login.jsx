@@ -124,7 +124,7 @@ export default function Login() {
                       imageError={imageError}
                       setImageError={setImageError}
                       className="flex items-center justify-center"
-                      imgClassName="max-h-[88px] max-w-[220px]"
+                      imgClassName="max-h-[80px] max-w-[200px]"
                     />
                   </div>
 
