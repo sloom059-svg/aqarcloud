@@ -25,6 +25,7 @@ import {
   Loader2,
   CheckCircle,
   BadgeCheck,
+  Crown,
 } from "lucide-react";
 import PropertyCard from '@/components/property/PropertyCard';
 import PropertyCardExport from '@/components/property/PropertyCardExport';
@@ -63,6 +64,15 @@ function ProfileMenu({ onLogout }) {
           >
             <User className="w-4 h-4" style={{ color: AIRBNB }} />
             الملف الشخصي
+          </Link>
+          <div className="h-px bg-zinc-100" />
+          <Link
+            to="/subscription"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-4 py-3.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors font-bold"
+          >
+            <Crown className="w-4 h-4" style={{ color: AIRBNB }} />
+            اشتراكاتي
           </Link>
           <div className="h-px bg-zinc-100" />
           <button
