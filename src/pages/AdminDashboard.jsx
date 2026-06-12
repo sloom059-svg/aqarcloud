@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import logo from '../aqar-cloud-logo.png';
-// AqarCloud Admin Airbnb Theme V5 - نفس تصميم البطاقات لكن أصغر وأخف
+// AqarCloud Admin Airbnb Theme V7 - شريط خطط ٣ خيارات مع حالة منتهي واضحة
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44, supabase } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -422,7 +422,7 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
                     <div>
                       <p className="text-xs font-black text-[#FF385C] mb-1">إدارة الاشتراكات</p>
                       <h3 className="text-xl font-black text-zinc-950">الأعضاء ({fm.length})</h3>
-                      <p className="text-xs text-zinc-500 mt-1">اختر خطة نصف سنوية أو سنوية لأي عضو بنفس منطق التفعيل الحالي.</p>
+                      <p className="text-xs text-zinc-500 mt-1">اختر تجربة مجانية، نصف سنوي، أو سنوي لأي عضو، والخطة الحالية تظهر محددة بشكل واضح.</p>
                     </div>
                   </div>
 
@@ -447,8 +447,20 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
                 <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3">
                   {fm.map(m => {
                     const s = getSubscriptionState(m);
-                    const active = s.status === 'active' || s.status === 'grace';
                     const isBroker = m.business_type === 'وسيط' || m.office_name;
+                    const selectedPlan = s.status === 'expired' ? null : (s.plan || 'trial');
+                    const savedPlan = s.plan || 'trial';
+                    const statusLabel = s.status === 'active' ? 'نشط' : s.status === 'grace' ? 'مهلة' : 'منتهي';
+                    const statusClass = s.status === 'active'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                      : s.status === 'grace'
+                        ? 'bg-amber-50 text-amber-700 border-amber-100'
+                        : 'bg-rose-50 text-rose-700 border-rose-100';
+                    const subscriptionOptions = [
+                      { id: 'trial', label: 'تجربة مجانية', icon: <Activity className="w-3.5 h-3.5" /> },
+                      { id: 'semi', label: 'نصف سنوي', icon: <Clock className="w-3.5 h-3.5" /> },
+                      { id: 'yearly', label: 'سنوي', icon: <Crown className="w-3.5 h-3.5" /> },
+                    ];
                     return (
                       <div key={m.id} className="group bg-white rounded-[1.5rem] border border-zinc-100 shadow-sm hover:shadow-lg hover:shadow-zinc-200/50 transition-all overflow-hidden">
                         <div className="p-4">
@@ -471,8 +483,8 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
                               </div>
                             </div>
 
-                            <span className={`shrink-0 text-[10px] font-black px-2.5 py-1 rounded-full ${active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
-                              {active ? 'مشترك' : 'غير مشترك'}
+                            <span className={`shrink-0 text-[10px] font-black px-2.5 py-1 rounded-full border ${statusClass}`}>
+                              {statusLabel}
                             </span>
                           </div>
 
@@ -483,7 +495,7 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
                             </div>
                             <div className="bg-zinc-50 rounded-2xl p-3 border border-zinc-100">
                               <p className="text-[10px] font-black text-zinc-400 mb-1">الخطة الحالية</p>
-                              <p className="text-xs font-black text-zinc-950">{PLANS[s.plan]?.label || 'لا يوجد'}</p>
+                              <p className="text-xs font-black text-zinc-950">{PLANS[savedPlan]?.label || 'لا يوجد'}</p>
                             </div>
                             <div className="bg-zinc-50 rounded-2xl p-3 border border-zinc-100">
                               <p className="text-[10px] font-black text-zinc-400 mb-1">تاريخ الانتهاء</p>
@@ -494,31 +506,31 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
                           <div className="bg-[#FFF7F8] border border-rose-100 rounded-2xl p-3">
                             <div className="flex items-center justify-between gap-2 mb-2">
                               <div>
-                                <p className="text-[11px] font-black text-zinc-950">تفعيل / تمديد الاشتراك</p>
-                                <p className="text-[10px] text-zinc-500 mt-0.5">نفس الدالة الحالية: تضيف المدة فوق المتبقي إذا كان عنده اشتراك.</p>
+                                <p className="text-[11px] font-black text-zinc-950">خطة الاشتراك</p>
+                                <p className="text-[10px] text-zinc-500 mt-0.5">{s.status === 'expired' ? 'الاشتراك منتهي الآن، اختر أي خطة لإعادة التفعيل.' : 'الشريط يوضح الخطة الحالية، والضغط على أي خيار يفعّلها بنفس المنطق الحالي.'}</p>
                               </div>
-                              <Crown className="w-4 h-4 text-[#FF385C]" />
+                              <span className={`text-[10px] font-black px-2.5 py-1 rounded-full bg-white border ${s.status === 'expired' ? 'border-rose-200 text-rose-600' : 'border-rose-100 text-[#FF385C]'}`}>
+                                {s.status === 'expired' ? 'منتهي' : (PLANS[selectedPlan]?.label || 'تجربة مجانية')}
+                              </span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2">
-                              <button
-                                type="button"
-                                onClick={() => activateSubscription(m, 'semi')}
-                                disabled={activating === m.id + 'semi'}
-                                className="h-10 rounded-xl bg-white border border-rose-100 text-zinc-950 font-black text-xs hover:border-[#FF385C] hover:text-[#FF385C] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
-                              >
-                                {activating === m.id + 'semi' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
-                                نصف سنوي
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => activateSubscription(m, 'yearly')}
-                                disabled={activating === m.id + 'yearly'}
-                                className="h-10 rounded-xl bg-[#FF385C] text-white font-black text-xs hover:bg-[#E31C5F] transition-all disabled:opacity-50 shadow-md shadow-rose-200/70 flex items-center justify-center gap-1.5"
-                              >
-                                {activating === m.id + 'yearly' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                                سنوي
-                              </button>
+                            <div className="grid grid-cols-3 gap-1.5 rounded-2xl bg-white border border-rose-100 p-1">
+                              {subscriptionOptions.map(option => {
+                                const selected = selectedPlan === option.id;
+                                const isLoadingPlan = activating === m.id + option.id;
+                                return (
+                                  <button
+                                    key={option.id}
+                                    type="button"
+                                    onClick={() => activateSubscription(m, option.id)}
+                                    disabled={isLoadingPlan}
+                                    className={`h-9 rounded-xl font-black text-[10px] md:text-[11px] transition-all disabled:opacity-50 flex items-center justify-center gap-1 ${selected ? 'bg-[#FF385C] text-white shadow-md shadow-rose-200/70' : 'bg-transparent text-zinc-600 hover:bg-rose-50 hover:text-[#FF385C]'}`}
+                                  >
+                                    {isLoadingPlan ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : option.icon}
+                                    <span className="truncate">{option.label}</span>
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
 
