@@ -11,6 +11,7 @@ import VenueCalendar from '@/components/venue/VenueCalendar';
 import BookingSheet from '@/components/venue/BookingSheet';
 import ResortTheme from '@/components/venue/ResortTheme';
 import OrchidTheme from '@/components/venue/OrchidTheme';
+import { isPublicPageActive, isVerified } from '@/lib/subscription';
 import {
   MapPin, Clock, Loader2, ChevronLeft, ChevronRight,
   Star, ShieldCheck, Waves, Coffee, Wifi, Gamepad2, UtensilsCrossed,
@@ -158,6 +159,7 @@ export default function VenuePublicPage() {
     enabled: !!venue?.owner_id,
   });
   const venueLogo = venue?.logo_url || ownerProfile?.office_logo_url || '';
+  const ownerVerified = ownerProfile ? isVerified(ownerProfile) : false;
 
   const bookMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
@@ -207,6 +209,18 @@ export default function VenuePublicPage() {
   if (!venue) return (
     <div className={`min-h-screen flex items-center justify-center font-bold text-xl font-cairo ${isRoyal ? 'bg-[#020617] text-[#d4af37]' : 'bg-[#fcfcfc] text-gray-500'}`}>
       المكان غير موجود
+    </div>
+  );
+
+  // ── اشتراك المالك منتهي (بعد المهلة) — صفحة غير متاحة ──
+  if (venue.owner_id && ownerProfile && !isPublicPageActive(ownerProfile)) return (
+    <div dir="rtl" className="min-h-screen bg-[#fcfcfc] flex flex-col items-center justify-center p-6 text-center" style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');`}</style>
+      <div className="w-20 h-20 rounded-3xl bg-zinc-100 flex items-center justify-center mb-6">
+        <Sparkles className="w-9 h-9 text-zinc-400" />
+      </div>
+      <h1 className="text-2xl font-bold text-zinc-800 mb-2">هذه الصفحة غير متاحة حاليًا</h1>
+      <p className="text-zinc-500 font-medium">عُد قريبًا ✨</p>
     </div>
   );
 
@@ -449,6 +463,12 @@ export default function VenuePublicPage() {
               <Sparkles className="w-8 h-8 text-[#d4af37] mb-6 animate-pulse opacity-80" />
               <h1 className="text-4xl md:text-6xl font-black text-white mb-5 tracking-tight leading-tight max-w-3xl drop-shadow-2xl">
                 {venue.name}
+                {ownerVerified && (
+                  <svg viewBox="0 0 24 24" className="inline-block w-7 h-7 mr-2 align-middle" aria-label="موثّق">
+                    <path fill="#d4af37" d="M12 2.25l2.02 1.51 2.52-.21 1.06 2.29 2.32 1.01-.23 2.52L21.2 12l-1.51 2.63.23 2.52-2.32 1.01-1.06 2.29-2.52-.21L12 21.75l-2.02-1.51-2.52.21-1.06-2.29-2.32-1.01.23-2.52L2.8 12l1.51-2.63-.23-2.52L6.4 5.84l1.06-2.29 2.52.21L12 2.25z" />
+                    <path d="M8.7 12.2l2.05 2.05 4.7-5" fill="none" stroke="#020617" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
               </h1>
               {venue.city && (
                 <div className="flex items-center gap-1.5 text-[#d4af37] font-bold text-sm mb-5">
@@ -788,7 +808,15 @@ export default function VenuePublicPage() {
               <Star className="w-3 h-3 fill-current" style={{ color: accent }} />
               <span>{venue.venue_type || 'مكان مميز'}</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-3 drop-shadow-lg">{venue.name}</h1>
+            <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-3 drop-shadow-lg">
+              {venue.name}
+              {ownerVerified && (
+                <svg viewBox="0 0 24 24" className="inline-block w-7 h-7 mr-2 align-middle" aria-label="موثّق">
+                  <path fill="#FF385C" d="M12 2.25l2.02 1.51 2.52-.21 1.06 2.29 2.32 1.01-.23 2.52L21.2 12l-1.51 2.63.23 2.52-2.32 1.01-1.06 2.29-2.52-.21L12 21.75l-2.02-1.51-2.52.21-1.06-2.29-2.32-1.01.23-2.52L2.8 12l1.51-2.63-.23-2.52L6.4 5.84l1.06-2.29 2.52.21L12 2.25z" />
+                  <path d="M8.7 12.2l2.05 2.05 4.7-5" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </h1>
             <div className="flex items-center gap-4 text-sm font-medium text-gray-200">
               {venue.city && (
                 <span className="flex items-center gap-1.5">
