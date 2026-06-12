@@ -52,7 +52,16 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
-      const updateData = { phone, city };
+      // احسب تاريخ انتهاء التجربة (30 يوم من اليوم)
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + 30);
+
+      const updateData = {
+        phone,
+        city,
+        subscription_plan: 'trial',
+        subscription_end: trialEnd.toISOString(),
+      };
       if (role === 'وسيط') {
         updateData.office_name = officeName;
         updateData.business_type = 'وسيط';
