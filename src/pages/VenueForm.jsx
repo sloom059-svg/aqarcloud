@@ -19,8 +19,7 @@ import {
 import { Link } from 'react-router-dom';
 import CityCombobox from '@/components/venue/CityCombobox';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-
-const ALL_FEATURES = ["مسبح","جلسات خارجية","واي فاي","ملعب","مطبخ","دخول ذاتي","ألعاب أطفال","شواء","قسم رجال","قسم نساء","غرف نوم","حديقة","مولد كهرباء","مكيف","مدفأة"];
+import { getFeaturesForType, FeatureIcons } from '@/lib/featureCatalog';
 
 const CUSTOM_ICON_OPTIONS = [
   { key: 'star', Icon: Star },
@@ -513,6 +512,16 @@ export default function VenueForm() {
                 <div className="text-xs text-muted-foreground mt-0.5">تصميم نظيف بلون قابل للتخصيص</div>
               </button>
 
+              <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'orchid' }))}
+                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'orchid' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'orchid' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
+                <div className="h-16 rounded-xl mb-3 border flex items-center justify-center" style={{ background: '#FCFBF8', borderColor: '#F4EAE6' }}>
+                  <span style={{ fontSize: 28 }}>🌸</span>
+                </div>
+                <div className="font-bold text-sm">أوركيد الناعم</div>
+                <div className="text-xs text-muted-foreground mt-0.5">روز جولد ناعم وأنيق</div>
+              </button>
+
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'royal' }))}
                 className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'royal' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
                 {form.page_theme === 'royal' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
@@ -531,16 +540,6 @@ export default function VenueForm() {
                 </div>
                 <div className="font-bold text-sm">المنتجع الفاخر</div>
                 <div className="text-xs text-muted-foreground mt-0.5">تيل داكن فاخر بلمسات ذهبية</div>
-              </button>
-
-              <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'orchid' }))}
-                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'orchid' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
-                {form.page_theme === 'orchid' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
-                <div className="h-16 rounded-xl mb-3 border flex items-center justify-center" style={{ background: '#FCFBF8', borderColor: '#F4EAE6' }}>
-                  <span style={{ fontSize: 28 }}>🌸</span>
-                </div>
-                <div className="font-bold text-sm">أوركيد الناعم</div>
-                <div className="text-xs text-muted-foreground mt-0.5">روز جولد ناعم وأنيق</div>
               </button>
             </div>
 
@@ -793,12 +792,15 @@ export default function VenueForm() {
           <CardHeader><CardTitle className="text-base">المميزات</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-2">
-              {ALL_FEATURES.map(f => (
-                <button key={f} type="button" onClick={() => toggleFeature(f)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.features.includes(f) ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/30'}`}>
-                  {f}
+              {getFeaturesForType(form.venue_type).map(f => {
+                const FIcon = FeatureIcons[f.icon];
+                return (
+                <button key={f.id} type="button" onClick={() => toggleFeature(f.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.features.includes(f.id) ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/30'}`}>
+                  <FIcon className="w-4 h-4 flex-shrink-0" />{f.id}
                 </button>
-              ))}
+                );
+              })}
             </div>
 
             <div className="border-t border-border pt-3">
