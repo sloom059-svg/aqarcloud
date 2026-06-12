@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44, supabase } from "@/api/base44Client";
 import { Loader2, Upload, Trash2, Check, Sun, Crown, Eye, LayoutDashboard, PartyPopper, Sparkles, ArrowLeft, X } from "lucide-react";
+import { getFeaturesForType, FeatureIcons } from '@/lib/featureCatalog';
 
 const IconHome=(p)=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>;
 const IconTent=(p)=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 2L2 20h20L12 2z"/><path d="M12 2v18M7 20l5-8 5 8"/></svg>;
@@ -604,12 +605,15 @@ export default function CompleteProfile() {
                 <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">أخيراً، وش يتميز فيه مكانك؟ ✨</h2>
                 <p className="text-slate-500 text-sm mb-6">اختر المرافق المتوفرة عشان تظهر للعملاء بشكل أيقونات جميلة.</p>
                 <div className="flex flex-wrap gap-2.5">
-                  {ALL_FEATURES.map(f=>(
+                  {getFeaturesForType(role).map(f=>{
+                    const FIcon = FeatureIcons[f.icon];
+                    return (
                     <button key={f.id} onClick={()=>toggleFeature(f.id)}
                       className={`feature-bubble flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium transition-all ${venue.features.includes(f.id)?'selected border-transparent':'bg-white text-slate-600 border-slate-200'}`}>
-                      <f.Icon className="w-4 h-4 flex-shrink-0"/>{f.id}
+                      <FIcon className="w-4 h-4 flex-shrink-0"/>{f.id}
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
