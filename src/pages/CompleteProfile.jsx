@@ -70,7 +70,7 @@ export default function CompleteProfile() {
   const [uploadingLogo,setUploadingLogo]=useState(false);
   const [uploadingImgs,setUploadingImgs]=useState(false);
   const [success,setSuccess]=useState(()=>loadSuccess());
-  const [broker,setBroker]=useState(validSaved?.broker||{office_name:'',city:'',office_logo_url:'',phone:'',license_number:''});
+  const [broker,setBroker]=useState(validSaved?.broker||{office_name:'',city:'',office_logo_url:'',phone:'',license_number:'',slug:''});
   const [venue,setVenue]=useState(validSaved?.venue||{
     name:'',city:'',description:'',images:[],youtube_urls:[''],
     features:[],social:{instagram:'',snapchat:'',tiktok:'',x:''},
@@ -143,7 +143,7 @@ export default function CompleteProfile() {
     });
   };
 
-  const saveBroker=async()=>{setSaving(true);try{await base44.auth.updateMe({...broker,business_type:role});const successData={type:'broker',theme:'classic'};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveBroker=async()=>{setSaving(true);try{const brokerSlug=(broker.slug&&broker.slug.trim())?broker.slug.trim():`a${Math.random().toString(36).slice(2,8)}`;await base44.auth.updateMe({...broker,slug:brokerSlug,business_type:role});const successData={type:'broker',theme:'classic',url:`${window.location.origin}/agent/${brokerSlug}`};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
   const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const chosenReviews=selectedReviewIdx.map(i=>fetchedReviews[i]).filter(Boolean);const created=await base44.entities.Venue.create({...venue,google_reviews:chosenReviews.length?chosenReviews:venue.google_reviews,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});
     // تجربة مجانية 30 يوم + إشعار ترحيب (مرة واحدة فقط)
@@ -365,6 +365,14 @@ export default function CompleteProfile() {
                   <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-slate-400 transition-all">
                     <label className="block text-xs font-bold text-slate-400 mb-1">رقم الرخصة (اختياري)</label>
                     <input value={broker.license_number} onChange={e=>setBroker(p=>({...p,license_number:e.target.value}))} placeholder="1234567890" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-base text-slate-800"/>
+                  </div>
+                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 focus-within:border-slate-400 transition-all">
+                    <label className="block text-xs font-bold text-slate-400 mb-1">رابط صفحتك (اختياري)</label>
+                    <div className="flex items-center gap-1" dir="ltr">
+                      <span className="text-xs text-slate-400 font-medium whitespace-nowrap">aqacloud.com/agent/</span>
+                      <input value={broker.slug} onChange={e=>setBroker(p=>({...p,slug:e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'')}))} placeholder="my-office" dir="ltr" className="w-full bg-transparent border-none outline-none font-bold text-base text-slate-800"/>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1">إنجليزي فقط — اتركه فارغاً ليتولّد تلقائياً</p>
                   </div>
                 </div>
               </div>
