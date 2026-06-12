@@ -185,13 +185,20 @@ function PropertyPublicCard({ property }) {
 }
 
 export default function AgentProfile() {
-  const agentId = window.location.pathname.split('/').pop();
+  const agentParam = window.location.pathname.split('/').pop();
 
   const { data: agent, isLoading: agentLoading } = useQuery({
-    queryKey: ['agent-profile', agentId],
-    queryFn: async () => (await base44.entities.User.filter({ id: agentId }))[0],
-    enabled: !!agentId,
+    queryKey: ['agent-profile', agentParam],
+    queryFn: async () => {
+      // نبحث بالـ slug أولاً، ثم بالـ id (توافق مع الروابط القديمة)
+      let rows = await base44.entities.User.filter({ slug: agentParam });
+      if (!rows || !rows.length) rows = await base44.entities.User.filter({ id: agentParam });
+      return rows[0];
+    },
+    enabled: !!agentParam,
   });
+
+  const agentId = agent?.id;
 
   const { data: properties = [], isLoading: propsLoading } = useQuery({
     queryKey: ['agent-properties', agentId],
