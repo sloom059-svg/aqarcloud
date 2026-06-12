@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowRight, Check, Crown, Sparkles, Calendar, ShieldCheck } from 'lucide-react';
 import {
-  getSubscriptionState, formatDate, SUBSCRIPTION_LINKS, PLANS, GRACE_DAYS,
+  getSubscriptionState, formatDate, SUBSCRIPTION_LINKS, PLANS,
 } from '@/lib/subscription';
+import { toast } from '@/components/ui/use-toast';
 
 const AIRBNB = '#FF385C';
 
@@ -12,6 +13,8 @@ export default function Subscription() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const state = getSubscriptionState(user);
+  const [hoveredPlan, setHoveredPlan] = React.useState(null);
+  const activePlanKey = hoveredPlan || 'semi';
 
   const planLabel = PLANS[state.plan]?.label || 'غير محدد';
 
@@ -50,6 +53,18 @@ export default function Subscription() {
       features: ['نشر شاليهك للعملاء', 'حجوزات غير محدودة', 'علامة التوثيق ✓', 'دعم فني مميز', 'كل الثيمات'],
     },
   ];
+
+  const handleSubscribeClick = (planKey) => {
+    if (state.status === 'active' || state.status === 'grace') {
+      toast({
+        title: 'مازال اشتراكك ساري',
+        description: 'لا تحتاج للاشتراك الآن لأن اشتراكك الحالي مازال فعّالاً.',
+      });
+      return;
+    }
+
+    window.open(SUBSCRIPTION_LINKS[planKey], '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#fcfcfc]" style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
@@ -111,55 +126,64 @@ export default function Subscription() {
         <div>
           <h2 className="text-base font-bold text-zinc-900 mb-3 px-1">اختر باقتك</h2>
           <div className="grid sm:grid-cols-2 gap-4">
-            {plans.map(p => (
-              <div key={p.key}
-                className={`relative bg-white rounded-3xl border-2 overflow-hidden transition-all ${p.featured ? 'border-[#FF385C] shadow-lg' : 'border-zinc-100 shadow-sm'}`}>
-                {p.badge && (
-                  <div className="absolute top-0 left-0 text-white text-[11px] font-bold px-3 py-1 rounded-br-2xl" style={{ background: AIRBNB }}>
-                    {p.badge}
-                  </div>
-                )}
-                <div className="p-5 sm:p-6">
-                  <h3 className="text-lg font-bold text-zinc-900 mb-1">{p.name}</h3>
-                  <p className="text-sm text-zinc-400 font-medium mb-3">{p.period}</p>
+            {plans.map(p => {
+              const isActivePlan = activePlanKey === p.key;
 
-                  {/* السعر */}
-                  <div className="mb-2">
-                    <span className="text-3xl font-black text-zinc-900" dir="ltr">{p.price}</span>
-                    <span className="text-sm text-zinc-400 font-medium"> ر.س</span>
-                  </div>
-                  {/* التوفير الشهري */}
-                  <div className="mb-4 flex items-center gap-1.5">
-                    <span className="text-xs text-zinc-500 font-medium" dir="ltr">
-                      ≈ {p.monthlyPrice} ر.س / شهر
-                    </span>
-                    {p.featured && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-emerald-700 bg-emerald-50">
-                        {p.saving}
+              return (
+                <div key={p.key}
+                  onMouseEnter={() => setHoveredPlan(p.key)}
+                  onMouseLeave={() => setHoveredPlan(null)}
+                  className={`relative bg-white rounded-3xl border-2 overflow-hidden transition-all duration-200 ${isActivePlan ? 'border-[#FF385C] shadow-lg' : 'border-zinc-100 shadow-sm'}`}>
+                  {p.badge && (
+                    <div className="absolute top-0 left-0 text-white text-[11px] font-bold px-3 py-1 rounded-br-2xl" style={{ background: AIRBNB }}>
+                      {p.badge}
+                    </div>
+                  )}
+                  <div className="p-5 sm:p-6">
+                    <h3 className="text-lg font-bold text-zinc-900 mb-1">{p.name}</h3>
+                    <p className="text-sm text-zinc-400 font-medium mb-3">{p.period}</p>
+
+                    {/* السعر */}
+                    <div className="mb-2">
+                      <span className="text-3xl font-black text-zinc-900" dir="ltr">{p.price}</span>
+                      <span className="text-sm text-zinc-400 font-medium"> ر.س</span>
+                    </div>
+                    {/* التوفير الشهري */}
+                    <div className="mb-4 flex items-center gap-1.5">
+                      <span className="text-xs text-zinc-500 font-medium" dir="ltr">
+                        ≈ {p.monthlyPrice} ر.س / شهر
                       </span>
-                    )}
-                  </div>
-
-                  <ul className="space-y-2.5 mb-6">
-                    {p.features.map((f, i) => (
-                      <li key={i} className="flex items-center gap-2.5 text-sm text-zinc-600 font-medium">
-                        <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${AIRBNB}15` }}>
-                          <Check className="w-3 h-3" style={{ color: AIRBNB }} strokeWidth={3} />
+                      {p.featured && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-emerald-700 bg-emerald-50">
+                          {p.saving}
                         </span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
+                      )}
+                    </div>
 
-                  <a href={SUBSCRIPTION_LINKS[p.key]} target="_blank" rel="noopener noreferrer"
-                    className={`w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${p.featured ? 'text-white shadow-md hover:-translate-y-0.5' : 'text-zinc-800 bg-zinc-100 hover:bg-zinc-200'}`}
-                    style={p.featured ? { background: AIRBNB } : {}}>
-                    اشترك الآن
-                    <ArrowRight className="w-4 h-4" />
-                  </a>
+                    <ul className="space-y-2.5 mb-6">
+                      {p.features.map((f, i) => (
+                        <li key={i} className="flex items-center gap-2.5 text-sm text-zinc-600 font-medium">
+                          <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${AIRBNB}15` }}>
+                            <Check className="w-3 h-3" style={{ color: AIRBNB }} strokeWidth={3} />
+                          </span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSubscribeClick(p.key)}
+                      className={`w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${p.featured ? 'text-white shadow-md hover:-translate-y-0.5' : 'text-zinc-800 bg-zinc-100 hover:bg-zinc-200'}`}
+                      style={p.featured ? { background: AIRBNB } : {}}
+                    >
+                      اشترك الآن
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
