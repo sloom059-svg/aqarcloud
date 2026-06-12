@@ -79,7 +79,7 @@ function ProfileMenu({ onLogout }) {
       </button>
 
       {open && (
-        <div className="absolute left-0 bottom-full mb-3 w-48 bg-white rounded-3xl shadow-2xl border border-zinc-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute left-0 top-full mt-3 w-48 bg-white rounded-3xl shadow-2xl border border-zinc-100 overflow-hidden z-[200] animate-in fade-in slide-in-from-top-2">
           <Link
             to="/profile"
             onClick={() => setOpen(false)}
