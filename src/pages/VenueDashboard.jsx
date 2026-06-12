@@ -68,7 +68,7 @@ function ProfileMenu({ onLogout }) {
   }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative z-[100]" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
         className="h-9 w-9 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]"
@@ -338,7 +338,7 @@ export default function VenueDashboard() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="pt-4 sm:pt-5 pb-3">
+        <header className="relative z-[100] pt-4 sm:pt-5 pb-3">
           <div className="rounded-[1.6rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-3.5">
             <div className="flex items-center justify-between gap-2 sm:gap-4">
 
