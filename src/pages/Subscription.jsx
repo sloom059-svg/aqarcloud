@@ -30,24 +30,24 @@ export default function Subscription() {
 
   const plans = [
     {
-      key: 'yearly',
-      name: 'الاشتراك السنوي',
-      period: 'لمدة 12 شهر',
-      price: 480,
-      monthlyPrice: 40,
-      saving: 'وفّر ' + (290*2 - 480) + ' ريال مقارنة بنصف سنوي',
-      featured: true,
-      badge: 'الأوفر',
-      features: ['نشر شاليهك للعملاء', 'حجوزات غير محدودة', 'علامة التوثيق ✓', 'دعم فني مميز', 'كل الثيمات'],
-    },
-    {
       key: 'semi',
       name: 'نصف سنوي',
       period: 'لمدة 6 أشهر',
       price: 290,
       monthlyPrice: (290/6).toFixed(1),
-      featured: false,
+      saving: 'الأقل سعراً للبداية',
+      featured: true,
+      badge: 'الأنسب للبداية',
       features: ['نشر شاليهك للعملاء', 'حجوزات غير محدودة', 'علامة التوثيق ✓', 'دعم فني'],
+    },
+    {
+      key: 'yearly',
+      name: 'الاشتراك السنوي',
+      period: 'لمدة 12 شهر',
+      price: 480,
+      monthlyPrice: 40,
+      featured: false,
+      features: ['نشر شاليهك للعملاء', 'حجوزات غير محدودة', 'علامة التوثيق ✓', 'دعم فني مميز', 'كل الثيمات'],
     },
   ];
 
@@ -167,7 +167,7 @@ export default function Subscription() {
         <div className="flex items-start gap-2.5 bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
           <ShieldCheck className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-zinc-600 font-medium leading-relaxed">
-            بعد الدفع عبر السلة، سيتم تفعيل اشتراكك من قبل الإدارة خلال وقت قصير. ستصلك إشعار بالتجديد فور التفعيل.
+            بعد الدفع عبر السلة، سيتم تفعيل اشتراكك خلال وقت قصير. ستصلك إشعار بالتجديد فور التفعيل.
           </p>
         </div>
       </div>
