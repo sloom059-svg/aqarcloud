@@ -328,7 +328,7 @@ export default function Profile() {
         <form onSubmit={handleSubmit} className="grid lg:grid-cols-[320px_1fr] gap-5 sm:gap-6 items-start">
           {/* بطاقة الهوية */}
           <aside className="lg:sticky lg:top-6 rounded-[2rem] bg-white border border-zinc-200 shadow-[0_18px_55px_rgba(0,0,0,0.07)] overflow-hidden">
-            <div className="h-24 bg-gradient-to-l from-[#FF385C] via-[#E31C5F] to-[#222222] relative overflow-hidden">
+            <div className="h-24 bg-[#FF385C] relative overflow-hidden">
               <div className="absolute -top-10 -left-10 w-32 h-32 rounded-full bg-white/15 blur-2xl" />
               <div className="absolute -bottom-12 right-6 w-32 h-32 rounded-full bg-white/10 blur-xl" />
             </div>
@@ -424,14 +424,12 @@ export default function Profile() {
                   <Label className="text-sm font-black text-zinc-800">المدينة</Label>
                   <div className="relative">
                     <FieldIcon><MapPin className="w-4 h-4" /></FieldIcon>
-                    <Select value={form.city} onValueChange={(v) => setForm(prev => ({ ...prev, city: v }))}>
-                      <SelectTrigger className="h-[52px] rounded-2xl border-zinc-200 bg-zinc-50/70 pr-14 font-bold text-zinc-900 focus:ring-[#FF385C]/25 focus:border-[#FF385C]">
-                        <SelectValue placeholder="اختر المدينة" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-zinc-200">
-                        {CITIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      value={form.city}
+                      onChange={(e) => setForm(prev => ({ ...prev, city: e.target.value }))}
+                      placeholder="اكتب اسم المدينة"
+                      className="h-[52px] rounded-2xl border-zinc-200 bg-zinc-50/70 pr-14 font-bold text-zinc-900 focus:ring-[#FF385C]/25 focus:border-[#FF385C]"
+                    />
                   </div>
                 </div>
 
