@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapPin, Star, CheckCircle2, Waves, Bed, Leaf, UtensilsCrossed, Car, ArrowLeft, Quote, Gem, Heart, Wifi, ShieldCheck, Play, Camera, Calendar, ChevronDown } from 'lucide-react';
 import VenueCalendar from './VenueCalendar';
+import { getFeatureMeta } from '@/lib/featureCatalog';
 
 /*
   ثيم "الريم" الفاخر — تصميم بانورامي ذهبي/زيتوني، خط Tajawal.
@@ -183,12 +184,14 @@ export default function ResortTheme({
               <SectionTitle title="خدمات صُممت لأجلك" desc="اهتممنا بأدق التفاصيل لنوفر لك إقامة متكاملة بكل رقي." rv={rv} />
               <div className="rm-amenities" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }}>
                 {features.map((f, i) => {
-                  const Icon = FEATURE_ICONS[f] || CheckCircle2;
+                  const meta = getFeatureMeta(f, venue.venue_type);
+                  const CatIcon = meta.Icon;
                   return (
                     <article key={i} className="rm-card-hover" data-rv style={{ ...rv, position: 'relative', minHeight: 200, padding: 24, borderRadius: 32, background: 'linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.5))', border: '1px solid rgba(72,57,38,.11)', boxShadow: '0 18px 46px rgba(22,19,15,.05)', overflow: 'hidden' }}>
                       <div style={{ position: 'absolute', left: -45, bottom: -45, width: 130, height: 130, borderRadius: '50%', background: 'rgba(216,185,120,.15)' }} />
-                      <div style={{ width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 20, background: FOREST, color: SAND, marginBottom: 24, position: 'relative' }}><Icon size={24} /></div>
+                      <div style={{ width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 20, background: FOREST, color: SAND, marginBottom: 24, position: 'relative' }}><CatIcon style={{ width: 24, height: 24 }} /></div>
                       <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: FOREST, position: 'relative' }}>{f}</h3>
+                      {meta.desc && <p style={{ margin: '10px 0 0', fontSize: 14, color: MUTED, lineHeight: 1.7, position: 'relative' }}>{meta.desc}</p>}
                     </article>
                   );
                 })}
