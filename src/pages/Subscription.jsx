@@ -30,12 +30,22 @@ export default function Subscription() {
 
   const plans = [
     {
-      key: 'yearly', name: 'الاشتراك السنوي', period: 'لمدة 12 شهر',
-      featured: true, badge: 'الأكثر توفيراً',
+      key: 'yearly',
+      name: 'الاشتراك السنوي',
+      period: 'لمدة 12 شهر',
+      price: 480,
+      monthlyPrice: 40,
+      saving: 'وفّر ' + (290*2 - 480) + ' ريال مقارنة بنصف سنوي',
+      featured: true,
+      badge: 'الأوفر',
       features: ['نشر شاليهك للعملاء', 'حجوزات غير محدودة', 'علامة التوثيق ✓', 'دعم فني مميز', 'كل الثيمات'],
     },
     {
-      key: 'semi', name: 'الاشتراك النصف سنوي', period: 'لمدة 6 أشهر',
+      key: 'semi',
+      name: 'نصف سنوي',
+      period: 'لمدة 6 أشهر',
+      price: 290,
+      monthlyPrice: (290/6).toFixed(1),
       featured: false,
       features: ['نشر شاليهك للعملاء', 'حجوزات غير محدودة', 'علامة التوثيق ✓', 'دعم فني'],
     },
@@ -111,7 +121,24 @@ export default function Subscription() {
                 )}
                 <div className="p-5 sm:p-6">
                   <h3 className="text-lg font-bold text-zinc-900 mb-1">{p.name}</h3>
-                  <p className="text-sm text-zinc-400 font-medium mb-4">{p.period}</p>
+                  <p className="text-sm text-zinc-400 font-medium mb-3">{p.period}</p>
+
+                  {/* السعر */}
+                  <div className="mb-2">
+                    <span className="text-3xl font-black text-zinc-900" dir="ltr">{p.price}</span>
+                    <span className="text-sm text-zinc-400 font-medium"> ر.س</span>
+                  </div>
+                  {/* التوفير الشهري */}
+                  <div className="mb-4 flex items-center gap-1.5">
+                    <span className="text-xs text-zinc-500 font-medium" dir="ltr">
+                      ≈ {p.monthlyPrice} ر.س / شهر
+                    </span>
+                    {p.featured && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-emerald-700 bg-emerald-50">
+                        {p.saving}
+                      </span>
+                    )}
+                  </div>
 
                   <ul className="space-y-2.5 mb-6">
                     {p.features.map((f, i) => (
@@ -125,7 +152,7 @@ export default function Subscription() {
                   </ul>
 
                   <a href={SUBSCRIPTION_LINKS[p.key]} target="_blank" rel="noopener noreferrer"
-                    className={`w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${p.featured ? 'text-white shadow-md' : 'text-zinc-800 bg-zinc-100 hover:bg-zinc-200'}`}
+                    className={`w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${p.featured ? 'text-white shadow-md hover:-translate-y-0.5' : 'text-zinc-800 bg-zinc-100 hover:bg-zinc-200'}`}
                     style={p.featured ? { background: AIRBNB } : {}}>
                     اشترك الآن
                     <ArrowRight className="w-4 h-4" />
