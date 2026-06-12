@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapPin, CheckCircle2, Waves, Bed, Leaf, UtensilsCrossed, Car, Play, Star, Calendar, ChevronDown, Heart, Flower2, Wifi, ShieldCheck, Coffee } from 'lucide-react';
 import VenueCalendar from './VenueCalendar';
+import { getFeatureMeta } from '@/lib/featureCatalog';
 
 /*
   ثيم "أوركيد" — رمادي ناعم + روز جولد (كاشمير)، خط Tajawal.
@@ -157,11 +158,13 @@ export default function OrchidTheme({
             </div>
             <div className="or-feats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 24 }}>
               {features.map((f, i) => {
-                const Icon = FEATURE_ICONS[f] || CheckCircle2;
+                const meta = getFeatureMeta(f, venue.venue_type);
+                const CatIcon = meta.Icon;
                 return (
                   <div key={i} className="or-card-hover" data-fade style={{ ...fade, background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 10px 30px -15px rgba(0,0,0,.05)' }}>
-                    <div style={{ width: 56, height: 56, background: BLUSH, color: CASHMERE, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}><Icon size={22} /></div>
+                    <div style={{ width: 56, height: 56, background: BLUSH, color: CASHMERE, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}><CatIcon style={{ width: 22, height: 22 }} /></div>
                     <h4 style={{ fontSize: 18, fontWeight: 700, color: CHARCOAL, margin: 0 }}>{f}</h4>
+                    {meta.desc && <p style={{ fontSize: 13, color: STONE, margin: '10px 0 0', lineHeight: 1.7, fontWeight: 400 }}>{meta.desc}</p>}
                   </div>
                 );
               })}
