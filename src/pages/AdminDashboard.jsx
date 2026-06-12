@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import logo from '../aqar-cloud-logo.png';
-// AqarCloud Admin Airbnb Theme V3 - ملف باسم جديد للتأكد من التغيير
+// AqarCloud Admin Airbnb Theme V4 - قائمة أعضاء مرتبة وأزرار اشتراك صغيرة
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44, supabase } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -410,29 +410,31 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
 
           {/* ══ الأعضاء ══ */}
           {activeTab === 'members' && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div className="bg-white rounded-[2rem] shadow-sm border border-zinc-100 p-5 md:p-6 overflow-hidden relative">
                 <div className="absolute -top-20 -left-20 w-48 h-48 bg-[#FF385C]/10 rounded-full blur-3xl" />
-                <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-[#FF385C] text-white flex items-center justify-center shadow-lg shadow-rose-100">
-                      <Users className="w-7 h-7" />
+                    <div className="w-12 h-12 rounded-2xl bg-[#FF385C] text-white flex items-center justify-center shadow-lg shadow-rose-100">
+                      <Users className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-xs font-black text-[#FF385C] mb-1">إدارة الاشتراكات</p>
+                      <p className="text-xs font-black text-[#FF385C] mb-1">إدارة الأعضاء والاشتراكات</p>
                       <h3 className="text-2xl font-black text-zinc-950">الأعضاء ({fm.length})</h3>
-                      <p className="text-sm text-zinc-500 mt-1">اختر خطة نصف سنوية أو سنوية لأي عضو بنفس منطق التفعيل الحالي.</p>
+                      <p className="text-sm text-zinc-500 mt-1">قائمة واضحة، ومن كل صف تقدر تفعل نصف سنوي أو سنوي مباشرة.</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 min-w-[260px]">
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
-                      <p className="text-[11px] font-black text-emerald-700">مشتركين</p>
-                      <p className="text-2xl font-black text-emerald-700 mt-1">{subscribedCount}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <div className="h-11 px-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span className="text-xs font-black text-emerald-700">مشتركين</span>
+                      <span className="text-sm font-black text-emerald-800">{subscribedCount}</span>
                     </div>
-                    <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4">
-                      <p className="text-[11px] font-black text-rose-700">غير مشتركين</p>
-                      <p className="text-2xl font-black text-rose-700 mt-1">{unsubscribedCount}</p>
+                    <div className="h-11 px-4 rounded-2xl bg-rose-50 border border-rose-100 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-rose-500" />
+                      <span className="text-xs font-black text-rose-700">غير مشتركين</span>
+                      <span className="text-sm font-black text-rose-800">{unsubscribedCount}</span>
                     </div>
                   </div>
                 </div>
@@ -442,94 +444,101 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
                 <div className="bg-white rounded-[2rem] border border-zinc-100 p-16 flex justify-center">
                   <Loader2 className="w-8 h-8 animate-spin text-[#FF385C]" />
                 </div>
+              ) : fm.length === 0 ? (
+                <div className="bg-white rounded-[2rem] border border-zinc-100 p-10 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center mx-auto mb-3">
+                    <Search className="w-6 h-6 text-zinc-400" />
+                  </div>
+                  <p className="font-black text-zinc-950">ما فيه أعضاء مطابقين للبحث</p>
+                  <p className="text-sm text-zinc-500 mt-1">جرّب تبحث بالاسم أو الإيميل أو اسم المكتب.</p>
+                </div>
               ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  {fm.map(m => {
-                    const s = getSubscriptionState(m);
-                    const active = s.status === 'active' || s.status === 'grace';
-                    const isBroker = m.business_type === 'وسيط' || m.office_name;
-                    return (
-                      <div key={m.id} className="group bg-white rounded-[2rem] border border-zinc-100 shadow-sm hover:shadow-xl hover:shadow-zinc-200/60 transition-all overflow-hidden">
-                        <div className="p-5 md:p-6">
-                          <div className="flex items-start justify-between gap-4 mb-5">
-                            <div className="flex items-start gap-3 min-w-0">
-                              <div className="w-12 h-12 rounded-2xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-950 font-black flex-shrink-0">
-                                {(m.office_name || m.full_name || m.email || 'ع').slice(0, 1)}
-                              </div>
-                              <div className="min-w-0">
-                                <h4 className="font-black text-zinc-950 text-base truncate">{m.office_name || m.full_name || 'بدون اسم'}</h4>
-                                <p className="text-xs text-zinc-500 truncate" dir="ltr">{m.email}</p>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  <span className={`text-[10px] font-black px-2.5 py-1 rounded-full ${isBroker ? 'bg-zinc-100 text-zinc-700' : 'bg-emerald-50 text-emerald-700'}`}>
-                                    {m.business_type || (isBroker ? 'وسيط' : 'مالك')}
-                                  </span>
-                                  <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-zinc-50 text-zinc-500 border border-zinc-100">
-                                    {m.city || 'بدون مدينة'}
-                                  </span>
-                                </div>
+                <div className="bg-white rounded-[2rem] border border-zinc-100 shadow-sm overflow-hidden">
+                  <div className="hidden xl:grid grid-cols-[minmax(280px,1.7fr)_minmax(150px,0.8fr)_minmax(180px,0.9fr)_minmax(250px,1fr)_56px] gap-4 px-5 py-3 bg-zinc-50 border-b border-zinc-100 text-[11px] font-black text-zinc-500">
+                    <span>العضو</span>
+                    <span>التصنيف</span>
+                    <span>الاشتراك</span>
+                    <span>التفعيل</span>
+                    <span className="text-center">حذف</span>
+                  </div>
+
+                  <div className="divide-y divide-zinc-100">
+                    {fm.map(m => {
+                      const s = getSubscriptionState(m);
+                      const active = s.status === 'active' || s.status === 'grace';
+                      const isBroker = m.business_type === 'وسيط' || m.office_name;
+                      return (
+                        <div key={m.id} className="grid grid-cols-1 xl:grid-cols-[minmax(280px,1.7fr)_minmax(150px,0.8fr)_minmax(180px,0.9fr)_minmax(250px,1fr)_56px] gap-4 px-4 md:px-5 py-4 items-center hover:bg-zinc-50/70 transition-colors">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-11 h-11 rounded-2xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-950 font-black flex-shrink-0">
+                              {(m.office_name || m.full_name || m.email || 'ع').slice(0, 1)}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-black text-zinc-950 text-sm truncate">{m.office_name || m.full_name || 'بدون اسم'}</h4>
+                              <p className="text-[11px] text-zinc-500 truncate" dir="ltr">{m.email}</p>
+                              <div className="flex items-center gap-2 mt-1.5 xl:hidden">
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
+                                  {active ? 'مشترك' : 'غير مشترك'}
+                                </span>
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-500 border border-zinc-100">
+                                  {m.city || 'بدون مدينة'}
+                                </span>
                               </div>
                             </div>
+                          </div>
 
-                            <span className={`shrink-0 text-[11px] font-black px-3 py-1.5 rounded-full ${active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
+                          <div className="flex xl:block items-center gap-2">
+                            <span className={`inline-flex text-[11px] font-black px-2.5 py-1 rounded-full ${isBroker ? 'bg-zinc-100 text-zinc-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                              {m.business_type || (isBroker ? 'وسيط' : 'مالك')}
+                            </span>
+                            <p className="mt-0 xl:mt-2 text-[11px] text-zinc-500" dir="ltr">{m.phone || '—'}</p>
+                          </div>
+
+                          <div className="flex flex-wrap xl:block items-center gap-2">
+                            <span className={`inline-flex text-[11px] font-black px-2.5 py-1 rounded-full ${active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
                               {active ? 'مشترك' : 'غير مشترك'}
                             </span>
+                            <p className="xl:mt-2 text-[11px] font-bold text-zinc-500">
+                              {PLANS[s.plan]?.label || 'بدون خطة'} · {s.endDate ? formatDate(s.endDate) : 'لا يوجد تاريخ'}
+                            </p>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-                            <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100">
-                              <p className="text-[10px] font-black text-zinc-400 mb-1">الجوال</p>
-                              <p className="text-xs font-bold text-zinc-700" dir="ltr">{m.phone || '—'}</p>
-                            </div>
-                            <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100">
-                              <p className="text-[10px] font-black text-zinc-400 mb-1">الخطة الحالية</p>
-                              <p className="text-xs font-black text-zinc-950">{PLANS[s.plan]?.label || 'لا يوجد'}</p>
-                            </div>
-                            <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100">
-                              <p className="text-[10px] font-black text-zinc-400 mb-1">تاريخ الانتهاء</p>
-                              <p className="text-xs font-black text-zinc-950">{s.endDate ? formatDate(s.endDate) : '—'}</p>
-                            </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-[11px] font-black text-zinc-400 hidden sm:inline">تفعيل:</span>
+                            <button
+                              type="button"
+                              onClick={() => activateSubscription(m, 'semi')}
+                              disabled={activating === m.id + 'semi'}
+                              className="h-9 px-3 rounded-xl bg-white border border-zinc-200 text-zinc-700 font-black text-[11px] hover:border-[#FF385C] hover:text-[#FF385C] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+                            >
+                              {activating === m.id + 'semi' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
+                              نصف سنوي
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => activateSubscription(m, 'yearly')}
+                              disabled={activating === m.id + 'yearly'}
+                              className="h-9 px-3 rounded-xl bg-[#FF385C] text-white font-black text-[11px] hover:bg-[#E31C5F] transition-all disabled:opacity-50 shadow-sm shadow-rose-100 flex items-center justify-center gap-1.5"
+                            >
+                              {activating === m.id + 'yearly' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                              سنوي
+                            </button>
                           </div>
 
-                          <div className="bg-[#FFF7F8] border border-rose-100 rounded-3xl p-4">
-                            <div className="flex items-center justify-between gap-3 mb-3">
-                              <div>
-                                <p className="text-xs font-black text-zinc-950">تفعيل / تمديد الاشتراك</p>
-                                <p className="text-[11px] text-zinc-500 mt-0.5">نفس الدالة الحالية: تضيف المدة فوق المتبقي إذا كان عنده اشتراك.</p>
-                              </div>
-                              <Crown className="w-5 h-5 text-[#FF385C]" />
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              <button
-                                type="button"
-                                onClick={() => activateSubscription(m, 'semi')}
-                                disabled={activating === m.id + 'semi'}
-                                className="h-12 rounded-2xl bg-white border border-rose-100 text-zinc-950 font-black text-sm hover:border-[#FF385C] hover:text-[#FF385C] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                              >
-                                {activating === m.id + 'semi' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Clock className="w-4 h-4" />}
-                                نصف سنوي
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => activateSubscription(m, 'yearly')}
-                                disabled={activating === m.id + 'yearly'}
-                                className="h-12 rounded-2xl bg-[#FF385C] text-white font-black text-sm hover:bg-[#E31C5F] transition-all disabled:opacity-50 shadow-lg shadow-rose-200/80 flex items-center justify-center gap-2"
-                              >
-                                {activating === m.id + 'yearly' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                                سنوي
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="flex justify-end pt-4">
-                            <button onClick={() => setMemberToDelete(m)} className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors">
-                              <Trash2 className="w-4 h-4" /> حذف العضو
+                          <div className="flex xl:justify-center">
+                            <button
+                              type="button"
+                              onClick={() => setMemberToDelete(m)}
+                              className="w-9 h-9 rounded-xl text-rose-500 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 transition-colors flex items-center justify-center"
+                              title="حذف العضو"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
