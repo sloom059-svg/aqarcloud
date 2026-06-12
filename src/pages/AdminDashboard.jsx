@@ -95,6 +95,13 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
   const brokers = members.filter(m => m.business_type === 'وسيط' || (!m.business_type && m.office_name));
   const owners = members.filter(m => m.business_type && m.business_type !== 'وسيط');
 
+  // عدّاد المشتركين
+  const subscribedCount = members.filter(m => {
+    const s = getSubscriptionState(m);
+    return s.status === 'active' || s.status === 'grace';
+  }).length;
+  const unsubscribedCount = members.length - subscribedCount;
+
   // إحصائيات KPIs
   const kpiStats = [
     { title: 'إجمالي الأعضاء', value: members.length.toLocaleString(), currency: 'عضو', trend: `+${members.filter(m=>{ const d=new Date(m.created_date||0); return Date.now()-d<7*86400000; }).length} هذا الأسبوع`, isPositive: true, icon: <Users className="w-6 h-6 text-[#15317E]" />, bg: 'bg-blue-50' },
@@ -108,13 +115,6 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
   const fm = members.filter(m => !search || m.email?.toLowerCase().includes(search.toLowerCase()) || m.full_name?.includes(search) || m.office_name?.includes(search));
   const fp = properties.filter(p => !search || p.title?.includes(search) || p.city?.includes(search));
   const fv = venues.filter(v => !search || v.name?.includes(search) || v.city?.includes(search));
-
-  // عدّاد المشتركين
-  const subscribedCount = members.filter(m => {
-    const s = getSubscriptionState(m);
-    return s.status === 'active' || s.status === 'grace';
-  }).length;
-  const unsubscribedCount = members.length - subscribedCount;
 
   // تفعيل اشتراك لعضو (سنوي / نصف سنوي)
   const activateSubscription = async (member, plan) => {
