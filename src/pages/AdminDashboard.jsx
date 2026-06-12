@@ -8,8 +8,9 @@ import {
   Bell, Search, Menu, TrendingUp, Activity, Calendar,
   ChevronLeft, X, Wallet, ArrowUpRight, ArrowDownRight,
   CheckCircle2, Clock, Loader2, Trash2, AlertTriangle,
-  Home, Hotel, MapPin, Phone, Mail
+  Home, Hotel, MapPin, Phone, Mail, Crown
 } from 'lucide-react';
+import { getSubscriptionState, computeNewEndDate, formatDate, PLANS } from '@/lib/subscription';
 
 const ADMIN_EMAIL = 'sloom059@gmail.com';
 
@@ -76,6 +77,8 @@ export default function AdminDashboard() {
 
 function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, setActiveTab, search, setSearch, memberToDelete, setMemberToDelete, deleting, setDeleting, toast, showToast }) {
 
+  const [activating, setActivating] = useState(null);
+
   const { data: members = [], isLoading: loadingMembers } = useQuery({
     queryKey: ['admin-members'], queryFn: () => base44.entities.User.filter({}),
   });
@@ -98,12 +101,47 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
     { title: 'وسطاء عقاريين', value: brokers.length.toLocaleString(), currency: 'وسيط', trend: `${Math.round(brokers.length/Math.max(members.length,1)*100)}% من الأعضاء`, isPositive: true, icon: <Building className="w-6 h-6 text-amber-500" />, bg: 'bg-amber-50' },
     { title: 'ملاك شاليهات', value: owners.length.toLocaleString(), currency: 'مالك', trend: `${venues.length} شاليه مضاف`, isPositive: true, icon: <Hotel className="w-6 h-6 text-emerald-500" />, bg: 'bg-emerald-50' },
     { title: 'الحجوزات', value: bookings.length.toLocaleString(), currency: 'حجز', trend: `${bookings.filter(b=>b.status==='مؤكد').length} مؤكد`, isPositive: true, icon: <Calendar className="w-6 h-6 text-rose-500" />, bg: 'bg-rose-50' },
+    { title: 'المشتركين', value: subscribedCount.toLocaleString(), currency: 'مشترك', trend: `${unsubscribedCount} غير مشترك`, isPositive: true, icon: <Crown className="w-6 h-6 text-amber-500" />, bg: 'bg-amber-50' },
   ];
 
   // فلترة
   const fm = members.filter(m => !search || m.email?.toLowerCase().includes(search.toLowerCase()) || m.full_name?.includes(search) || m.office_name?.includes(search));
   const fp = properties.filter(p => !search || p.title?.includes(search) || p.city?.includes(search));
   const fv = venues.filter(v => !search || v.name?.includes(search) || v.city?.includes(search));
+
+  // عدّاد المشتركين
+  const subscribedCount = members.filter(m => {
+    const s = getSubscriptionState(m);
+    return s.status === 'active' || s.status === 'grace';
+  }).length;
+  const unsubscribedCount = members.length - subscribedCount;
+
+  // تفعيل اشتراك لعضو (سنوي / نصف سنوي)
+  const activateSubscription = async (member, plan) => {
+    setActivating(member.id + plan);
+    try {
+      const newEnd = computeNewEndDate(member.subscription_end, plan);
+      await supabase.from('profiles').update({
+        subscription_plan: plan,
+        subscription_end: newEnd.toISOString(),
+        subscription_started: new Date().toISOString(),
+      }).eq('id', member.id);
+
+      // إشعار التجديد للعضو
+      await supabase.from('notifications').insert({
+        user_id: member.id,
+        type: 'renewed',
+        title: 'تم تجديد اشتراكك بنجاح! 🎉',
+        body: `تم تفعيل الاشتراك ${PLANS[plan]?.label} حتى ${formatDate(newEnd)}. نوّرت!`,
+      });
+
+      qc.invalidateQueries({ queryKey: ['admin-members'] });
+      showToast(`تم تفعيل اشتراك ${PLANS[plan]?.label} لـ ${member.office_name || member.full_name || member.email}`);
+    } catch (e) {
+      showToast('تعذّر التفعيل: ' + (e.message || ''));
+    }
+    setActivating(null);
+  };
 
   // حذف عضو
   const handleDelete = async () => {
@@ -373,6 +411,7 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
                         <th className="px-4 py-3 font-bold">الجوال</th>
                         <th className="px-4 py-3 font-bold">التصنيف</th>
                         <th className="px-4 py-3 font-bold">المدينة</th>
+                        <th className="px-4 py-3 font-bold">الاشتراك</th>
                         <th className="px-4 py-3 rounded-l-xl font-bold">حذف</th>
                       </tr>
                     </thead>
@@ -388,6 +427,30 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
                             </span>
                           </td>
                           <td className="px-4 py-3 text-xs text-slate-500">{m.city || '—'}</td>
+                          <td className="px-4 py-3">
+                            {(() => {
+                              const s = getSubscriptionState(m);
+                              const active = s.status === 'active' || s.status === 'grace';
+                              return (
+                                <div className="flex flex-col gap-1.5">
+                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full w-fit ${active ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-600'}`}>
+                                    {active ? `مشترك · ${PLANS[s.plan]?.label || ''}` : 'غير مشترك'}
+                                  </span>
+                                  {s.endDate && <span className="text-[9px] text-slate-400">ينتهي {formatDate(s.endDate)}</span>}
+                                  <div className="flex gap-1">
+                                    <button onClick={() => activateSubscription(m, 'yearly')} disabled={activating === m.id + 'yearly'}
+                                      className="text-[9px] font-bold px-2 py-1 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition disabled:opacity-50">
+                                      {activating === m.id + 'yearly' ? '...' : 'سنوي'}
+                                    </button>
+                                    <button onClick={() => activateSubscription(m, 'semi')} disabled={activating === m.id + 'semi'}
+                                      className="text-[9px] font-bold px-2 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition disabled:opacity-50">
+                                      {activating === m.id + 'semi' ? '...' : 'نصف سنوي'}
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </td>
                           <td className="px-4 py-3">
                             <button onClick={() => setMemberToDelete(m)} className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                               <Trash2 className="w-4 h-4" />
