@@ -22,6 +22,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import CompleteProfile from '@/pages/CompleteProfile';
 import CheckProfile from '@/pages/CheckProfile';
 import VenueDashboard from '@/pages/VenueDashboard';
+import Subscription from '@/pages/Subscription';
 import AdminDashboard from '@/pages/AdminDashboard';
 import VenueForm from '@/pages/VenueForm';
 import VenueWizard from '@/pages/VenueWizard';
@@ -95,6 +96,7 @@ const AuthenticatedApp = () => {
         <Route path="/venue/add" element={<VenueWizard />} />
         <Route path="/venue/edit/:id" element={<VenueForm />} />
         <Route path="/venue/bookings/:id" element={<VenueBookings />} />
+        <Route path="/subscription" element={<Subscription />} />
         <Route path="/admin" element={<AdminDashboard />} />
       </Route>
 
