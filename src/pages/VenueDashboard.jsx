@@ -19,8 +19,11 @@ import {
   Trash2,
   Mail,
   Headphones,
+  Crown,
+  AlertCircle,
 } from 'lucide-react';
 import SiteFooter from '@/components/layout/SiteFooter';
+import { getSubscriptionState, isVerified, canUsePaidFeatures } from '@/lib/subscription';
 
 const AIRBNB = '#FF385C';
 
@@ -86,6 +89,15 @@ function ProfileMenu({ onLogout }) {
             الملف الشخصي
           </Link>
           <div className="h-px bg-zinc-100" />
+          <Link
+            to="/subscription"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-4 py-3.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors font-bold"
+          >
+            <Crown className="w-4 h-4" style={{ color: AIRBNB }} />
+            اشتراكاتي
+          </Link>
+          <div className="h-px bg-zinc-100" />
           <button
             onClick={() => { setOpen(false); onLogout(); }}
             className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-bold"
@@ -127,6 +139,7 @@ export default function VenueDashboard() {
   const [toastMessage, setToastMessage] = useState('');
   const [showRevenue, setShowRevenue] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
+  const [showPaidHint, setShowPaidHint] = useState(null); // null | 'add' | 'booking'
   const [itemToDelete, setItemToDelete] = useState(null);
   const revenueRef = useRef(null);
   const notifsRef = useRef(null);
@@ -169,6 +182,32 @@ export default function VenueDashboard() {
     enabled: !!user?.id,
   });
 
+  // إشعارات الاشتراك من جدول notifications
+  const { data: subNotifs = [] } = useQuery({
+    queryKey: ['notifications', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) return [];
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const unreadSubNotifs = subNotifs.filter(n => !n.is_read);
+
+  const markNotifsRead = async () => {
+    if (!unreadSubNotifs.length) return;
+    try {
+      await supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false);
+      qc.invalidateQueries({ queryKey: ['notifications', user?.id] });
+    } catch (_) {}
+  };
+
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Venue.delete(id),
     onSuccess: () => {
@@ -197,21 +236,13 @@ export default function VenueDashboard() {
     .reduce((sum, b) => sum + (b.total_price ? Number(b.total_price) : venuePrice(b.venue_id)), 0);
 
   const newBookings = bookings.filter(b => b.status === 'جديد');
-  const hasNotifications = newBookings.length > 0;
-  const subscriptionState = String(
-    user?.subscription_status ||
-    user?.subscriptionStatus ||
-    user?.plan_status ||
-    user?.membership_status ||
-    user?.trial_status ||
-    ''
-  ).toLowerCase();
+  const hasNotifications = newBookings.length > 0 || unreadSubNotifs.length > 0;
+  const totalNotifCount = newBookings.length + unreadSubNotifs.length;
 
-  // يظهر التوثيق للجميع كاشتراك مجاني/تجريبي، ويختفي فقط لو الاشتراك منتهي أو ملغي أو غير نشط.
-  const isSubscribed = !['expired', 'canceled', 'cancelled', 'inactive', 'ended', 'منتهي', 'ملغي', 'غير نشط'].includes(subscriptionState)
-    && user?.subscription_active !== false
-    && user?.is_subscribed !== false
-    && user?.isSubscribed !== false;
+  // ── منطق الاشتراك الموحّد ──
+  const subState = getSubscriptionState(user);
+  const isSubscribed = isVerified(user);            // علامة التوثيق
+  const paidFeaturesAllowed = canUsePaidFeatures(user); // حجز يدوي + إضافة شاليه
 
   const handleShare = (venue) => {
     const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
@@ -339,13 +370,13 @@ export default function VenueDashboard() {
 
                 <div className="relative" ref={notifsRef}>
                   <button
-                    onClick={() => setShowNotifs(!showNotifs)}
+                    onClick={() => { setShowNotifs(!showNotifs); if (!showNotifs) markNotifsRead(); }}
                     className={`relative h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
                     title="الإشعارات"
                   >
                     <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                     {hasNotifications && (
-                      <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,56,92,0.9)]" style={{ backgroundColor: AIRBNB }} />
+                      <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
                     )}
                   </button>
 
@@ -354,15 +385,36 @@ export default function VenueDashboard() {
                       <div className="px-3.5 py-2.5 bg-zinc-950 text-white flex items-center justify-between">
                         <span className="text-sm font-black">الإشعارات</span>
                         {hasNotifications && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{newBookings.length}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{totalNotifCount}</span>
                         )}
                       </div>
-                      {newBookings.length === 0 ? (
+                      {(newBookings.length === 0 && subNotifs.length === 0) ? (
                         <div className="px-4 py-5 text-center">
                           <p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p>
                         </div>
                       ) : (
                         <div className="max-h-72 overflow-y-auto">
+                          {/* إشعارات الاشتراك */}
+                          {subNotifs.map(n => {
+                            const isRenew = n.type === 'renewed';
+                            return (
+                              <Link
+                                key={n.id}
+                                to="/subscription"
+                                onClick={() => setShowNotifs(false)}
+                                className={`flex items-start gap-2.5 px-3.5 py-3 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0 ${!n.is_read ? 'bg-amber-50/40' : ''}`}
+                              >
+                                <div className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: isRenew ? '#dcfce7' : '#fef3c7' }}>
+                                  <Crown className="w-4 h-4" style={{ color: isRenew ? '#16a34a' : '#d97706' }} />
+                                </div>
+                                <div className="flex-1 min-w-0 text-right">
+                                  <p className="text-sm font-black text-zinc-800">{n.title}</p>
+                                  {n.body && <p className="text-xs text-zinc-500 font-medium leading-snug">{n.body}</p>}
+                                </div>
+                              </Link>
+                            );
+                          })}
+                          {/* إشعارات الحجوزات */}
                           {newBookings.map(b => {
                             const v = venues.find(x => x.id === b.venue_id);
                             return (
@@ -416,14 +468,55 @@ export default function VenueDashboard() {
         </header>
 
         <main className="space-y-6">
+          {/* بانر التجديد — يظهر فقط لو في مهلة أو منتهي أو قرب الانتهاء */}
+          {(subState.status === 'grace' || subState.status === 'expired' || subState.expiresInWarn) && (
+            <div className="flex items-center gap-3 rounded-2xl border px-4 py-3"
+              style={{
+                background: subState.status === 'expired' ? '#fef2f2' : '#fffbeb',
+                borderColor: subState.status === 'expired' ? '#fecaca' : '#fde68a',
+              }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: subState.status === 'expired' ? '#fee2e2' : '#fef3c7' }}>
+                <Crown className="w-4.5 h-4.5" style={{ color: subState.status === 'expired' ? '#dc2626' : '#d97706' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold" style={{ color: subState.status === 'expired' ? '#991b1b' : '#92400e' }}>
+                  {subState.status === 'expired'
+                    ? 'انتهى اشتراكك'
+                    : subState.status === 'grace'
+                      ? `انتهى اشتراكك — لديك مهلة ${subState.graceDaysLeft} يوم`
+                      : `اشتراكك ينتهي خلال ${subState.daysLeft} يوم`}
+                </p>
+                <p className="text-xs font-medium" style={{ color: subState.status === 'expired' ? '#b91c1c' : '#b45309' }}>
+                  جدّد الآن لمواصلة استقبال حجوزاتك ✨
+                </p>
+              </div>
+              <Link to="/subscription"
+                className="text-xs font-bold text-white px-4 py-2 rounded-xl flex-shrink-0 transition-all hover:-translate-y-0.5"
+                style={{ background: subState.status === 'expired' ? '#dc2626' : '#d97706' }}>
+                تجديد
+              </Link>
+            </div>
+          )}
+
           <div className="flex justify-end">
-            <Link
-              to="/venue/add"
-              className="inline-flex w-auto min-w-[150px] items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-black text-white px-5 py-3 text-sm font-black shadow-[0_14px_30px_rgba(0,0,0,0.16)] hover:-translate-y-0.5 transition-all active:scale-[0.98]"
-            >
-              <Plus className="w-4 h-4" />
-              إضافة شاليه
-            </Link>
+            {paidFeaturesAllowed ? (
+              <Link
+                to="/venue/add"
+                className="inline-flex w-auto min-w-[150px] items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-black text-white px-5 py-3 text-sm font-black shadow-[0_14px_30px_rgba(0,0,0,0.16)] hover:-translate-y-0.5 transition-all active:scale-[0.98]"
+              >
+                <Plus className="w-4 h-4" />
+                إضافة شاليه
+              </Link>
+            ) : (
+              <button
+                onClick={() => setShowPaidHint('add')}
+                className="relative inline-flex w-auto min-w-[150px] items-center justify-center gap-2 rounded-2xl bg-zinc-300 text-zinc-600 px-5 py-3 text-sm font-black cursor-not-allowed"
+              >
+                <Plus className="w-4 h-4" />
+                إضافة شاليه
+              </button>
+            )}
           </div>
 
           {venues.length > 0 && (
@@ -548,6 +641,36 @@ export default function VenueDashboard() {
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
       ` }} />
+
+      {/* تنبيه "خاص بالمشتركين" */}
+      {showPaidHint && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => setShowPaidHint(null)}>
+          <div className="absolute inset-0 bg-zinc-950/50 backdrop-blur-sm" />
+          <div dir="rtl" onClick={e => e.stopPropagation()}
+            className="relative bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-zinc-100 text-center">
+            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: `${AIRBNB}15` }}>
+              <Crown className="w-7 h-7" style={{ color: AIRBNB }} />
+            </div>
+            <h3 className="text-lg font-bold text-zinc-900 mb-2">خاص بالمشتركين</h3>
+            <p className="text-sm text-zinc-500 font-medium mb-6 leading-relaxed">
+              {showPaidHint === 'add'
+                ? 'إضافة شاليه جديد ميزة خاصة بالمشتركين. جدّد اشتراكك لتستمتع بكل المزايا ✨'
+                : 'الحجز اليدوي ميزة خاصة بالمشتركين. جدّد اشتراكك لتستمتع بكل المزايا ✨'}
+            </p>
+            <div className="flex gap-2">
+              <button onClick={() => setShowPaidHint(null)}
+                className="flex-1 h-11 rounded-2xl bg-zinc-100 text-zinc-600 font-bold text-sm hover:bg-zinc-200 transition">
+                لاحقاً
+              </button>
+              <Link to="/subscription" onClick={() => setShowPaidHint(null)}
+                className="flex-1 h-11 rounded-2xl text-white font-bold text-sm flex items-center justify-center transition hover:-translate-y-0.5"
+                style={{ background: AIRBNB }}>
+                جدّد الآن
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
