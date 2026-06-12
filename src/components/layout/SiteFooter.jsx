@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Headphones, ExternalLink } from 'lucide-react';
 
-const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || 'support@aqarcloud.com';
-const SUPPORT_WHATSAPP = (import.meta.env.VITE_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
+const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || 'aqarcloud@outlook.com';
+const SUPPORT_WHATSAPP = (import.meta.env.VITE_SUPPORT_WHATSAPP || '966502729137').replace(/\D/g, '');
 const SUPPORT_X = import.meta.env.VITE_SUPPORT_X || '';
 
 const OFFICIAL_FONT = { fontFamily: "'IBM Plex Sans Arabic', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" };
