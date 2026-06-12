@@ -1,120 +1,72 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44, supabase } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  Loader2, Plus, X, CheckCircle,
-  Bell, Wallet, LogOut, User, Calendar,
-  ChevronDown, ChevronRight, Phone,
-  Edit3, Inbox, Clock, CheckCircle2, XCircle, Calendar as CalendarIcon,
-  FileText, Eye, Download, MapPin, QrCode
+  Bell,
+  Calendar,
+  MapPin,
+  CheckCircle,
+  Wallet,
+  LogOut,
+  User,
+  Plus,
+  ChevronDown,
+  Eye,
+  Share2,
+  Pencil,
+  Trash2,
+  Mail,
+  Headphones,
+  Crown,
+  AlertCircle,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
-import VenueCalendar from '@/components/venue/VenueCalendar';
-import aqarCloudLogo from '@/aqar-cloud-logo.png';
+import SiteFooter from '@/components/layout/SiteFooter';
+import { getSubscriptionState, isVerified, canUsePaidFeatures } from '@/lib/subscription';
 
 const AIRBNB = '#FF385C';
 
-// ── أيقونات SVG ──
-const EditIcon = ({ className }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-  </svg>
+const VerifiedBadge = () => (
+  <span className="relative group inline-flex items-center align-middle">
+    <svg
+      viewBox="0 0 24 24"
+      className="w-[18px] h-[18px] sm:w-5 sm:h-5 shrink-0"
+      aria-label="مشترك"
+      role="img"
+    >
+      <path
+        fill={AIRBNB}
+        d="M12 2.25l2.02 1.51 2.52-.21 1.06 2.29 2.32 1.01-.23 2.52L21.2 12l-1.51 2.63.23 2.52-2.32 1.01-1.06 2.29-2.52-.21L12 21.75l-2.02-1.51-2.52.21-1.06-2.29-2.32-1.01.23-2.52L2.8 12l1.51-2.63-.23-2.52L6.4 5.84l1.06-2.29 2.52.21L12 2.25z"
+      />
+      <path
+        d="M8.7 12.2l2.05 2.05 4.7-5"
+        fill="none"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+    <span className="pointer-events-none absolute right-1/2 top-full z-[60] mt-2 translate-x-1/2 whitespace-nowrap rounded-xl bg-zinc-950 px-3 py-1.5 text-[11px] font-black text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+      مشترك
+    </span>
+  </span>
 );
-const DeleteIcon = ({ className }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    <path d="M10 11v6" /><path d="M14 11v6" />
-  </svg>
-);
-const PinIcon = ({ className }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
-  </svg>
-);
-const IconWa = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>;
-const IconLock = ({ className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className || "w-4 h-4"}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>;
 
-const IconInstagram = ({ className }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 01-1.38-.9 3.7 3.7 0 01-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zm0 1.62c-3.15 0-3.5.01-4.74.07-1.14.05-1.76.24-2.17.4-.55.21-.94.47-1.35.88-.41.41-.67.8-.88 1.35-.16.41-.35 1.03-.4 2.17-.06 1.24-.07 1.59-.07 4.74s.01 3.5.07 4.74c.05 1.14.24 1.76.4 2.17.21.55.47.94.88 1.35.41.41.8.67 1.35.88.41.16 1.03.35 2.17.4 1.24.06 1.59.07 4.74.07s3.5-.01 4.74-.07c1.14-.05 1.76-.24 2.17-.4.55-.21.94-.47 1.35-.88.41-.41.67-.8.88-1.35.16-.41.35-1.03.4-2.17.06-1.24.07-1.59.07-4.74s-.01-3.5-.07-4.74c-.05-1.14-.24-1.76-.4-2.17a3.6 3.6 0 00-.88-1.35 3.6 3.6 0 00-1.35-.88c-.41-.16-1.03-.35-2.17-.4-1.24-.06-1.59-.07-4.74-.07zM12 6.87a5.13 5.13 0 100 10.26 5.13 5.13 0 000-10.26zm0 8.46a3.33 3.33 0 110-6.66 3.33 3.33 0 010 6.66zm6.54-8.66a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg>;
-const IconTiktok = ({ className }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.64-5.41-.02-.34-.02-.68-.02-1.02.13-1.6.82-3.08 1.94-4.21 1.52-1.52 3.8-2.26 5.86-1.92V14.3c-1.11-.27-2.31-.1-3.29.41-.85.45-1.46 1.25-1.63 2.21-.07.39-.07.79-.02 1.18.17 1.25 1.05 2.34 2.19 2.81 1.29.54 2.8.46 4.02-.2 1.19-.65 1.95-1.9 2.05-3.26.2-2.9.06-5.82.09-8.73z"/></svg>;
-const IconX = ({ className }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zM17.61 20.64h2.04L6.49 3.24H4.3z"/></svg>;
-const IconSnapchat = ({ className }) => <svg viewBox="0 0 448 512" fill="currentColor" className={className}><path d="M424.2 263.8c-2.4-10.6-20.2-13.1-34.4-11-20.2 2.9-46.7 9-61.1 5.9-9.1-2-12.7-10.1-10.6-20.9 2-10.2 10.1-26.6 15.8-37.5 44-84.3 13.3-145-38.3-177.3C268.4 6 226.5-.4 191 1.7c-47.5 2.8-82 17.5-104.9 51.5-17.7 26.2-22.1 63.3-10.1 94.6 7.6 19.8 23 48.2 24.3 64.9 1.1 13.7-8.1 20.3-19.1 23-14.7 3.6-43.2-3.1-61.9-5.5-13.7-1.7-27.1 2-30.7 13.1-4 12.3 8.9 25 15.5 29.8 17.3 12.5 40 24.1 64.1 36.8 6.5 3.5 12.1 12 11.2 21.6-1 10.5-6.8 19.3-15.1 24.8-14.6 9.8-33.1 15.1-49.8 18.2-15.6 2.9-32.9 2.5-44.5 11.2C-5.5 391-2.9 405.3 6 414.2c16 16.1 41 18.9 62.1 22.1 19.1 2.9 38.6 3.6 57 8.3 16 4.1 30.6 11 41.5 23.3 7 7.9 13.9 17.8 24.4 23.4 12 6.5 26.7 8.7 39.5 8.7 12.5 0 25.5-2 37.2-7.8 10.7-5.3 17.8-15.5 24.9-23.7 11-12.7 25.9-19.8 42-23.9 18.6-4.8 38.3-5.3 57.6-8.2 21.2-3.2 46.5-6.1 62.6-22.4 8.7-8.8 11.5-23.4 5.2-32.2z"/></svg>;
-
-const ARABIC_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-const formatDateAr = (dateStr) => {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return `${d.getDate()} ${ARABIC_MONTHS[d.getMonth()]}`;
-};
-const formatWhatsApp = (phone) => {
-  if (!phone) return '';
-  let p = phone.replace(/\D/g, '');
-  if (p.startsWith('05')) return '966' + p.substring(1);
-  return p;
-};
-
-// حساب عدد الليالي
-const getNights = (checkIn, checkOut) => {
-  if (!checkIn || !checkOut) return null;
-  const a = new Date(checkIn), b = new Date(checkOut);
-  const diff = Math.round((b - a) / (1000 * 60 * 60 * 24));
-  if (diff <= 0) return null;
-  if (diff === 1) return 'ليلة واحدة';
-  if (diff === 2) return 'ليلتان';
-  if (diff <= 10) return `${diff} ليالٍ`;
-  return `${diff} ليلة`;
-};
-
-// حساب سعر الحجز من أسعار الشاليه (ويكند: خميس/جمعة)
-const calcBookingPrice = (booking, venue) => {
-  if (booking?.price) return Number(booking.price);
-  if (booking?.total_price) return Number(booking.total_price);
-  if (!venue || !booking?.check_in || !booking?.check_out) return null;
-  const weekday = Number(venue.price_weekday) || 0;
-  const weekend = Number(venue.price_weekend) || weekday;
-  if (!weekday && !weekend) return null;
-  let total = 0;
-  let cur = new Date(booking.check_in);
-  const end = new Date(booking.check_out);
-  while (cur < end) {
-    const day = cur.getDay(); // 0=أحد ... 4=خميس, 5=جمعة, 6=سبت
-    const isWeekend = day === 4 || day === 5; // خميس وجمعة
-    total += isWeekend ? weekend : weekday;
-    cur.setDate(cur.getDate() + 1);
-  }
-  return total || null;
-};
-
-// يولّد رقم مرجعي ثابت من الـ UUID (4 أرقام)
-const getBookingRef = (id) => {
-  if (!id) return '#0000';
-  const hex = id.replace(/-/g, '').slice(-6);
-  const num = (parseInt(hex, 16) % 9000) + 1000;
-  return `#${num}`;
-};
-
-const STATUS_MAP = {
-  'جديد':      { border: 'bg-[#FF385C]',    select: 'bg-[#FF385C]/10 text-[#FF385C] border-[#FF385C]/20',         statBg: 'bg-[#FF385C]/10',    statText: 'text-[#FF385C]',    statIcon: Inbox },
-  'بالانتظار': { border: 'bg-amber-500',   select: 'bg-amber-50 text-amber-700 border-amber-200',       statBg: 'bg-amber-50',   statText: 'text-amber-500',   statIcon: Clock },
-  'مؤكد':      { border: 'bg-emerald-500', select: 'bg-emerald-50 text-emerald-700 border-emerald-200', statBg: 'bg-emerald-50', statText: 'text-emerald-600', statIcon: CheckCircle2 },
-  'ملغي':      { border: 'bg-rose-500',    select: 'bg-rose-50 text-rose-700 border-rose-200',          statBg: 'bg-rose-50',    statText: 'text-rose-500',    statIcon: XCircle },
-};
-
-const EMPTY_MANUAL = { client_name: '', client_phone: '', check_in: '', check_out: '', notes: '' };
-
-// ── Dropdown الملف الشخصي / الخروج ──
+// ────────────────────────────────────────────
+// Dropdown الملف الشخصي
+// ────────────────────────────────────────────
 function ProfileMenu({ onLogout }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
   return (
     <div className="relative" ref={ref}>
       <button
@@ -125,14 +77,33 @@ function ProfileMenu({ onLogout }) {
         <LogOut className="w-4 h-4" />
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
+
       {open && (
         <div className="absolute left-0 top-full mt-3 w-48 bg-white rounded-3xl shadow-2xl border border-zinc-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-          <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors font-bold">
-            <User className="w-4 h-4" style={{ color: AIRBNB }} /> الملف الشخصي
+          <Link
+            to="/profile"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-4 py-3.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors font-bold"
+          >
+            <User className="w-4 h-4" style={{ color: AIRBNB }} />
+            الملف الشخصي
           </Link>
           <div className="h-px bg-zinc-100" />
-          <button onClick={() => { setOpen(false); onLogout(); }} className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-bold">
-            <LogOut className="w-4 h-4" /> تسجيل الخروج
+          <Link
+            to="/subscription"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-4 py-3.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors font-bold"
+          >
+            <Crown className="w-4 h-4" style={{ color: AIRBNB }} />
+            اشتراكاتي
+          </Link>
+          <div className="h-px bg-zinc-100" />
+          <button
+            onClick={() => { setOpen(false); onLogout(); }}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors font-bold"
+          >
+            <LogOut className="w-4 h-4" />
+            تسجيل الخروج
           </button>
         </div>
       )}
@@ -140,38 +111,43 @@ function ProfileMenu({ onLogout }) {
   );
 }
 
-export default function VenueBookings() {
-  const { id } = useParams();
+const EmptyHouseIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="w-11 h-11">
+    <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5Z" />
+    <path d="M9 21v-8h6v8" />
+  </svg>
+);
+
+const IconButton = ({ children, onClick, title, className = '' }) => (
+  <button
+    onClick={onClick}
+    className={`h-11 w-full sm:h-12 sm:w-12 flex items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 transition-all shadow-sm active:scale-[0.98] ${className}`}
+    title={title}
+  >
+    {children}
+  </button>
+);
+
+// ────────────────────────────────────────────
+// الصفحة الرئيسية
+// ────────────────────────────────────────────
+export default function VenueDashboard() {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { user, logout } = useAuth();
 
   const [toastMessage, setToastMessage] = useState('');
-  const [showRevenue, setShowRevenue]   = useState(false);
-  const [showNotifs, setShowNotifs]     = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [showManual, setShowManual]     = useState(false);
-  const [manualForm, setManualForm]     = useState(EMPTY_MANUAL);
-  const [editBooking, setEditBooking]   = useState(null);
-  const [editForm, setEditForm]         = useState({ client_name: '', client_phone: '', check_in: '', check_out: '' });
-  const [editConflict, setEditConflict] = useState(false);
-
-  // سند الاستلام
-  const [receiptBooking, setReceiptBooking] = useState(null);
-  const [receiptForm, setReceiptForm]       = useState({ type: 'deposit', amount: '', customTerms: null });
-  const [showEditTerms, setShowEditTerms]   = useState(false);
-  const [showReceiptPreview, setShowReceiptPreview] = useState(false);
-  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
-  const receiptRef = useRef(null);
-
+  const [showRevenue, setShowRevenue] = useState(false);
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [showPaidHint, setShowPaidHint] = useState(null); // null | 'add' | 'booking'
+  const [itemToDelete, setItemToDelete] = useState(null);
   const revenueRef = useRef(null);
-  const notifsRef  = useRef(null);
+  const notifsRef = useRef(null);
 
-  // إغلاق الـ dropdowns عند الضغط خارجها
   useEffect(() => {
     const handler = (e) => {
       if (revenueRef.current && !revenueRef.current.contains(e.target)) setShowRevenue(false);
-      if (notifsRef.current  && !notifsRef.current.contains(e.target))  setShowNotifs(false);
+      if (notifsRef.current && !notifsRef.current.contains(e.target)) setShowNotifs(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -181,7 +157,7 @@ export default function VenueBookings() {
   useEffect(() => {
     if (!user?.id) return;
     const channel = supabase
-      .channel('bookings-realtime-vb')
+      .channel('bookings-realtime')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
@@ -189,404 +165,204 @@ export default function VenueBookings() {
         filter: `owner_id=eq.${user.id}`,
       }, () => {
         qc.invalidateQueries({ queryKey: ['bookings-all', user.id] });
-        qc.invalidateQueries({ queryKey: ['venue-bookings', id] });
       })
       .subscribe();
     return () => supabase.removeChannel(channel);
-  }, [user?.id, id, qc]);
+  }, [user?.id, qc]);
 
-  const showToast = (msg) => { setToastMessage(msg); setTimeout(() => setToastMessage(''), 3000); };
-  const handleLogout = async () => { await logout(false); navigate('/login'); };
-
-  // ── Queries ──
-  const { data: venue } = useQuery({
-    queryKey: ['venue-single', id],
-    queryFn: () => base44.entities.Venue.filter({ id }).then(r => r[0]),
-  });
-
-  const { data: allBookings = [], isLoading } = useQuery({
-    queryKey: ['venue-bookings', id],
-    queryFn: () => base44.entities.Booking.filter({ venue_id: id }, '-created_date'),
-  });
-
-  // كل حجوزات المالك للإشعارات والإيرادات
-  const { data: ownerBookings = [] } = useQuery({
-    queryKey: ['bookings-all', user?.id],
-    queryFn: () => base44.entities.Booking.filter({ owner_id: user?.id }),
-    enabled: !!user?.id,
-  });
-
-  const { data: venues = [] } = useQuery({
+  const { data: venues = [], isLoading } = useQuery({
     queryKey: ['venues', user?.id],
     queryFn: () => base44.entities.Venue.filter({ owner_id: user?.id }, '-created_date'),
     enabled: !!user?.id,
   });
 
-  // فلتر الحجوزات (آخر 30 يوم)
-  const bookings = allBookings.filter(b => {
-    if (!b.check_out) return true;
-    const checkout = new Date(b.check_out);
-    if (isNaN(checkout)) return true;
-    const cutoff = new Date();
-    cutoff.setHours(0, 0, 0, 0);
-    cutoff.setDate(cutoff.getDate() - 30);
-    return checkout >= cutoff;
+  const { data: bookings = [] } = useQuery({
+    queryKey: ['bookings-all', user?.id],
+    queryFn: () => base44.entities.Booking.filter({ owner_id: user?.id }),
+    enabled: !!user?.id,
   });
 
-  // إيرادات الشهر
+  // إشعارات الاشتراك من جدول notifications
+  const { data: subNotifs = [] } = useQuery({
+    queryKey: ['notifications', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) return [];
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const unreadSubNotifs = subNotifs.filter(n => !n.is_read);
+
+  const markNotifsRead = async () => {
+    if (!unreadSubNotifs.length) return;
+    try {
+      await supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false);
+      qc.invalidateQueries({ queryKey: ['notifications', user?.id] });
+    } catch (_) {}
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Venue.delete(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['venues'] });
+      setItemToDelete(null);
+      showToast('تم حذف الوحدة بنجاح!');
+    },
+  });
+
   const now = new Date();
   const thisMonth = now.getMonth();
-  const thisYear  = now.getFullYear();
+  const thisYear = now.getFullYear();
+
   const isThisMonth = (b) => {
     const d = b.check_in ? new Date(b.check_in) : (b.created_date ? new Date(b.created_date) : null);
     return d && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
   };
-  const venuePrice = (venueId) => { const v = venues.find(x => x.id === venueId); return v?.price_weekend || 0; };
-  const monthlyRevenue = ownerBookings
+
+  const venuePrice = (venueId) => {
+    const v = venues.find(x => x.id === venueId);
+    return v?.price_weekend || 0;
+  };
+
+  const monthlyRevenue = bookings
     .filter(b => b.status === 'مؤكد' && isThisMonth(b))
     .reduce((sum, b) => sum + (b.total_price ? Number(b.total_price) : venuePrice(b.venue_id)), 0);
 
-  // الإشعارات
-  const newBookings = ownerBookings.filter(b => b.status === 'جديد');
-  const hasNotifications = newBookings.length > 0;
+  const newBookings = bookings.filter(b => b.status === 'جديد');
+  const hasNotifications = newBookings.length > 0 || unreadSubNotifs.length > 0;
+  const totalNotifCount = newBookings.length + unreadSubNotifs.length;
 
-  // ── Mutations ──
-  const updateMutation = useMutation({
-    mutationFn: ({ bookingId, data }) => base44.entities.Booking.update(bookingId, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['venue-bookings', id] }); showToast('تم تحديث حالة الحجز بنجاح!'); },
-  });
+  // ── منطق الاشتراك الموحّد ──
+  const subState = getSubscriptionState(user);
+  const isSubscribed = isVerified(user);            // علامة التوثيق
+  const paidFeaturesAllowed = canUsePaidFeatures(user); // حجز يدوي + إضافة شاليه
 
-  const deleteMutation = useMutation({
-    mutationFn: (bookingId) => base44.entities.Booking.delete(bookingId),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['venue-bookings', id] }); setConfirmDelete(null); showToast('تم حذف الحجز بنجاح!'); },
-  });
-
-  const addBookingMutation = useMutation({
-    mutationFn: (data) => base44.entities.Booking.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['venue-bookings', id] }); setShowManual(false); setManualForm(EMPTY_MANUAL); showToast('تم إضافة الحجز اليدوي بنجاح!'); },
-  });
-
-  const bookedDates = bookings
-    .filter(b => b.status === 'مؤكد' || b.status === 'بالانتظار')
-    .flatMap(b => {
-      const dates = []; let cur = new Date(b.check_in); const end = new Date(b.check_out);
-      while (cur <= end) { dates.push(cur.toISOString().split('T')[0]); cur.setDate(cur.getDate() + 1); }
-      return dates;
-    });
-
-  const handleManualSubmit = (e) => {
-    e.preventDefault();
-    if (!manualForm.client_name || !manualForm.client_phone || !manualForm.check_in || !manualForm.check_out) return;
-    addBookingMutation.mutate({ ...manualForm, venue_id: id, venue_name: venue?.name || '', status: 'مؤكد', owner_id: venue?.owner_id, is_manual: true });
-  };
-
-  const openEdit = (booking) => {
-    setEditBooking(booking.id);
-    setEditForm({ client_name: booking.client_name, client_phone: booking.client_phone, check_in: booking.check_in, check_out: booking.check_out });
-    setEditConflict(false);
-  };
-
-  const checkConflict = (check_in, check_out, currentId) => {
-    if (!check_in || !check_out) return false;
-    const otherBooked = bookings.filter(b => b.id !== currentId && (b.status === 'مؤكد' || b.status === 'بالانتظار'))
-      .flatMap(b => { const dates = []; let cur = new Date(b.check_in); const end = new Date(b.check_out); while (cur <= end) { dates.push(cur.toISOString().split('T')[0]); cur.setDate(cur.getDate() + 1); } return dates; });
-    const otherSet = new Set(otherBooked);
-    let cur = new Date(check_in); const end = new Date(check_out);
-    while (cur <= end) { if (otherSet.has(cur.toISOString().split('T')[0])) return true; cur.setDate(cur.getDate() + 1); }
-    return false;
-  };
-
-  const handleEditFormChange = (field, value) => {
-    const updated = { ...editForm, [field]: value };
-    setEditForm(updated);
-    if (updated.check_in && updated.check_out) setEditConflict(checkConflict(updated.check_in, updated.check_out, editBooking));
-  };
-
-  const handleEditSave = () => {
-    if (editConflict) return;
-    updateMutation.mutate({ bookingId: editBooking, data: editForm });
-    setEditBooking(null);
-    showToast('تم تعديل تفاصيل الحجز بنجاح!');
-  };
-
-  // ── سند الاستلام ──
-  const openReceipt = (booking) => {
-    setReceiptBooking(booking);
-    const total = calcBookingPrice(booking, venue);
-    setReceiptForm({
-      type: 'full',
-      amount: total ? String(total) : '',
-      customTerms: null, // null = يستخدم شروط الشاليه تلقائياً
-    });
-  };
-
-  const handleReceiptTypeChange = (type) => {
-    const total = calcBookingPrice(receiptBooking, venue);
-    let amount = receiptForm.amount;
-    if (type === 'full') amount = total ? String(total) : '';
-    else amount = ''; // عربون/دفعة يكتبه بنفسه
-    setReceiptForm({ type, amount });
-  };
-
-  const receiptTypeLabel = (t) => t === 'deposit' ? 'عربون حجز' : t === 'partial' ? 'دفعة من حساب الحجز' : 'تسوية كامل قيمة الحجز';
-
-  const sendReceiptWhatsApp = () => {
-    if (!receiptBooking) return;
-    const phone = formatWhatsApp(receiptBooking.client_phone);
-    const typeLabel = receiptTypeLabel(receiptForm.type);
-    const nights = getNights(receiptBooking.check_in, receiptBooking.check_out) || '';
-    const message = `أهلاً بك\n\n` +
-      `تم إصدار سند استلام من ${venue?.name || 'المنشأة'}:\n\n` +
-      `الضيف: ${receiptBooking.client_name}\n` +
-      `المبلغ: ${receiptForm.amount || 0} ريال سعودي\n` +
-      `الدفعة عبارة عن: ${typeLabel}\n` +
-      `تاريخ الحجز: ${formatDateAr(receiptBooking.check_in)} إلى ${formatDateAr(receiptBooking.check_out)}${nights ? ` (${nights})` : ''}\n\n` +
-      `نتمنى لك إقامة سعيدة!`;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-  };
-
-  const downloadReceipt = async () => {
-    if (!receiptRef.current) return;
-    setDownloadingReceipt(true);
-    try {
-      // انتظار جاهزية الخطوط (بدون ما يوقف لو فشل)
-      try { if (document.fonts?.ready) await document.fonts.ready; } catch (_) {}
-      await new Promise(r => setTimeout(r, 200));
-
-      const html2canvas = (await import('html2canvas')).default;
-      const node = receiptRef.current;
-      const canvas = await html2canvas(node, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        width: node.offsetWidth,
-        height: node.offsetHeight,
-        windowWidth: node.offsetWidth,
-        windowHeight: node.offsetHeight,
-        onclone: (doc) => {
-          const wrap = doc.querySelector('.receipt-scale-wrap');
-          if (wrap) { wrap.style.transform = 'none'; wrap.style.margin = '0'; }
-          // إصلاح ربط الحروف: إلغاء أي letter-spacing سالب
-          doc.querySelectorAll('.receipt-page *').forEach(el => {
-            const ls = window.getComputedStyle(el).letterSpacing;
-            if (ls && ls !== 'normal' && parseFloat(ls) < 0) el.style.letterSpacing = 'normal';
-          });
-        },
-      });
-
-      const fileName = `سند-${receiptBooking?.client_name || 'استلام'}.png`;
-      const dataUrl = canvas.toDataURL('image/png');
-
-      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-      // محاولة المشاركة على الجوال (لو متاحة)
-      if (navigator.share && navigator.canShare) {
-        try {
-          const blob = await (await fetch(dataUrl)).blob();
-          const file = new File([blob], fileName, { type: 'image/png' });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'سند استلام' });
-            setDownloadingReceipt(false);
-            return;
-          }
-        } catch (_) { /* نكمل للطريقة البديلة */ }
-      }
-
-      // آيفون: افتح الصورة بتبويب للحفظ اليدوي
-      if (isIOS) {
-        const win = window.open();
-        if (win) {
-          win.document.write(`<img src="${dataUrl}" style="width:100%" alt="سند" />`);
-        } else {
-          window.location.href = dataUrl;
-        }
-        showToast('اضغط مطولاً على الصورة لحفظها');
-        setDownloadingReceipt(false);
-        return;
-      }
-
-      // أندرويد/كمبيوتر: تنزيل مباشر
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast('تم تنزيل السند بنجاح!');
-    } catch (err) {
-      showToast('تعذّر التنزيل: ' + (err?.message || 'خطأ غير معروف'));
+  const handleShare = (venue) => {
+    const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
+    if (navigator.share) {
+      navigator.share({ title: venue.name, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).catch(() => {});
+      showToast('تم نسخ الرابط بنجاح!');
     }
-    setDownloadingReceipt(false);
   };
 
-  const statusOrder = ['جديد', 'بالانتظار', 'مؤكد', 'ملغي'];
+  const handleViewPage = (venue) => {
+    const url = `${window.location.origin}/place/${venue.slug || venue.id}`;
+    window.open(url, '_blank');
+  };
+
+  const handleToggleStatus = async (venue) => {
+    const newStatus = venue.status;
+    try {
+      await base44.entities.Venue.update(venue.id, { status: newStatus });
+      qc.invalidateQueries({ queryKey: ['venues'] });
+      showToast(newStatus === 'نشط' ? 'تم تفعيل الشاليه' : 'تم إيقاف الشاليه مؤقتاً');
+    } catch (_) {
+      showToast('تعذّر تحديث الحالة');
+    }
+  };
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
+  const handleLogout = async () => {
+    await logout(false);
+    navigate('/login');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
+        <div className="w-16 h-16 rounded-3xl bg-white border border-zinc-200 shadow-xl flex items-center justify-center">
+          <div
+            className="w-8 h-8 rounded-full border-[3px] border-zinc-100 border-t-[#FF385C] animate-spin"
+            aria-label="جاري التحميل"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-20 relative overflow-x-hidden text-zinc-950">
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        body { font-family: 'Tajawal', sans-serif; }
-      `}} />
-
-      {/* Toast */}
-      {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[150] bg-zinc-950 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10">
-          <CheckCircle className="w-5 h-5 text-emerald-400" />
-          <span className="text-sm font-bold tracking-wide">{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Modal تعديل */}
-      {editBooking && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-950/60 backdrop-blur-md overflow-y-auto" onClick={() => setEditBooking(null)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden my-4 border border-zinc-100" onClick={e => e.stopPropagation()}>
-            <div className="bg-white p-4 border-b border-zinc-100 flex items-center justify-between">
-              <h3 className="font-bold text-zinc-950 flex items-center gap-2">
-                <Edit3 className="w-4 h-4" /> تعديل تفاصيل الحجز
-              </h3>
-              <button onClick={() => setEditBooking(null)} className="p-1.5 bg-zinc-200 text-zinc-500 rounded-full hover:bg-zinc-300"><X className="w-4 h-4" /></button>
-            </div>
-            <div className="p-4 sm:p-5 space-y-4 bg-[#FAFAFA]">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-500">اسم العميل</Label>
-                <Input value={editForm.client_name} onChange={e => handleEditFormChange('client_name', e.target.value)} className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-500">رقم الجوال</Label>
-                <Input value={editForm.client_phone} onChange={e => handleEditFormChange('client_phone', e.target.value)} className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" dir="ltr" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-zinc-500">تاريخ الدخول</Label>
-                  <Input type="date" value={editForm.check_in} onChange={e => handleEditFormChange('check_in', e.target.value)} className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-zinc-500">تاريخ الخروج</Label>
-                  <Input type="date" value={editForm.check_out} onChange={e => handleEditFormChange('check_out', e.target.value)} className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
-                </div>
-              </div>
-              {editConflict && (
-                <div className="bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-                  <span className="text-xs text-red-700 font-bold">الفترة المختارة تتعارض مع حجز موجود.</span>
-                </div>
-              )}
-            </div>
-            <div className="flex gap-2 px-5 pb-5">
-              <Button onClick={handleEditSave} disabled={updateMutation.isPending || editConflict} className="flex-1 h-11 text-sm font-bold bg-zinc-950 hover:bg-black text-white rounded-xl">
-                {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ التعديلات'}
-              </Button>
-              <button onClick={() => setEditBooking(null)} className="px-4 h-11 text-sm font-bold text-zinc-600 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition">إلغاء</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal حجز يدوي */}
-      {showManual && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-950/60 backdrop-blur-md overflow-y-auto" onClick={() => setShowManual(false)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden my-4 border border-zinc-100" onClick={e => e.stopPropagation()}>
-            <div className="bg-white p-4 border-b border-zinc-100 flex items-center justify-between">
-              <h3 className="font-bold text-zinc-950 flex items-center gap-2">
-                <div className="bg-[#FF385C]/10 p-1.5 rounded-lg"><Plus className="w-4 h-4 text-zinc-950" /></div>
-                إضافة حجز يدوي
-              </h3>
-              <button onClick={() => { setShowManual(false); setManualForm(EMPTY_MANUAL); }} className="p-1.5 bg-zinc-200 text-zinc-500 rounded-full hover:bg-zinc-300"><X className="w-4 h-4" /></button>
-            </div>
-            <form onSubmit={handleManualSubmit} className="p-4 sm:p-5 space-y-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-500">اسم العميل *</Label>
-                <Input value={manualForm.client_name} onChange={e => setManualForm(p => ({ ...p, client_name: e.target.value }))} placeholder="محمد عبدالله" required className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-500">رقم الجوال *</Label>
-                <Input value={manualForm.client_phone} dir="ltr" onChange={e => setManualForm(p => ({ ...p, client_phone: e.target.value }))} placeholder="05xxxxxxxx" required className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5 min-w-0">
-                  <Label className="text-xs font-bold text-zinc-500">تاريخ الدخول *</Label>
-                  <Input
-                    type="date"
-                    value={manualForm.check_in}
-                    onChange={e => {
-                      const selectedDate = e.target.value;
-                      setManualForm(p => ({
-                        ...p,
-                        check_in: selectedDate,
-                        check_out: p.check_out || selectedDate
-                      }));
-                    }}
-                    required
-                    className="h-11 rounded-xl text-sm w-full min-w-0"
-                  />
-                </div>
-                <div className="space-y-1.5 min-w-0">
-                  <Label className="text-xs font-bold text-zinc-500">تاريخ الخروج *</Label>
-                  <Input
-                    type="date"
-                    value={manualForm.check_out || manualForm.check_in}
-                    min={manualForm.check_in || undefined}
-                    onFocus={() => {
-                      if (manualForm.check_in && !manualForm.check_out) {
-                        setManualForm(p => ({ ...p, check_out: p.check_in }));
-                      }
-                    }}
-                    onChange={e => setManualForm(p => ({ ...p, check_out: e.target.value }))}
-                    required
-                    className="h-11 rounded-xl text-sm w-full min-w-0"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-zinc-500">ملاحظات (اختياري)</Label>
-                <Input value={manualForm.notes} onChange={e => setManualForm(p => ({ ...p, notes: e.target.value }))} placeholder="أي تفاصيل إضافية..." className="h-11 rounded-xl text-sm bg-white border-zinc-200 focus:border-[#FF385C]" />
-              </div>
-              <Button type="submit" disabled={addBookingMutation.isPending} className="w-full h-11 rounded-xl font-bold bg-zinc-950 hover:bg-black text-white text-sm">
-                {addBookingMutation.isPending ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : 'تأكيد الحجز'}
-              </Button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* خلفية خفيفة بنفس ثيم Airbnb */}
+    <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-16 relative overflow-x-hidden text-zinc-950">
       <div className="absolute inset-x-0 top-0 h-[170px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
       <div className="absolute -top-32 -right-28 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ backgroundColor: AIRBNB }} />
       <div className="absolute top-24 left-[-90px] w-72 h-72 rounded-full bg-zinc-900/5 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8">
+      {toastMessage && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-zinc-950 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10">
+          <CheckCircle className="w-5 h-5" style={{ color: AIRBNB }} />
+          <span className="text-sm font-black tracking-wide">{toastMessage}</span>
+        </div>
+      )}
 
-        {/* هيدر موحّد مع لوحة التحكم */}
-        <header className="pt-4 sm:pt-6 pb-4">
-          <div className="rounded-[1.6rem] sm:rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-4">
-            <div className="flex items-center justify-between gap-3 sm:gap-5">
+      {itemToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/65 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl border border-zinc-100">
+            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-5 mx-auto border border-rose-100">
+              <Trash2 className="w-7 h-7 text-rose-500" />
+            </div>
+            <h3 className="text-xl font-black text-center text-zinc-950 mb-2">تأكيد الحذف</h3>
+            <p className="text-sm text-zinc-500 text-center mb-6 leading-relaxed font-medium">
+              هل أنت متأكد من حذف<br />
+              <span className="text-zinc-950 font-black text-base">{itemToDelete.name}</span>؟<br />
+              <span className="text-xs text-zinc-400">لا يمكن التراجع عن هذا الإجراء لاحقاً.</span>
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setItemToDelete(null)}
+                className="flex-1 py-3.5 rounded-2xl font-black text-zinc-700 bg-zinc-100 hover:bg-zinc-200 transition-all text-sm"
+              >
+                تراجع
+              </button>
+              <button
+                onClick={() => deleteMutation.mutate(itemToDelete.id)}
+                disabled={deleteMutation.isPending}
+                className="flex-1 py-3.5 rounded-2xl font-black text-white bg-rose-500 hover:bg-rose-600 transition-all text-sm disabled:opacity-60"
+              >
+                {deleteMutation.isPending ? '...' : 'نعم، احذف'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="pt-4 sm:pt-5 pb-3">
+          <div className="rounded-[1.6rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-3 sm:p-3.5">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
+
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                <button
-                  onClick={() => navigate('/venue')}
-                  className="h-9 w-9 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-800 flex items-center justify-center transition-all shadow-sm active:scale-[0.98]"
-                  title="رجوع"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-
                 <div className="relative flex-shrink-0">
-                  <div className="w-[54px] h-[54px] sm:w-[62px] sm:h-[62px] rounded-[1.35rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                  <div className="w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-[1.45rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
                     {user?.office_logo_url ? (
                       <img src={user.office_logo_url} alt="شعار" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-lg font-black text-zinc-950">
-                        {(venue?.name || 'ش')[0]}
+                      <span className="text-2xl font-black text-zinc-950">
+                        {(user?.full_name || user?.office_name || 'م')[0]}
                       </span>
                     )}
                   </div>
+
+
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-[11px] sm:text-xs font-black text-zinc-400 leading-none mb-1">إدارة الحجوزات</p>
-                  {venue && (
-                    <h1 className="text-[15px] sm:text-lg font-black text-zinc-950 truncate leading-tight max-w-[125px] sm:max-w-[420px] lg:max-w-none">
-                      {venue.name}
-                    </h1>
-                  )}
+                  <p className="text-[11px] sm:text-xs font-black text-zinc-400 leading-none mb-1">مرحباً بك</p>
+                  <h1 className="text-[15px] sm:text-xl font-black text-zinc-950 flex items-center gap-1.5 min-w-0 leading-tight">
+                    <span className="truncate min-w-0 max-w-[120px] sm:max-w-none">{user?.full_name || user?.office_name || 'المالك'}</span>
+                    {isSubscribed && <VerifiedBadge />}
+                  </h1>
                 </div>
               </div>
 
@@ -594,36 +370,68 @@ export default function VenueBookings() {
 
                 <div className="relative" ref={notifsRef}>
                   <button
-                    onClick={() => setShowNotifs(!showNotifs)}
+                    onClick={() => { setShowNotifs(!showNotifs); if (!showNotifs) markNotifsRead(); }}
                     className={`relative h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showNotifs ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
                     title="الإشعارات"
                   >
-                    <Bell className="w-4 h-4" />
+                    <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                     {hasNotifications && (
-                      <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,56,92,0.9)]" style={{ backgroundColor: AIRBNB }} />
+                      <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full" style={{ backgroundColor: AIRBNB }} />
                     )}
                   </button>
+
                   {showNotifs && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[270px] sm:w-80 max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[270px] max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-zinc-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
                       <div className="px-3.5 py-2.5 bg-zinc-950 text-white flex items-center justify-between">
                         <span className="text-sm font-black">الإشعارات</span>
-                        {hasNotifications && <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{newBookings.length}</span>}
+                        {hasNotifications && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-black" style={{ backgroundColor: AIRBNB }}>{totalNotifCount}</span>
+                        )}
                       </div>
-                      {newBookings.length === 0 ? (
-                        <div className="px-4 py-5 text-center"><p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p></div>
+                      {(newBookings.length === 0 && subNotifs.length === 0) ? (
+                        <div className="px-4 py-5 text-center">
+                          <p className="text-sm text-zinc-400 font-bold">لا توجد إشعارات جديدة</p>
+                        </div>
                       ) : (
-                        <div className="max-h-64 overflow-y-auto">
+                        <div className="max-h-72 overflow-y-auto">
+                          {/* إشعارات الاشتراك */}
+                          {subNotifs.map(n => {
+                            const isRenew = n.type === 'renewed';
+                            return (
+                              <Link
+                                key={n.id}
+                                to="/subscription"
+                                onClick={() => setShowNotifs(false)}
+                                className={`flex items-start gap-2.5 px-3.5 py-3 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0 ${!n.is_read ? 'bg-amber-50/40' : ''}`}
+                              >
+                                <div className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: isRenew ? '#dcfce7' : '#fef3c7' }}>
+                                  <Crown className="w-4 h-4" style={{ color: isRenew ? '#16a34a' : '#d97706' }} />
+                                </div>
+                                <div className="flex-1 min-w-0 text-right">
+                                  <p className="text-sm font-black text-zinc-800">{n.title}</p>
+                                  {n.body && <p className="text-xs text-zinc-500 font-medium leading-snug">{n.body}</p>}
+                                </div>
+                              </Link>
+                            );
+                          })}
+                          {/* إشعارات الحجوزات */}
                           {newBookings.map(b => {
                             const v = venues.find(x => x.id === b.venue_id);
                             return (
-                              <Link key={b.id} to={`/venue/bookings/${b.venue_id}`} onClick={() => setShowNotifs(false)}
-                                className="flex items-start gap-2.5 px-3.5 py-3 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0">
+                              <Link
+                                key={b.id}
+                                to={`/venue/bookings/${b.venue_id}`}
+                                onClick={() => setShowNotifs(false)}
+                                className="flex items-start gap-2.5 px-3.5 py-3 hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
+                              >
                                 <div className="w-9 h-9 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <Calendar className="w-4 h-4" style={{ color: AIRBNB }} />
                                 </div>
                                 <div className="flex-1 min-w-0 text-right">
                                   <p className="text-sm font-black text-zinc-800">حجز جديد</p>
-                                  <p className="text-xs text-zinc-500 truncate font-medium">{b.client_name || 'عميل'} — {v?.name || 'شاليه'}</p>
+                                  <p className="text-xs text-zinc-500 truncate font-medium">
+                                    {b.client_name || 'عميل'} — {v?.name || 'شاليه'}
+                                  </p>
                                 </div>
                               </Link>
                             );
@@ -640,13 +448,14 @@ export default function VenueBookings() {
                     className={`h-9 w-9 sm:h-11 sm:w-11 rounded-2xl border transition-all flex items-center justify-center shadow-sm active:scale-[0.98] ${showRevenue ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border-zinc-200'}`}
                     title="إيرادات الشهر"
                   >
-                    <Wallet className="w-4 h-4" />
+                    <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                   </button>
+
                   {showRevenue && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
+                    <div className="absolute top-full left-0 mt-3 w-60 bg-white rounded-3xl shadow-2xl border border-zinc-100 p-4 z-50 text-center animate-in fade-in slide-in-from-top-2">
                       <p className="text-[11px] text-zinc-500 font-bold mb-1">إيرادات الشهر المؤكدة</p>
-                      <p className="text-lg font-black text-zinc-950" dir="ltr">
-                        {monthlyRevenue.toLocaleString('en-US')} <span className="text-[10px] font-bold text-zinc-400">ر.س</span>
+                      <p className="text-2xl font-black text-zinc-950" dir="ltr">
+                        {monthlyRevenue.toLocaleString('en-US')} <span className="text-[11px] font-bold text-zinc-400">ر.س</span>
                       </p>
                     </div>
                   )}
@@ -658,526 +467,210 @@ export default function VenueBookings() {
           </div>
         </header>
 
-        {/* ═══════════════════════════════════════
-            المحتوى
-        ═══════════════════════════════════════ */}
-        <div className="space-y-6 pb-6">
-
-          {/* كروت الإحصائيات */}
-          <div className="grid grid-cols-4 gap-2 sm:gap-3">
-            {statusOrder.map(s => {
-              const count = bookings.filter(b => b.status === s).length;
-              const cfg = STATUS_MAP[s];
-              const Icon = cfg.statIcon;
-              return (
-                <div key={s} className="bg-white rounded-2xl sm:rounded-3xl py-2.5 sm:py-3 px-1 shadow-sm border border-zinc-100 flex flex-col items-center justify-center gap-0.5">
-                  <div className={`p-1 ${cfg.statBg} rounded-lg`}><Icon className={`w-3.5 h-3.5 ${cfg.statText}`} /></div>
-                  <p className={`text-base font-black leading-none mt-0.5 ${cfg.statText}`}>{count}</p>
-                  <p className="text-[10px] font-bold text-zinc-500">{s}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* التقويم */}
-          <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-5 shadow-sm border border-zinc-100">
-            <h3 className="text-sm font-bold text-zinc-950 flex items-center gap-2 mb-4">
-              <CalendarIcon className="w-4 h-4 text-zinc-950/70" />
-              التقويم والإتاحة
-            </h3>
-            <VenueCalendar bookedDates={bookedDates} onRangeSelect={null} readOnly={true} accent={AIRBNB} venueName={venue?.name || ''} />
-            <p className="text-xs text-gray-400 mt-2">سوف تظهر التواريخ المحجوزة في صفحة الشاليه</p>
-          </div>
-
-          {/* عنوان القائمة + زر حجز يدوي */}
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-zinc-950">الحجوزات</h3>
-            <button
-              onClick={() => setShowManual(true)}
-              className="flex items-center gap-1.5 bg-white text-zinc-950 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm border border-zinc-100 hover:bg-zinc-50 transition-all"
-            >
-              <Plus className="w-3.5 h-3.5" /> حجز يدوي
-            </button>
-          </div>
-
-          {/* قائمة الحجوزات */}
-          {isLoading ? (
-            <div className="flex justify-center py-10"><div className="w-8 h-8 rounded-full border-[3px] border-zinc-100 border-t-[#FF385C] animate-spin" /></div>
-          ) : bookings.length === 0 ? (
-            <div className="text-center py-16 text-zinc-400 bg-white rounded-[1.5rem] border border-zinc-100 shadow-sm">
-              <p className="font-bold text-base">لا توجد حجوزات حالياً</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {bookings.map((booking) => {
-                const cfg = STATUS_MAP[booking.status] || STATUS_MAP['جديد'];
-                const isDeleting    = confirmDelete === booking.id;
-                const isManualBlock = booking.client_phone === '000';
-                const bookingRef    = getBookingRef(booking.id);
-
-                return (
-                  <div key={booking.id} className="bg-white rounded-[1.2rem] sm:rounded-[1.6rem] p-3 sm:p-4 shadow-sm border border-zinc-100 relative overflow-hidden">
-                    <div className={`absolute top-0 right-0 w-1 h-full ${cfg.border}`} />
-
-                    <div className="flex justify-between items-start mb-3 pl-1 pr-2">
-                      {/* معلومات العميل */}
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          {!isManualBlock ? (
-                            <h4 className="text-sm font-bold text-zinc-800 flex items-center gap-1">
-                              <PinIcon className="w-3.5 h-3.5 text-zinc-400" />{booking.client_name}
-                            </h4>
-                          ) : (
-                            <h4 className="text-sm font-bold text-zinc-600 flex items-center gap-1">
-                              <IconLock className="w-3.5 h-3.5" /> إغلاق يدوي
-                            </h4>
-                          )}
-                          <span className="text-[10px] font-medium text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded-md" dir="ltr">{bookingRef}</span>
-                        </div>
-                        {!isManualBlock && booking.client_phone && booking.client_phone !== '000' && (
-                          <div className="flex items-center gap-2">
-                            <p className="text-[11px] text-zinc-500 flex items-center gap-1 font-medium">
-                              <Phone className="w-3 h-3 text-zinc-400" />
-                              <span dir="ltr">{booking.client_phone}</span>
-                            </p>
-                            <a href={`https://wa.me/${formatWhatsApp(booking.client_phone)}?text=${encodeURIComponent(`مرحباً ${booking.client_name}، نتواصل معك بخصوص حجزك...`)}`}
-                              target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-[10px] text-zinc-500 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md font-medium transition-colors">
-                              <IconWa className="w-3 h-3" /> مراسلة
-                            </a>
-                          </div>
-                        )}
-                        {booking.notes && !isManualBlock && (
-                          <div className="text-xs text-zinc-500 bg-zinc-50 rounded-lg px-2.5 py-1 mt-1 border border-zinc-100 inline-block">{booking.notes}</div>
-                        )}
-                      </div>
-
-                      {/* الأزرار اليمين */}
-                      <div className="flex flex-col items-end gap-2">
-                        <div className="relative">
-                          <select
-                            value={booking.status}
-                            onChange={(e) => updateMutation.mutate({ bookingId: booking.id, data: { status: e.target.value } })}
-                            className={`appearance-none pl-6 pr-2 py-1 rounded-lg text-[11px] font-bold border outline-none cursor-pointer transition-colors ${cfg.select}`}
-                          >
-                            <option value="جديد">جديد</option>
-                            <option value="بالانتظار">بالانتظار</option>
-                            <option value="مؤكد">مؤكد</option>
-                            <option value="ملغي">ملغي</option>
-                          </select>
-                          <ChevronDown className="w-3.5 h-3.5 absolute left-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {!isManualBlock && (
-                            <button onClick={() => openReceipt(booking)} className="p-1.5 text-zinc-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="إصدار سند استلام">
-                              <FileText className="w-4 h-4" />
-                            </button>
-                          )}
-                          {!isManualBlock && (
-                            <button onClick={() => openEdit(booking)} className="p-1.5 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="تعديل">
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                          )}
-                          <button onClick={() => setConfirmDelete(booking.id)} className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="حذف">
-                            <DeleteIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* شريط التواريخ + الليالي + السعر */}
-                    <div className="flex items-center justify-between bg-zinc-50/80 p-2.5 rounded-xl border border-zinc-100 mx-1">
-                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-600 font-medium">
-                        <CalendarIcon className="w-3.5 h-3.5 text-zinc-400" />
-                        <span>{formatDateAr(booking.check_in)} ← {formatDateAr(booking.check_out)}</span>
-                      </div>
-                      {getNights(booking.check_in, booking.check_out) && (
-                        <>
-                          <div className="w-px h-3 bg-zinc-200" />
-                          <div className="text-[11px] text-zinc-600 font-medium">{getNights(booking.check_in, booking.check_out)}</div>
-                        </>
-                      )}
-                      <div className="w-px h-3 bg-zinc-200" />
-                      <div className="text-[11px] text-zinc-950 font-bold">
-                        {calcBookingPrice(booking, venue) ? `${calcBookingPrice(booking, venue).toLocaleString('en-US')} ر.س` : '—'}
-                      </div>
-                    </div>
-
-                    {/* تأكيد الحذف فقط */}
-                    {isDeleting && (
-                      <div className="flex items-center gap-2 w-full bg-red-50 p-2.5 rounded-xl border border-red-100 mt-3">
-                        <span className="text-xs text-red-800 font-bold ml-auto">تأكيد الحذف؟</span>
-                        <button onClick={() => deleteMutation.mutate(booking.id)} disabled={deleteMutation.isPending}
-                          className="flex items-center gap-1 text-xs font-bold text-white bg-red-600 rounded-lg px-3 py-1.5 hover:bg-red-700 transition">
-                          {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'نعم، احذف'}
-                        </button>
-                        <button onClick={() => setConfirmDelete(null)} className="text-xs font-bold text-zinc-600 bg-white border border-zinc-200 rounded-lg px-3 py-1.5 hover:bg-zinc-50 transition">تراجع</button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+        <main className="space-y-6">
+          {/* بانر التجديد — يظهر فقط لو في مهلة أو منتهي أو قرب الانتهاء */}
+          {(subState.status === 'grace' || subState.status === 'expired' || subState.expiresInWarn) && (
+            <div className="flex items-center gap-3 rounded-2xl border px-4 py-3"
+              style={{
+                background: subState.status === 'expired' ? '#fef2f2' : '#fffbeb',
+                borderColor: subState.status === 'expired' ? '#fecaca' : '#fde68a',
+              }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: subState.status === 'expired' ? '#fee2e2' : '#fef3c7' }}>
+                <Crown className="w-4.5 h-4.5" style={{ color: subState.status === 'expired' ? '#dc2626' : '#d97706' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold" style={{ color: subState.status === 'expired' ? '#991b1b' : '#92400e' }}>
+                  {subState.status === 'expired'
+                    ? 'انتهى اشتراكك'
+                    : subState.status === 'grace'
+                      ? `انتهى اشتراكك — لديك مهلة ${subState.graceDaysLeft} يوم`
+                      : `اشتراكك ينتهي خلال ${subState.daysLeft} يوم`}
+                </p>
+                <p className="text-xs font-medium" style={{ color: subState.status === 'expired' ? '#b91c1c' : '#b45309' }}>
+                  جدّد الآن لمواصلة استقبال حجوزاتك ✨
+                </p>
+              </div>
+              <Link to="/subscription"
+                className="text-xs font-bold text-white px-4 py-2 rounded-xl flex-shrink-0 transition-all hover:-translate-y-0.5"
+                style={{ background: subState.status === 'expired' ? '#dc2626' : '#d97706' }}>
+                تجديد
+              </Link>
             </div>
           )}
-        </div>
+
+          <div className="flex justify-end">
+            {paidFeaturesAllowed ? (
+              <Link
+                to="/venue/add"
+                className="inline-flex w-auto min-w-[150px] items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-black text-white px-5 py-3 text-sm font-black shadow-[0_14px_30px_rgba(0,0,0,0.16)] hover:-translate-y-0.5 transition-all active:scale-[0.98]"
+              >
+                <Plus className="w-4 h-4" />
+                إضافة شاليه
+              </Link>
+            ) : (
+              <button
+                onClick={() => setShowPaidHint('add')}
+                className="relative inline-flex w-auto min-w-[150px] items-center justify-center gap-2 rounded-2xl bg-zinc-300 text-zinc-600 px-5 py-3 text-sm font-black cursor-not-allowed"
+              >
+                <Plus className="w-4 h-4" />
+                إضافة شاليه
+              </button>
+            )}
+          </div>
+
+          {venues.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
+              {venues.map((venue) => (
+                <div key={venue.id} className="bg-white rounded-[2rem] p-2.5 shadow-[0_20px_55px_rgba(0,0,0,0.08)] border border-zinc-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_rgba(0,0,0,0.12)]">
+                  <div className="relative h-56 sm:h-60 rounded-[1.55rem] overflow-hidden bg-zinc-100">
+                    {venue.images?.[0] ? (
+                      <img src={venue.images[0]} alt={venue.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-400">
+                        <EmptyHouseIcon />
+                      </div>
+                    )}
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+
+                    {venue.status === 'معطّل' && (
+                      <div className="absolute inset-0 bg-black/65 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 opacity-80">
+                          <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                        <span className="text-white text-sm font-black opacity-90">متوقف عن العرض حالياً</span>
+                      </div>
+                    )}
+
+                    <div className="absolute top-3 right-3 flex items-center bg-white/85 backdrop-blur-md p-1 rounded-full shadow-sm border border-white/70 z-20">
+                      <button
+                        onClick={() => handleToggleStatus({ ...venue, status: 'نشط' })}
+                        className={`px-3 py-1.5 text-[11px] font-black rounded-full transition-all duration-300 ${venue.status === 'نشط' ? 'text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-950'}`}
+                        style={venue.status === 'نشط' ? { backgroundColor: AIRBNB } : {}}
+                      >
+                        نشط
+                      </button>
+                      <button
+                        onClick={() => handleToggleStatus({ ...venue, status: 'معطّل' })}
+                        className={`px-3 py-1.5 text-[11px] font-black rounded-full transition-all duration-300 ${venue.status === 'معطّل' ? 'bg-zinc-950 text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-950'}`}
+                      >
+                        معطّل
+                      </button>
+                    </div>
+
+                    <div className="absolute bottom-4 left-4 right-4 text-white z-10">
+                      <h3 className="text-xl font-black mb-1 truncate">{venue.name}</h3>
+                      <p className="text-sm text-white/78 flex items-center gap-1.5 font-bold">
+                        <MapPin className="w-4 h-4" />
+                        {venue.city}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 px-1 py-3">
+                    <div className="rounded-2xl bg-zinc-50 border border-zinc-100 p-3">
+                      <p className="text-[11px] text-zinc-500 mb-1 font-bold">السعر / ليلة ويكند</p>
+                      <p className="text-lg font-black text-zinc-950" dir="ltr">
+                        {venue.price_weekend?.toLocaleString('en-US') ?? '—'} <span className="text-[10px] font-bold text-zinc-400">ر.س</span>
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-zinc-50 border border-zinc-100 p-3 text-left">
+                      <p className="text-[11px] text-zinc-500 mb-1 font-bold">حجوزات الشهر</p>
+                      <p className="text-lg font-black text-zinc-950" dir="ltr">
+                        {bookings.filter(b => b.venue_id === venue.id && b.status !== 'ملغي' && isThisMonth(b)).length}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-zinc-50 rounded-[1.35rem] p-2 flex flex-col sm:flex-row gap-2">
+                    <Link
+                      to={`/venue/bookings/${venue.id}`}
+                      className="flex-1 min-h-12 bg-zinc-950 hover:bg-black text-white flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black text-sm transition-all shadow-md shadow-black/10 active:scale-[0.98]"
+                    >
+                      <Calendar className="w-5 h-5" />
+                      إدارة الحجوزات
+                    </Link>
+
+                    <div className="grid grid-cols-4 sm:flex gap-1.5 sm:gap-2 w-full sm:w-auto">
+                      <Link
+                        to={`/venue/edit/${venue.id}`}
+                        className="h-11 w-full sm:h-12 sm:w-12 flex items-center justify-center bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 rounded-2xl transition-all shadow-sm"
+                        title="تعديل"
+                      >
+                        <Pencil className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                      </Link>
+
+                      <IconButton onClick={() => handleViewPage(venue)} title="عرض الصفحة" className="text-zinc-800">
+                        <Eye className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                      </IconButton>
+
+                      <IconButton onClick={() => handleShare(venue)} title="مشاركة" className="text-zinc-800">
+                        <Share2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                      </IconButton>
+
+                      <IconButton onClick={() => setItemToDelete(venue)} title="حذف" className="bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100 hover:border-rose-200">
+                        <Trash2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                      </IconButton>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {venues.length === 0 && (
+            <div className="text-center py-16 sm:py-20 bg-white rounded-[2rem] border border-zinc-200 shadow-[0_20px_55px_rgba(0,0,0,0.06)]">
+              <div className="w-20 h-20 bg-zinc-100 rounded-3xl flex items-center justify-center mx-auto mb-4 text-zinc-400">
+                <EmptyHouseIcon />
+              </div>
+              <p className="text-zinc-700 font-black mb-2">لا توجد وحدات سكنية حالياً</p>
+              <p className="text-zinc-500 font-bold text-sm mb-5">أضف أول مكان وابدأ مشاركة صفحتك مع العملاء.</p>
+              <Link to="/venue/add" className="inline-flex items-center gap-2 bg-zinc-950 text-white px-6 py-3 rounded-2xl font-black text-sm hover:bg-black transition-all">
+                <Plus className="w-4 h-4" /> أضف أول شاليه
+              </Link>
+            </div>
+          )}
+
+          <SiteFooter />
+
+        </main>
       </div>
 
-      {/* ══════════ مودال إصدار السند ══════════ */}
-      {receiptBooking && !showReceiptPreview && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-zinc-950/60 backdrop-blur-md overflow-y-auto" onClick={() => setReceiptBooking(null)}>
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden my-4 border border-zinc-100" onClick={e => e.stopPropagation()}>
-            <div className="bg-white p-4 border-b border-zinc-100 flex items-center justify-between">
-              <h3 className="font-black text-zinc-950 flex items-center gap-2 text-sm">
-                <div className="bg-[#FF385C]/10 p-1.5 rounded-xl"><FileText className="w-4 h-4 text-[#FF385C]" /></div>
-                إصدار سند استلام
-              </h3>
-              <button onClick={() => setReceiptBooking(null)} className="p-1 bg-zinc-200 text-zinc-500 rounded-full hover:bg-zinc-300 transition-colors"><X className="w-4 h-4" /></button>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+      ` }} />
+
+      {/* تنبيه "خاص بالمشتركين" */}
+      {showPaidHint && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => setShowPaidHint(null)}>
+          <div className="absolute inset-0 bg-zinc-950/50 backdrop-blur-sm" />
+          <div dir="rtl" onClick={e => e.stopPropagation()}
+            className="relative bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-zinc-100 text-center">
+            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: `${AIRBNB}15` }}>
+              <Crown className="w-7 h-7" style={{ color: AIRBNB }} />
             </div>
-
-            <div className="p-4 sm:p-5 space-y-4 bg-[#FAFAFA]">
-              <div className="bg-zinc-950/5 border border-zinc-950/10 rounded-xl p-3 flex justify-between items-center">
-                <div>
-                  <p className="text-[10px] text-zinc-500 font-bold mb-0.5">سند لصالح</p>
-                  <p className="text-xs font-black text-zinc-950">{receiptBooking.client_name}</p>
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] text-zinc-500 font-bold mb-0.5">إجمالي الحجز</p>
-                  <p className="text-xs font-bold text-zinc-700">{calcBookingPrice(receiptBooking, venue) ? `${calcBookingPrice(receiptBooking, venue).toLocaleString('en-US')}` : '—'} ر.س</p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-zinc-500 mb-2">نوع الدفعة</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[{ id: 'deposit', label: 'عربون' }, { id: 'partial', label: 'دفعة' }, { id: 'full', label: 'كامل المبلغ' }].map(t => (
-                    <button key={t.id} type="button" onClick={() => handleReceiptTypeChange(t.id)}
-                      className={`py-2 rounded-xl text-[10px] font-bold transition-all border ${receiptForm.type === t.id ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-zinc-500 mb-1.5">مبلغ السند (ريال)</label>
-                <input type="number" value={receiptForm.amount} onChange={e => setReceiptForm({ ...receiptForm, amount: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-white border border-zinc-200 rounded-xl focus:border-[#FF385C] focus:ring-1 focus:ring-[#FF385C] outline-none transition-all text-sm font-black text-left" dir="ltr" placeholder="0.00" />
-              </div>
-
-              {/* زر تحديث الشروط */}
-              <button type="button" onClick={() => setShowEditTerms(true)}
-                className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-zinc-300 hover:border-zinc-950 hover:text-zinc-950 text-zinc-500 rounded-xl text-xs font-bold transition-all">
-                <FileText className="w-3.5 h-3.5" /> تحديث شروط هذا السند
+            <h3 className="text-lg font-bold text-zinc-900 mb-2">خاص بالمشتركين</h3>
+            <p className="text-sm text-zinc-500 font-medium mb-6 leading-relaxed">
+              {showPaidHint === 'add'
+                ? 'إضافة شاليه جديد ميزة خاصة بالمشتركين. جدّد اشتراكك لتستمتع بكل المزايا ✨'
+                : 'الحجز اليدوي ميزة خاصة بالمشتركين. جدّد اشتراكك لتستمتع بكل المزايا ✨'}
+            </p>
+            <div className="flex gap-2">
+              <button onClick={() => setShowPaidHint(null)}
+                className="flex-1 h-11 rounded-2xl bg-zinc-100 text-zinc-600 font-bold text-sm hover:bg-zinc-200 transition">
+                لاحقاً
               </button>
-
-              <div className="pt-2 flex gap-2">
-                <button onClick={() => { if (!receiptForm.amount) { showToast('أدخل مبلغ السند'); return; } setShowReceiptPreview(true); }}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-3 bg-zinc-950 hover:bg-black text-white rounded-2xl font-black text-xs transition-all shadow-sm active:scale-[0.98]">
-                  <Eye className="w-3.5 h-3.5" /> معاينة السند
-                </button>
-                <button onClick={sendReceiptWhatsApp}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-3 bg-[#FF385C] hover:bg-[#E31C5F] text-white rounded-2xl font-black text-xs transition-all shadow-sm active:scale-[0.98]">
-                  <IconWa className="w-3.5 h-3.5" /> إرسال للعميل
-                </button>
-              </div>
+              <Link to="/subscription" onClick={() => setShowPaidHint(null)}
+                className="flex-1 h-11 rounded-2xl text-white font-bold text-sm flex items-center justify-center transition hover:-translate-y-0.5"
+                style={{ background: AIRBNB }}>
+                جدّد الآن
+              </Link>
             </div>
           </div>
         </div>
       )}
-
-      {/* ══ مودال تعديل شروط السند ══ */}
-      {showEditTerms && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden my-4 border border-zinc-100">
-            <div className="bg-white p-4 border-b border-zinc-100 flex items-center justify-between">
-              <h3 className="font-black text-zinc-950 flex items-center gap-2 text-sm">
-                <FileText className="w-4 h-4" /> شروط هذا السند
-              </h3>
-              <button onClick={() => setShowEditTerms(false)} className="p-1.5 bg-zinc-100 text-zinc-500 rounded-full hover:bg-zinc-200 transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-5 space-y-3">
-              <p className="text-[11px] text-zinc-500 font-medium leading-relaxed">
-                هذه الشروط لهذا السند فقط — لن تؤثر على إعدادات الشاليه.
-                {venue?.booking_terms && receiptForm.customTerms === null && (
-                  <span className="text-zinc-950 font-bold"> (يستخدم شروط الشاليه حالياً)</span>
-                )}
-              </p>
-              <textarea
-                rows={6}
-                value={receiptForm.customTerms ?? (venue?.booking_terms || `هذا السند يثبت استلام المبلغ الموضح أعلاه فقط.\nالعربون المدفوع غير مسترد في حال إلغاء الحجز من قبل الضيف.\nيجب دفع باقي قيمة الحجز كاملاً قبل أو عند تسجيل الدخول.\nيتم تحصيل مبلغ تأمين إضافي عند الدخول ويسترد عند الخروج.`)}
-                onChange={e => setReceiptForm(prev => ({ ...prev, customTerms: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl focus:border-[#FF385C] focus:ring-1 focus:ring-[#FF385C] outline-none transition-all text-sm resize-none leading-relaxed"
-              />
-              <div className="flex gap-2 pt-1">
-                <button onClick={() => setReceiptForm(prev => ({ ...prev, customTerms: venue?.booking_terms || null }))}
-                  className="flex-1 py-2.5 text-xs font-bold text-zinc-600 bg-white border border-zinc-200 hover:bg-zinc-50 rounded-2xl transition-all">
-                  إعادة الشروط الأصلية
-                </button>
-                <button onClick={() => setShowEditTerms(false)}
-                  className="flex-1 py-2.5 text-xs font-black text-white bg-zinc-950 hover:bg-black rounded-2xl transition-all shadow-sm">
-                  حفظ وإغلاق
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════ معاينة السند PDF ══════════ */}
-      {showReceiptPreview && receiptBooking && (
-        <div className="fixed inset-0 z-[200] bg-zinc-950/85 backdrop-blur-md overflow-auto flex flex-col items-center py-6 px-2" >
-          <div className="sticky top-2 z-50 flex items-center gap-2 bg-white/95 backdrop-blur-xl p-2 rounded-3xl shadow-2xl border border-zinc-100 mb-4">
-            <button onClick={downloadReceipt} disabled={downloadingReceipt} className="flex items-center gap-2 bg-[#FF385C] text-white px-5 py-2.5 rounded-2xl font-black text-xs hover:bg-[#E31C5F] transition-all shadow-sm disabled:opacity-60 active:scale-[0.98]">
-              {downloadingReceipt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} تنزيل السند
-            </button>
-            <button onClick={() => setShowReceiptPreview(false)} className="flex items-center gap-2 bg-zinc-100 text-zinc-700 px-5 py-2.5 rounded-2xl font-black text-xs hover:bg-zinc-200 transition-all active:scale-[0.98]">
-              <X className="w-4 h-4" /> إغلاق المعاينة
-            </button>
-          </div>
-
-          {/* غلاف للتصغير على الجوال */}
-          <div className="receipt-scale-wrap">
-            <div ref={receiptRef} dir="rtl" className="receipt-page font-sans w-[210mm] min-h-[297mm] shrink-0 bg-[#FAFAFA] text-zinc-950 relative shadow-2xl flex flex-col rounded-[22px] overflow-hidden" >
-              {/* زخرفة خفيفة */}
-              <div className="absolute -top-28 -right-24 w-80 h-80 rounded-full opacity-[0.08]" style={{ backgroundColor: AIRBNB }} />
-              <div className="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-zinc-950 opacity-[0.04]" />
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-8 left-8 right-8 h-px bg-gradient-to-l from-transparent via-zinc-950/10 to-transparent" />
-                <div className="absolute bottom-8 left-8 right-8 h-px bg-gradient-to-l from-transparent via-zinc-950/10 to-transparent" />
-              </div>
-
-              <div className="relative z-10 px-12 pt-11 pb-8 flex flex-col flex-1">
-                {/* Header */}
-                <div className="bg-white rounded-[2rem] border border-zinc-200 shadow-[0_18px_50px_rgba(0,0,0,0.06)] p-5 mb-8">
-                  <div className="flex items-start justify-between gap-8">
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-16 h-16 rounded-[1.4rem] bg-zinc-950 flex items-center justify-center text-white shadow-lg overflow-hidden flex-shrink-0">
-                        {user?.office_logo_url ? (
-                          <img src={user.office_logo_url} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <FileText className="w-7 h-7" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <h1 className="text-2xl font-black text-zinc-950 leading-tight max-w-[330px] whitespace-normal break-words">{venue?.name || 'المنشأة'}</h1>
-                        <div className="mt-2 flex items-center gap-2 text-xs font-bold text-zinc-500">
-                          {venue?.city && (
-                            <span className="inline-flex items-center gap-1">
-                              <MapPin className="w-3.5 h-3.5" />
-                              {venue.city}
-                            </span>
-                          )}
-                          <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                          <span dir="ltr">{new Date().toLocaleDateString('en-GB')}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="text-left flex-shrink-0">
-                      <h2 className="text-2xl font-black text-zinc-950 leading-none">سند استلام</h2>
-                      <p className="text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-[0.25em]">Receipt Voucher</p>
-                      <p className="mt-4 text-xs font-black text-zinc-600">
-                        رقم المرجع:
-                        <span dir="ltr" className="mr-1 inline-flex px-2 py-1 rounded-lg bg-zinc-100 text-zinc-950">{getBookingRef(receiptBooking.id)}</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Amount hero */}
-                <div className="rounded-[2rem] bg-white border border-[#FF385C]/15 p-6 mb-7 shadow-[0_18px_45px_rgba(255,56,92,0.08)] relative overflow-hidden">
-                  <div className="absolute -left-16 -top-16 w-52 h-52 rounded-full opacity-10" style={{ backgroundColor: AIRBNB }} />
-                  <div className="absolute bottom-0 right-0 left-0 h-1.5" style={{ backgroundColor: AIRBNB }} />
-                  <div className="relative z-10 flex items-center justify-between gap-6">
-                    <div>
-                      <p className="text-xs font-black text-zinc-400 mb-2">المبلغ المستلم</p>
-                      <div className="flex items-end gap-2">
-                        <span className="text-4xl font-black tracking-tight text-zinc-950">{receiptForm.amount || '0'}</span>
-                        <span className="text-sm font-black text-zinc-500 mb-1.5">ريال سعودي</span>
-                      </div>
-                    </div>
-                    <div className="text-left">
-                      <p className="text-xs font-black text-zinc-400 mb-2">نوع السند</p>
-                      <span className="inline-flex rounded-2xl bg-[#FF385C]/10 border border-[#FF385C]/15 px-4 py-2 text-sm font-black text-[#FF385C]">
-                        {receiptTypeLabel(receiptForm.type)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Details cards */}
-                <div className="grid grid-cols-2 gap-4 mb-7">
-                  <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
-                    <p className="text-[11px] font-black text-zinc-400 mb-2">استلمنا من</p>
-                    <p className="text-lg font-black text-zinc-950 leading-tight">{receiptBooking.client_name}</p>
-                    {receiptBooking.client_phone && receiptBooking.client_phone !== '000' && (
-                      <p dir="ltr" className="mt-2 text-xs font-bold text-zinc-500 text-right">{receiptBooking.client_phone}</p>
-                    )}
-                  </div>
-
-                  <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
-                    <p className="text-[11px] font-black text-zinc-400 mb-2">الفترة</p>
-                    <p dir="ltr" className="text-lg font-black text-zinc-950 text-right">
-                      {formatDateAr(receiptBooking.check_in)} → {formatDateAr(receiptBooking.check_out)}
-                    </p>
-                    {getNights(receiptBooking.check_in, receiptBooking.check_out) && (
-                      <p className="mt-2 text-xs font-bold text-zinc-500">{getNights(receiptBooking.check_in, receiptBooking.check_out)}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Statement */}
-                <div className="bg-white rounded-[2rem] border border-zinc-200 p-6 shadow-sm mb-7">
-                  <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 rounded-2xl bg-[#FF385C]/10 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle2 className="w-5 h-5 text-[#FF385C]" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-black text-zinc-950 mb-2">تفاصيل السند</h3>
-                      <p className="text-sm font-bold text-zinc-600 leading-8">
-                        تم استلام مبلغ وقدره
-                        <span className="mx-1 text-zinc-950 font-black">{receiptForm.amount || '0'} ريال سعودي</span>
-                        من العميل
-                        <span className="mx-1 text-zinc-950 font-black">{receiptBooking.client_name}</span>
-                        وذلك عن
-                        <span className="mx-1 text-zinc-950 font-black">{receiptTypeLabel(receiptForm.type)}</span>
-                        للفترة الموضحة أعلاه.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Terms */}
-                <div className="bg-[#FFF7F9] rounded-[2rem] border border-[#FF385C]/15 p-6 mb-7">
-                  <h4 className="font-black text-zinc-950 mb-4 flex items-center gap-2 text-sm">
-                    <span className="w-8 h-8 rounded-2xl bg-white border border-[#FF385C]/15 flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-[#FF385C]" />
-                    </span>
-                    الشروط والأحكام
-                  </h4>
-                  {(() => {
-                    const terms = receiptForm.customTerms ?? venue?.booking_terms;
-                    if (terms?.trim()) {
-                      return <p className="text-sm font-bold text-zinc-600 leading-8 whitespace-pre-line">{terms}</p>;
-                    }
-                    return (
-                      <ul className="text-sm font-bold text-zinc-600 space-y-2.5 list-disc list-inside leading-7">
-                        <li>هذا السند يثبت استلام المبلغ الموضح أعلاه فقط ولا يمثل تأكيداً نهائياً للحجز ما لم يسدد كامل المبلغ.</li>
-                        <li>العربون المدفوع <span className="text-rose-600 font-black">غير مسترد</span> في حال إلغاء الحجز من قبل الضيف.</li>
-                        <li>يجب دفع باقي قيمة الحجز كاملاً قبل أو عند تسجيل الدخول.</li>
-                        <li>يتم تحصيل مبلغ تأمين إضافي عند الدخول ويسترد عند الخروج بعد التأكد من سلامة الممتلكات.</li>
-                      </ul>
-                    );
-                  })()}
-                </div>
-
-                <div className="mt-auto space-y-5">
-                  <div className="grid grid-cols-[1fr_auto] gap-5 items-end">
-                    <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-5 shadow-sm">
-                      <p className="text-[11px] font-black text-zinc-400 mb-3">بيانات التواصل</p>
-                      <div className="space-y-2">
-                        {(user?.phone || receiptBooking.client_phone) && (
-                          <p className="text-zinc-950 font-black text-sm flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-[#FF385C]" />
-                            <span dir="ltr">{user?.phone || receiptBooking.client_phone}</span>
-                          </p>
-                        )}
-                        {venue?.city && (
-                          <p className="text-zinc-500 font-bold text-xs flex items-center gap-2">
-                            <MapPin className="w-3.5 h-3.5" />
-                            {venue.city}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-[1.6rem] border border-zinc-200 p-4 shadow-sm flex items-center gap-3">
-                      <div className="text-left">
-                        <span className="block text-xs font-black text-zinc-950">امسح الرمز</span>
-                        <span className="block text-[10px] font-bold text-zinc-500">لزيارة صفحة {venue?.name || 'المنشأة'}</span>
-                      </div>
-                      <div className="bg-white p-1.5 rounded-2xl border border-zinc-100 shadow-sm">
-                        <QRCodeSVG
-                          value={`${window.location.origin}/place/${venue?.slug || venue?.id || 'venue'}`}
-                          size={58}
-                          bgColor="#ffffff"
-                          fgColor="#000000"
-                          level="M"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-center gap-3 text-center">
-                    <img
-                      src={aqarCloudLogo}
-                      alt="Aqar Cloud"
-                      className="h-8 w-auto object-contain"
-                    />
-                    <div className="text-right">
-                      <p className="text-[11px] font-black text-zinc-950 leading-relaxed">
-                        تم إصدار هذا السند إلكترونياً عبر منصة عقار كلاود لإدارة الحجوزات والعقارات
-                      </p>
-                      <p className="text-[10px] font-bold text-zinc-500 mt-1 leading-relaxed">
-                        وتبقى مسؤولية صحة بياناته والمبالغ الموضحة فيه على الجهة المُصدِرة للسند.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {venue?.social && (venue.social.instagram || venue.social.tiktok || venue.social.x || venue.social.snapchat) && (
-                  <div className="mt-5 flex justify-center items-center gap-6 pt-2">
-                    {venue.social.instagram && (
-                      <div className="flex items-center gap-1.5 text-zinc-950">
-                        <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.instagram}</span>
-                        <IconInstagram className="w-4 h-4" />
-                      </div>
-                    )}
-                    {venue.social.x && (
-                      <div className="flex items-center gap-1.5 text-zinc-950">
-                        <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.x}</span>
-                        <IconX className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                    {venue.social.snapchat && (
-                      <div className="flex items-center gap-1.5 text-zinc-950">
-                        <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.snapchat}</span>
-                        <IconSnapchat className="w-4 h-4" />
-                      </div>
-                    )}
-                    {venue.social.tiktok && (
-                      <div className="flex items-center gap-1.5 text-zinc-950">
-                        <span dir="ltr" className="text-[11px] font-bold tracking-wide">{venue.social.tiktok}</span>
-                        <IconTiktok className="w-4 h-4" />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style dangerouslySetInnerHTML={{__html: `
-        .receipt-scale-wrap {
-          transform-origin: top center;
-        }
-        @media (max-width: 820px) {
-          .receipt-scale-wrap {
-            transform: scale(0.42);
-            margin-bottom: -650px;
-          }
-        }
-        @media (max-width: 480px) {
-          .receipt-scale-wrap {
-            transform: scale(0.34);
-            margin-bottom: -780px;
-          }
-        }
-      `}} />
     </div>
   );
 }
