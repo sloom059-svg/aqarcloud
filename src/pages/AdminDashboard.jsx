@@ -123,7 +123,18 @@ function AdminContent({ user, qc, isSidebarOpen, setIsSidebarOpen, activeTab, se
   ];
 
   // فلترة
-  const fm = members.filter(m => !search || m.email?.toLowerCase().includes(search.toLowerCase()) || m.full_name?.includes(search) || m.office_name?.includes(search));
+  const fm = members.filter(m => {
+    if (!search) return true;
+    const q = search.trim();
+    const qDigits = q.replace(/\D/g, '');
+    const phoneDigits = (m.phone || '').replace(/\D/g, '');
+    return (
+      m.email?.toLowerCase().includes(q.toLowerCase()) ||
+      m.full_name?.includes(q) ||
+      m.office_name?.includes(q) ||
+      (qDigits && phoneDigits.includes(qDigits))
+    );
+  });
   const fp = properties.filter(p => !search || p.title?.includes(search) || p.city?.includes(search));
   const fv = venues.filter(v => !search || v.name?.includes(search) || v.city?.includes(search));
 
