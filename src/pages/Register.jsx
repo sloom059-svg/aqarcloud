@@ -102,28 +102,24 @@ export default function Register() {
     return message;
   };
 
-  const goToCompleteProfile = () => {
-    window.location.replace('/complete-profile');
-  };
-
-  const ensureSessionAfterRegister = async (registerResult) => {
+  // يحدد حالة التسجيل:
+  //  - 'session'      : رجع جلسة فعّالة → دخول مباشر (Email Confirmation مقفل)
+  //  - 'needsConfirm' : رجع user بدون جلسة → ينتظر تأكيد البريد (Email Confirmation مفعّل / OTP)
+  //  - 'tryLogin'     : لا جلسة ولا حالة واضحة → نحاول دخول مباشر بنفس البيانات
+  const classifyRegisterResult = async (registerResult) => {
     const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user || registerResult?.session?.user) return 'session';
 
-    if (session?.user || registerResult?.session?.user || registerResult?.user) {
-      if (session?.user || registerResult?.session?.user) return true;
-
-      // في بعض الإعدادات Supabase يرجع user بدون session.
-      // بما أن OTP موقف عندك، نحاول تسجيل الدخول مباشرة بنفس البيانات.
-      try {
-        await base44.auth.loginViaEmailPassword(email, password);
-        const { data: { session: loginSession } } = await supabase.auth.getSession();
-        return Boolean(loginSession?.user);
-      } catch (loginError) {
-        throw loginError;
-      }
+    // Supabase يرجع user object مع identities فاضية لو البريد مسجّل مسبقاً
+    const identities = registerResult?.user?.identities;
+    if (Array.isArray(identities) && identities.length === 0) {
+      return 'alreadyRegistered';
     }
 
-    return false;
+    // عنده user بدون session = ينتظر تأكيد البريد
+    if (registerResult?.user && !registerResult?.session) return 'needsConfirm';
+
+    return 'tryLogin';
   };
 
   const handleSubmit = async (e) => {
@@ -148,17 +144,41 @@ export default function Register() {
 
     setLoading(true);
     try {
-      // REGISTER_EMAIL_PASSWORD_CONFIRM_ONLY_V7_NO_GOOGLE
-      // بما أن OTP موقف من Supabase: إنشاء الحساب هنا مساره مباشر، بدون شاشة رمز.
       const registerResult = await base44.auth.register({ email: email.trim(), password });
-      const hasSession = await ensureSessionAfterRegister(registerResult);
+      const status = await classifyRegisterResult(registerResult);
 
-      if (!hasSession) {
-        throw new Error('لم يتم إنشاء جلسة دخول بعد التسجيل. تأكد من إعدادات Supabase Auth.');
+      if (status === 'alreadyRegistered') {
+        setError('هذا البريد مسجل مسبقاً، جرّب تسجيل الدخول.');
+        return;
       }
 
-      setNotice('تم إنشاء الحساب بنجاح، جاري تحويلك لإكمال بياناتك...');
-      goToCompleteProfile();
+      if (status === 'session') {
+        setNotice('تم إنشاء الحساب بنجاح، جاري تحويلك...');
+        window.location.replace('/check-profile');
+        return;
+      }
+
+      if (status === 'needsConfirm') {
+        // Email Confirmation مفعّل في Supabase (وهذا اللي بيشتغل لما تفعّل OTP لاحقاً).
+        // ما نطلع error — نعرض رسالة واضحة إن البريد طُلب منه التأكيد.
+        setNotice('تم إنشاء الحساب. أرسلنا رسالة تأكيد إلى بريدك، افتحها لتفعيل الحساب ثم سجّل الدخول.');
+        return;
+      }
+
+      // status === 'tryLogin' : نحاول دخول مباشر بنفس البيانات
+      try {
+        await base44.auth.loginViaEmailPassword(email.trim(), password);
+        const { data: { session: loginSession } } = await supabase.auth.getSession();
+        if (loginSession?.user) {
+          setNotice('تم إنشاء الحساب بنجاح، جاري تحويلك...');
+          window.location.replace('/check-profile');
+          return;
+        }
+      } catch (_) {
+        // لو فشل الدخول المباشر، الأرجح إن الحساب يحتاج تأكيد بريد
+      }
+
+      setNotice('تم إنشاء الحساب. إذا ما تم تحويلك تلقائياً، تحقق من بريدك للتأكيد ثم سجّل الدخول.');
     } catch (err) {
       setError(friendlyError(err.message, 'تعذر إنشاء الحساب، حاول مرة أخرى.'));
     } finally {
