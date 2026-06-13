@@ -1,24 +1,54 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import { ArrowRight, Check, Crown, Sparkles, Calendar, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, Crown, Sparkles, Calendar, ShieldCheck, X } from 'lucide-react';
 import {
   getSubscriptionState, formatDate, SUBSCRIPTION_LINKS, PLANS,
 } from '@/lib/subscription';
-import { toast } from '@/components/ui/use-toast';
 
 const AIRBNB = '#FF385C';
+
+function ActiveModal({ onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 left-4 w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition"
+        >
+          <X className="w-4 h-4 text-zinc-600" />
+        </button>
+        <div className="flex flex-col items-center text-center gap-3 pt-2">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: `${AIRBNB}15` }}>
+            <Crown className="w-7 h-7" style={{ color: AIRBNB }} />
+          </div>
+          <h3 className="text-lg font-bold text-zinc-900">اشتراكك ساري ✅</h3>
+          <p className="text-sm text-zinc-500 leading-relaxed">
+            لست بحاجة للاشتراك الآن، اشتراكك الحالي مازال فعّالاً. يمكنك التجديد قبل انتهائه.
+          </p>
+          <button
+            onClick={onClose}
+            className="mt-2 w-full h-11 rounded-2xl font-bold text-sm text-white transition"
+            style={{ background: AIRBNB }}
+          >
+            حسناً، شكراً
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Subscription() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const state = getSubscriptionState(user);
   const [hoveredPlan, setHoveredPlan] = React.useState(null);
+  const [showActiveModal, setShowActiveModal] = React.useState(false);
   const activePlanKey = hoveredPlan || 'semi';
 
   const planLabel = PLANS[state.plan]?.label || 'غير محدد';
 
-  // لون ونص الحالة
   let statusColor = '#16a34a', statusBg = '#f0fdf4', statusText = 'اشتراكك فعّال';
   if (state.status === 'grace') {
     statusColor = '#d97706'; statusBg = '#fffbeb';
@@ -56,13 +86,9 @@ export default function Subscription() {
 
   const handleSubscribeClick = (planKey) => {
     if (state.status === 'active' || state.status === 'grace') {
-      toast({
-        title: 'مازال اشتراكك ساري',
-        description: 'لا تحتاج للاشتراك الآن لأن اشتراكك الحالي مازال فعّالاً.',
-      });
+      setShowActiveModal(true);
       return;
     }
-
     window.open(SUBSCRIPTION_LINKS[planKey], '_blank', 'noopener,noreferrer');
   };
 
@@ -70,7 +96,8 @@ export default function Subscription() {
     <div dir="rtl" className="min-h-screen bg-[#fcfcfc]" style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');`}</style>
 
-      {/* الهيدر */}
+      {showActiveModal && <ActiveModal onClose={() => setShowActiveModal(false)} />}
+
       <div className="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-zinc-100">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
           <button onClick={() => navigate('/venue')}
@@ -83,7 +110,6 @@ export default function Subscription() {
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
 
-        {/* بطاقة الحالة الحالية */}
         <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden">
           <div className="p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3 mb-4">
@@ -122,13 +148,11 @@ export default function Subscription() {
           </div>
         </div>
 
-        {/* الباقات */}
         <div>
           <h2 className="text-base font-bold text-zinc-900 mb-3 px-1">اختر باقتك</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {plans.map(p => {
               const isActivePlan = activePlanKey === p.key;
-
               return (
                 <div key={p.key}
                   onMouseEnter={() => setHoveredPlan(p.key)}
@@ -142,13 +166,10 @@ export default function Subscription() {
                   <div className="p-5 sm:p-6">
                     <h3 className="text-lg font-bold text-zinc-900 mb-1">{p.name}</h3>
                     <p className="text-sm text-zinc-400 font-medium mb-3">{p.period}</p>
-
-                    {/* السعر */}
                     <div className="mb-2">
                       <span className="text-3xl font-black text-zinc-900" dir="ltr">{p.price}</span>
                       <span className="text-sm text-zinc-400 font-medium"> ر.س</span>
                     </div>
-                    {/* التوفير الشهري */}
                     <div className="mb-4 flex items-center gap-1.5">
                       <span className="text-xs text-zinc-500 font-medium" dir="ltr">
                         ≈ {p.monthlyPrice} ر.س / شهر
@@ -159,7 +180,6 @@ export default function Subscription() {
                         </span>
                       )}
                     </div>
-
                     <ul className="space-y-2.5 mb-6">
                       {p.features.map((f, i) => (
                         <li key={i} className="flex items-center gap-2.5 text-sm text-zinc-600 font-medium">
@@ -170,7 +190,6 @@ export default function Subscription() {
                         </li>
                       ))}
                     </ul>
-
                     <button
                       type="button"
                       onClick={() => handleSubscribeClick(p.key)}
@@ -187,7 +206,6 @@ export default function Subscription() {
           </div>
         </div>
 
-        {/* ملاحظة */}
         <div className="flex items-start gap-2.5 bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
           <ShieldCheck className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-zinc-600 font-medium leading-relaxed">
