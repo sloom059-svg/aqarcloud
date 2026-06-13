@@ -146,12 +146,72 @@ export default function CompleteProfile() {
 
   const saveBroker=async()=>{setSaving(true);try{const brokerSlug=(broker.slug&&broker.slug.trim())?broker.slug.trim():`a${Math.random().toString(36).slice(2,8)}`;await base44.auth.updateMe({...broker,slug:brokerSlug,business_type:role});const successData={type:'broker',theme:'classic',url:`${window.location.origin}/agent/${brokerSlug}`};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
-  const saveVenue=async()=>{setSaving(true);try{const{data:{user}}=await supabase.auth.getUser();const cleanSocial={};Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});const slug=venue.slug||`venue-${Date.now()}`;const chosenReviews=selectedReviewIdx.map(i=>fetchedReviews[i]).filter(Boolean);const created=await base44.entities.Venue.create({...venue,google_reviews:chosenReviews.length?chosenReviews:venue.google_reviews,slug,venue_type:role,price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,youtube_urls:venue.youtube_urls.filter(u=>u.trim()),social:cleanSocial,owner_id:user?.id,status:'نشط'});
-    // تجربة مجانية 30 يوم + إشعار ترحيب (مرة واحدة فقط)
-    const trialEnd=new Date();trialEnd.setDate(trialEnd.getDate()+30);
-    const profileUpdate={business_type:role,office_name:venue.name,phone:venue.whatsapp};
-    if(user?.id){try{const{data:prof}=await supabase.from('profiles').select('subscription_started').eq('id',user.id).single();if(!prof?.subscription_started){await supabase.from('profiles').update({subscription_plan:'trial',subscription_end:trialEnd.toISOString(),subscription_started:new Date().toISOString()}).eq('id',user.id);await supabase.from('notifications').insert({user_id:user.id,type:'welcome',title:'نورتنا 🎉',body:'فعّلنا لك تجربة مجانية لمدة 30 يوم، خذ راحتك وجهّز صفحتك على مهلك'});}}catch(_){}}
-    await base44.auth.updateMe(profileUpdate);const finalSlug=created?.slug||slug;const successData={type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveVenue=async()=>{
+    setSaving(true);
+    try{
+      const{data:{user}}=await supabase.auth.getUser();
+      const cleanSocial={};
+      Object.entries(venue.social||{}).forEach(([k,v])=>{if(v?.trim())cleanSocial[k]=v.trim();});
+      const slug=venue.slug||`venue-${Date.now()}`;
+      const chosenReviews=selectedReviewIdx.map(i=>fetchedReviews[i]).filter(Boolean);
+      const created=await base44.entities.Venue.create({
+        ...venue,
+        google_reviews:chosenReviews.length?chosenReviews:venue.google_reviews,
+        slug,
+        venue_type:role,
+        price_weekday:venue.price_weekday?Number(venue.price_weekday):undefined,
+        price_weekend:venue.price_weekend?Number(venue.price_weekend):undefined,
+        youtube_urls:venue.youtube_urls.filter(u=>u.trim()),
+        social:cleanSocial,
+        owner_id:user?.id,
+        status:'نشط'
+      });
+
+      // TRIAL_AFTER_PROFILE_FIX_V1
+      // نضمن إنشاء/تحديث البروفايل أولاً، ثم نفعّل تجربة 30 يوم مرة واحدة فقط.
+      const profileUpdate={business_type:role,office_name:venue.name,phone:venue.whatsapp};
+      await base44.auth.updateMe(profileUpdate);
+
+      if(user?.id){
+        try{
+          const trialEnd=new Date();
+          trialEnd.setDate(trialEnd.getDate()+30);
+          const{data:prof}=await supabase
+            .from('profiles')
+            .select('subscription_started')
+            .eq('id',user.id)
+            .single();
+
+          if(!prof?.subscription_started){
+            await supabase
+              .from('profiles')
+              .update({
+                subscription_plan:'trial',
+                subscription_end:trialEnd.toISOString(),
+                subscription_started:new Date().toISOString()
+              })
+              .eq('id',user.id);
+
+            await supabase.from('notifications').insert({
+              user_id:user.id,
+              type:'welcome',
+              title:'نورتنا 🎉',
+              body:'فعّلنا لك تجربة مجانية لمدة 30 يوم، خذ راحتك وجهّز صفحتك على مهلك'
+            });
+          }
+        }catch(_){}
+      }
+
+      const finalSlug=created?.slug||slug;
+      const successData={type:'venue',url:`${window.location.origin}/place/${finalSlug}`,theme:venue.page_theme};
+      clearState();
+      saveSuccess(successData);
+      setSuccess(successData);
+    }catch(e){
+      alert('خطأ: '+e.message);
+    }
+    setSaving(false);
+  };
 
   const next=()=>{
     if(step===0.5){setStep(1);return;}
