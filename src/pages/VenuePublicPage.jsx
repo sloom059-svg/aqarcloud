@@ -163,9 +163,23 @@ export default function VenuePublicPage() {
 
   const bookMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       setBookingDone(true);
-    }
+      // إشعار إيميل لصاحب الشاليه عند كل حجز جديد
+      fetch('/api/notifyBooking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          venue_name: variables.venue_name,
+          owner_id: variables.owner_id,
+          client_name: variables.client_name,
+          client_phone: variables.client_phone,
+          check_in: variables.check_in,
+          check_out: variables.check_out,
+          notes: variables.notes || '',
+        }),
+      }).catch((e) => console.warn('BOOKING_NOTIFY_WARNING', e));
+    },
   });
 
   const isRoyal = venue?.page_theme === 'royal';
