@@ -167,39 +167,55 @@ export default function CompleteProfile() {
         status:'نشط'
       });
 
-      // TRIAL_AFTER_PROFILE_FIX_V1
-      // نضمن إنشاء/تحديث البروفايل أولاً، ثم نفعّل تجربة 30 يوم مرة واحدة فقط.
+      // TRIAL_UPSERT_WITH_PROFILE_FIX_V2
+      // نحفظ بيانات البروفايل + تجربة 30 يوم في نفس upsert عند أول إنشاء فقط.
+      // هذا يحل مسار التسجيل العادي إذا لم يكن صف profiles موجوداً بعد.
       const profileUpdate={business_type:role,office_name:venue.name,phone:venue.whatsapp};
-      await base44.auth.updateMe(profileUpdate);
+      let shouldStartTrial=false;
+      let trialEnd=null;
+      let trialStartedAt=null;
 
       if(user?.id){
-        try{
-          const trialEnd=new Date();
+        const{data:prof,error:profileReadError}=await supabase
+          .from('profiles')
+          .select('subscription_started, subscription_end, subscription_plan')
+          .eq('id',user.id)
+          .maybeSingle();
+
+        if(profileReadError){
+          throw profileReadError;
+        }
+
+        shouldStartTrial=!prof?.subscription_started&&!prof?.subscription_end;
+        if(shouldStartTrial){
+          trialEnd=new Date();
           trialEnd.setDate(trialEnd.getDate()+30);
-          const{data:prof}=await supabase
-            .from('profiles')
-            .select('subscription_started')
-            .eq('id',user.id)
-            .single();
+          trialStartedAt=new Date().toISOString();
+        }
+      }
 
-          if(!prof?.subscription_started){
-            await supabase
-              .from('profiles')
-              .update({
-                subscription_plan:'trial',
-                subscription_end:trialEnd.toISOString(),
-                subscription_started:new Date().toISOString()
-              })
-              .eq('id',user.id);
+      await base44.auth.updateMe(
+        shouldStartTrial
+          ? {
+              ...profileUpdate,
+              subscription_plan:'trial',
+              subscription_end:trialEnd.toISOString(),
+              subscription_started:trialStartedAt
+            }
+          : profileUpdate
+      );
 
-            await supabase.from('notifications').insert({
-              user_id:user.id,
-              type:'welcome',
-              title:'نورتنا 🎉',
-              body:'فعّلنا لك تجربة مجانية لمدة 30 يوم، خذ راحتك وجهّز صفحتك على مهلك'
-            });
-          }
-        }catch(_){}
+      if(user?.id&&shouldStartTrial){
+        try{
+          await supabase.from('notifications').insert({
+            user_id:user.id,
+            type:'welcome',
+            title:'نورتنا 🎉',
+            body:'فعّلنا لك تجربة مجانية لمدة 30 يوم، خذ راحتك وجهّز صفحتك على مهلك'
+          });
+        }catch(notificationError){
+          console.warn('TRIAL_NOTIFICATION_WARNING_V2',notificationError);
+        }
       }
 
       const finalSlug=created?.slug||slug;
