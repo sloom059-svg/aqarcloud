@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { base44, supabase } from '@/api/base44Client';
 import {
   ArrowLeft,
   Building2,
@@ -19,15 +18,6 @@ import logo from '../aqar-cloud-logo.png';
 import SiteFooter from '@/components/layout/SiteFooter';
 
 const AIRBNB = '#FF385C';
-
-const GoogleIcon = ({ className }) => (
-  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-  </svg>
-);
 
 const BrandMark = ({ imageError, setImageError, className = '', imgClassName = '' }) => (
   <div className={className}>
@@ -52,11 +42,11 @@ const StatChip = ({ children }) => (
 );
 
 export default function Register() {
-  const [step, setStep] = useState('form');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -64,20 +54,76 @@ export default function Register() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    let isCancelled = false;
+
     setMounted(true);
     document.documentElement.dir = 'rtl';
     document.documentElement.lang = 'ar';
+
+    // REGISTER_EMAIL_PASSWORD_CONFIRM_ONLY_V7_NO_GOOGLE
+    // إذا المستخدم فاتح صفحة التسجيل وعنده جلسة فعالة، لا نخليه عالق في صفحة التسجيل.
+    // نرسله لفاحص الملف؛ إذا بياناته ناقصة يحوله إلى /complete-profile.
+    const redirectSignedInUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!isCancelled && user) {
+          window.location.replace('/check-profile');
+        }
+      } catch (_) {}
+    };
+
+    redirectSignedInUser();
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   const friendlyError = (message, fallback) => {
     if (!message) return fallback;
-    if (message.toLowerCase().includes('already registered') || message.includes('already')) {
+    const lower = message.toLowerCase();
+
+    if (lower.includes('already registered') || lower.includes('already') || lower.includes('user already registered')) {
       return 'هذا البريد مسجل مسبقاً، جرّب تسجيل الدخول.';
     }
-    if (message.toLowerCase().includes('password')) {
+
+    if (lower.includes('password')) {
       return 'كلمة المرور غير مقبولة. استخدم 6 أحرف على الأقل.';
     }
+
+    if (lower.includes('invalid login credentials')) {
+      return 'تم إنشاء الحساب، لكن لم يتم تسجيل الدخول تلقائياً. تأكد من أن تأكيد البريد مقفل في Supabase ثم جرّب تسجيل الدخول.';
+    }
+
+    if (lower.includes('email not confirmed') || lower.includes('not confirmed')) {
+      return 'الحساب يحتاج تأكيد بريد من Supabase. إذا تبي التسجيل يكون مباشر، اقفل Email Confirmations من إعدادات Auth.';
+    }
+
     return message;
+  };
+
+  const goToCompleteProfile = () => {
+    window.location.replace('/complete-profile');
+  };
+
+  const ensureSessionAfterRegister = async (registerResult) => {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session?.user || registerResult?.session?.user || registerResult?.user) {
+      if (session?.user || registerResult?.session?.user) return true;
+
+      // في بعض الإعدادات Supabase يرجع user بدون session.
+      // بما أن OTP موقف عندك، نحاول تسجيل الدخول مباشرة بنفس البيانات.
+      try {
+        await base44.auth.loginViaEmailPassword(email, password);
+        const { data: { session: loginSession } } = await supabase.auth.getSession();
+        return Boolean(loginSession?.user);
+      } catch (loginError) {
+        throw loginError;
+      }
+    }
+
+    return false;
   };
 
   const handleSubmit = async (e) => {
@@ -85,8 +131,8 @@ export default function Register() {
     setError('');
     setNotice('');
 
-    if (!email || !password) {
-      setError('يرجى إدخال البريد الإلكتروني وكلمة المرور');
+    if (!email || !password || !confirmPassword) {
+      setError('يرجى إدخال البريد الإلكتروني وكلمة المرور وتأكيدها');
       return;
     }
 
@@ -95,11 +141,24 @@ export default function Register() {
       return;
     }
 
+    if (password !== confirmPassword) {
+      setError('كلمتا المرور غير متطابقتين');
+      return;
+    }
+
     setLoading(true);
     try {
-      await base44.auth.register({ email, password });
-      setStep('otp');
-      setNotice('أرسلنا رمز التحقق إلى بريدك الإلكتروني.');
+      // REGISTER_EMAIL_PASSWORD_CONFIRM_ONLY_V7_NO_GOOGLE
+      // بما أن OTP موقف من Supabase: إنشاء الحساب هنا مساره مباشر، بدون شاشة رمز.
+      const registerResult = await base44.auth.register({ email: email.trim(), password });
+      const hasSession = await ensureSessionAfterRegister(registerResult);
+
+      if (!hasSession) {
+        throw new Error('لم يتم إنشاء جلسة دخول بعد التسجيل. تأكد من إعدادات Supabase Auth.');
+      }
+
+      setNotice('تم إنشاء الحساب بنجاح، جاري تحويلك لإكمال بياناتك...');
+      goToCompleteProfile();
     } catch (err) {
       setError(friendlyError(err.message, 'تعذر إنشاء الحساب، حاول مرة أخرى.'));
     } finally {
@@ -107,50 +166,8 @@ export default function Register() {
     }
   };
 
-  const handleVerify = async () => {
-    setError('');
-    setNotice('');
-
-    if (otpCode.length < 6) {
-      setError('أدخل رمز التحقق المكوّن من 6 أرقام');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
-      if (result?.access_token) {
-        base44.auth.setToken(result.access_token);
-      }
-
-      // لا نحفظ اسم المكان أو نوع النشاط هنا.
-      // بعد التحقق ينتقل المستخدم لإكمال الملف، وهناك يختار النشاط ويدخل بيانات المكان.
-      window.location.href = '/complete-profile';
-    } catch (err) {
-      setError(friendlyError(err.message, 'رمز التحقق غير صحيح أو انتهت صلاحيته.'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    setError('');
-    setNotice('');
-    try {
-      await base44.auth.resendOtp(email);
-      setNotice('تم إرسال رمز جديد إلى بريدك الإلكتروني.');
-    } catch (err) {
-      setError(friendlyError(err.message, 'تعذر إعادة إرسال الرمز.'));
-    }
-  };
-
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider('google', '/check-profile');
-  };
 
   if (!mounted) return null;
-
-  const isOtpStep = step === 'otp';
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans overflow-hidden text-zinc-950 relative">
@@ -190,16 +207,14 @@ export default function Register() {
                   </div>
 
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-950 text-white shadow-lg shadow-black/15 mb-4">
-                    {isOtpStep ? <Mail className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+                    <UserPlus className="w-5 h-5" />
                   </div>
 
                   <h1 className="text-[1.75rem] sm:text-[2rem] font-black tracking-tight text-zinc-950">
-                    {isOtpStep ? 'تأكيد البريد الإلكتروني' : 'إنشاء حساب جديد'}
+                    إنشاء حساب جديد
                   </h1>
                   <p className="mt-2 text-sm leading-6 text-zinc-500 font-medium">
-                    {isOtpStep
-                      ? `أدخل رمز التحقق المرسل إلى ${email}`
-                      : 'سجّل ببريدك وكلمة المرور فقط، وبعدها كمّل بيانات نشاطك من صفحة الإعداد.'}
+                    سجّل بالإيميل وكلمة المرور فقط، وبعدها كمّل بيانات نشاطك من صفحة الإعداد.
                   </p>
                 </div>
 
@@ -215,150 +230,90 @@ export default function Register() {
                   </div>
                 )}
 
-                {!isOtpStep ? (
-                  <>
-                    <button
-                      onClick={handleGoogle}
-                      type="button"
-                      disabled={loading}
-                      className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-900 font-black text-sm transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 shadow-sm active:scale-[0.99]"
-                    >
-                      <GoogleIcon className="w-5 h-5" />
-                      <span>التسجيل بواسطة Google</span>
-                    </button>
 
-                    <div className="flex items-center gap-3 my-3 opacity-70">
-                      <div className="flex-1 h-px bg-zinc-200" />
-                      <span className="text-[11px] font-black text-zinc-400">أو</span>
-                      <div className="flex-1 h-px bg-zinc-200" />
-                    </div>
-
-                    <form className="space-y-4" onSubmit={handleSubmit}>
-                      <div>
-                        <label className="block text-xs font-black text-zinc-800 mb-2">البريد الإلكتروني</label>
-                        <div className="relative group">
-                          <input
-                            type="email"
-                            dir="ltr"
-                            placeholder="name@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="w-full pr-11 pl-4 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
-                          />
-                          <Mail className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-black text-zinc-800 mb-2">كلمة المرور</label>
-                        <div className="relative group">
-                          <input
-                            type={showPassword ? 'text' : 'password'}
-                            dir="ltr"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="w-full pr-11 pl-11 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
-                          />
-                          <Lock className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 focus:outline-none transition-colors"
-                            aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
-                          >
-                            {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-12 rounded-2xl bg-[#181818] hover:bg-[#111111] text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                            جاري إنشاء الحساب...
-                          </>
-                        ) : (
-                          <>
-                            إنشاء الحساب
-                            <ArrowLeft className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  </>
-                ) : (
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div>
-                    <div className="flex justify-center mb-6" dir="ltr">
-                      <InputOTP
-                        maxLength={6}
-                        value={otpCode}
-                        onChange={setOtpCode}
-                        autoFocus
-                        autoComplete="one-time-code"
-                      >
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
+                    <label className="block text-xs font-black text-zinc-800 mb-2">البريد الإلكتروني</label>
+                    <div className="relative group">
+                      <input
+                        type="email"
+                        dir="ltr"
+                        placeholder="name@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="w-full pr-11 pl-4 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
+                      />
+                      <Mail className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
                     </div>
+                  </div>
 
-                    <button
-                      type="button"
-                      onClick={handleVerify}
-                      disabled={loading || otpCode.length < 6}
-                      className="w-full h-12 rounded-2xl bg-[#181818] hover:bg-[#111111] text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                          جاري التحقق...
-                        </>
-                      ) : (
-                        <>
-                          تأكيد الحساب
-                          <ArrowLeft className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-
-                    <div className="mt-4 flex items-center justify-center gap-2 text-sm text-zinc-500 font-bold">
-                      <span>لم يصلك الرمز؟</span>
+                  <div>
+                    <label className="block text-xs font-black text-zinc-800 mb-2">كلمة المرور</label>
+                    <div className="relative group">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        dir="ltr"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="w-full pr-11 pl-11 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
+                      />
+                      <Lock className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
                       <button
                         type="button"
-                        onClick={handleResend}
-                        disabled={loading}
-                        className="font-black text-zinc-950 hover:text-[#FF385C] transition-colors disabled:opacity-60"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 focus:outline-none transition-colors"
+                        aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                       >
-                        إعادة الإرسال
+                        {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
                       </button>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setStep('form');
-                        setOtpCode('');
-                        setError('');
-                        setNotice('');
-                      }}
-                      className="mt-4 w-full text-xs font-black text-zinc-400 hover:text-zinc-700 transition-colors"
-                    >
-                      تعديل البريد الإلكتروني
-                    </button>
                   </div>
-                )}
+
+                  <div>
+                    <label className="block text-xs font-black text-zinc-800 mb-2">تأكيد كلمة المرور</label>
+                    <div className="relative group">
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        dir="ltr"
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        className="w-full pr-11 pl-11 h-12 bg-zinc-50 border border-zinc-200 rounded-2xl focus:bg-white focus:border-[#FF385C] focus:ring-4 focus:ring-[#FF385C]/10 outline-none transition-all duration-300 text-sm font-bold text-left placeholder:text-zinc-400"
+                      />
+                      <Lock className="w-4.5 h-4.5 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 group-focus-within:text-[#FF385C] transition-colors" />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 focus:outline-none transition-colors"
+                        aria-label={showConfirmPassword ? 'إخفاء تأكيد كلمة المرور' : 'إظهار تأكيد كلمة المرور'}
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-12 rounded-2xl bg-[#181818] hover:bg-[#111111] text-white font-black text-sm shadow-[0_18px_38px_rgba(0,0,0,0.22)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2 active:scale-[0.99]"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                        جاري إنشاء الحساب...
+                      </>
+                    ) : (
+                      <>
+                        إنشاء الحساب
+                        <ArrowLeft className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
               </div>
 
               <p className="text-center mt-4 md:mt-5 text-sm text-zinc-500 font-bold">
@@ -380,14 +335,14 @@ export default function Register() {
               <h2 className="mt-6 text-4xl lg:text-[3.2rem] font-black leading-[1.15] tracking-tight text-zinc-950">
                 ابدأ حسابك
                 <br />
-                بخطوتين فقط
+                بخطوة واحدة
               </h2>
               <p className="mt-4 text-sm lg:text-base leading-8 text-zinc-500 font-medium max-w-lg">
-                سجّل بالبريد وكلمة المرور، ثم أكمل بيانات نشاطك في الصفحة التالية بدون حقول كثيرة في البداية.
+                أنشئ حسابك خلال ثوانٍ، ثم أكمل بيانات نشاطك وابدأ بإطلاق صفحتك الاحترافية.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2.5">
-                <StatChip>بدون اسم مكان هنا</StatChip>
+                <StatChip>إنشاء سريع</StatChip>
                 <StatChip>إكمال البيانات لاحقاً</StatChip>
                 <StatChip>مناسب للشاليهات والوسطاء</StatChip>
               </div>
