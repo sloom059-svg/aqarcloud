@@ -54,6 +54,28 @@ const saveSuccess=(s)=>{try{sessionStorage.setItem(SUCCESS_STORAGE_KEY,JSON.stri
 const loadSuccess=()=>{try{const s=sessionStorage.getItem(SUCCESS_STORAGE_KEY);return s?JSON.parse(s):null;}catch(_){return null;}};
 const clearSuccess=()=>{try{sessionStorage.removeItem(SUCCESS_STORAGE_KEY);}catch(_){}};
 
+// إرسال إيميل الترحيب مرة واحدة فقط لكل مستخدم.
+// نعتمد على حقل welcomed في profiles: إذا كان مرسلاً من قبل، لا نكرر.
+const sendWelcomeOnce=async(name)=>{
+  try{
+    const{data:{user}}=await supabase.auth.getUser();
+    if(!user?.email)return;
+    // تحقق إن لم نرحب من قبل
+    const{data:profile}=await supabase.from('profiles').select('welcomed').eq('id',user.id).single();
+    if(profile?.welcomed)return;
+    // أرسل الترحيب
+    await fetch('/api/sendWelcome',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:user.email,name:name||''}),
+    });
+    // علّم أنه تم الترحيب (نتجاهل الخطأ لو الحقل غير موجود)
+    await supabase.from('profiles').update({welcomed:true}).eq('id',user.id);
+  }catch(e){
+    console.warn('WELCOME_EMAIL_WARNING',e);
+  }
+};
+
 export default function CompleteProfile() {
   const logoRef=useRef();
   const imgRef=useRef();
@@ -165,7 +187,7 @@ export default function CompleteProfile() {
     });
   };
 
-  const saveBroker=async()=>{if(!broker.office_name.trim()||!broker.city.trim()){alert('اسم المكتب والمدينة مطلوبة');return;}setSaving(true);try{const brokerSlug=(broker.slug&&broker.slug.trim())?broker.slug.trim():`a${Math.random().toString(36).slice(2,8)}`;await base44.auth.updateMe({...broker,slug:brokerSlug,business_type:role});const successData={type:'broker',theme:'classic',url:`${window.location.origin}/agent/${brokerSlug}`};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveBroker=async()=>{if(!broker.office_name.trim()||!broker.city.trim()){alert('اسم المكتب والمدينة مطلوبة');return;}setSaving(true);try{const brokerSlug=(broker.slug&&broker.slug.trim())?broker.slug.trim():`a${Math.random().toString(36).slice(2,8)}`;await base44.auth.updateMe({...broker,slug:brokerSlug,business_type:role});const successData={type:'broker',theme:'classic',url:`${window.location.origin}/agent/${brokerSlug}`};clearState();saveSuccess(successData);setSuccess(successData);sendWelcomeOnce(broker.office_name);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
   const saveVenue=async()=>{
     if(!venue.name.trim()||!venue.city.trim()){alert('اسم المكان والمدينة مطلوبة');return;}
@@ -245,6 +267,7 @@ export default function CompleteProfile() {
       clearState();
       saveSuccess(successData);
       setSuccess(successData);
+      sendWelcomeOnce(venue.name);
     }catch(e){
       alert('خطأ: '+e.message);
     }
