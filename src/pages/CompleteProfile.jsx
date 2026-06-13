@@ -70,6 +70,7 @@ export default function CompleteProfile() {
   const [saving,setSaving]=useState(false);
   const [uploadingLogo,setUploadingLogo]=useState(false);
   const [uploadingImgs,setUploadingImgs]=useState(false);
+  const [draggingImgs,setDraggingImgs]=useState(false);
   const [success,setSuccess]=useState(()=>loadSuccess());
   const [broker,setBroker]=useState(validSaved?.broker||{office_name:'',city:'',office_logo_url:'',phone:'',license_number:'',slug:''});
   const [venue,setVenue]=useState(validSaved?.venue||{
@@ -101,7 +102,27 @@ export default function CompleteProfile() {
   const toggleFeature=(f)=>setV('features',venue.features.includes(f)?venue.features.filter(x=>x!==f):[...venue.features,f]);
 
   const uploadLogo=async(e)=>{const file=e.target.files?.[0];if(!file)return;setUploadingLogo(true);try{const{file_url}=await base44.integrations.Core.UploadFile({file});setBroker(p=>({...p,office_logo_url:file_url}));}catch(_){}setUploadingLogo(false);};
-  const uploadImgs=async(e)=>{const files=Array.from(e.target.files);if(!files.length)return;setUploadingImgs(true);const urls=[...venue.images];for(const file of files.slice(0,10-urls.length)){try{const{file_url}=await base44.integrations.Core.UploadFile({file});urls.push(file_url);}catch(_){}}setV('images',urls);setUploadingImgs(false);};
+  const uploadImageFiles=async(fileList)=>{
+    const files=Array.from(fileList||[]).filter(file=>file.type?.startsWith('image/'));
+    if(!files.length||venue.images.length>=10)return;
+    setUploadingImgs(true);
+    const urls=[...venue.images];
+    for(const file of files.slice(0,10-urls.length)){
+      try{
+        const{file_url}=await base44.integrations.Core.UploadFile({file});
+        urls.push(file_url);
+      }catch(_){}
+    }
+    setV('images',urls);
+    setUploadingImgs(false);
+  };
+  const uploadImgs=async(e)=>{await uploadImageFiles(e.target.files);e.target.value='';};
+  const handleImageDrop=async(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingImgs(false);
+    await uploadImageFiles(e.dataTransfer.files);
+  };
 
   const fetchGoogleReviews=async()=>{
     if(reviewsLeft<=0||!reviewsQuery.trim())return;
@@ -144,9 +165,10 @@ export default function CompleteProfile() {
     });
   };
 
-  const saveBroker=async()=>{setSaving(true);try{const brokerSlug=(broker.slug&&broker.slug.trim())?broker.slug.trim():`a${Math.random().toString(36).slice(2,8)}`;await base44.auth.updateMe({...broker,slug:brokerSlug,business_type:role});const successData={type:'broker',theme:'classic',url:`${window.location.origin}/agent/${brokerSlug}`};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
+  const saveBroker=async()=>{if(!broker.office_name.trim()||!broker.city.trim()){alert('اسم المكتب والمدينة مطلوبة');return;}setSaving(true);try{const brokerSlug=(broker.slug&&broker.slug.trim())?broker.slug.trim():`a${Math.random().toString(36).slice(2,8)}`;await base44.auth.updateMe({...broker,slug:brokerSlug,business_type:role});const successData={type:'broker',theme:'classic',url:`${window.location.origin}/agent/${brokerSlug}`};clearState();saveSuccess(successData);setSuccess(successData);}catch(e){alert('خطأ: '+e.message);}setSaving(false);};
 
   const saveVenue=async()=>{
+    if(!venue.name.trim()||!venue.city.trim()){alert('اسم المكان والمدينة مطلوبة');return;}
     setSaving(true);
     try{
       const{data:{user}}=await supabase.auth.getUser();
@@ -238,6 +260,14 @@ export default function CompleteProfile() {
     if(step===0.5){setStep(0);setMainRole('');return;}
     if(step>1){setStep(s=>Math.round(s)-1);return;}
     setStep(0);
+  };
+
+  const canGoNext=()=>{
+    if(isVenue&&step===1)return !!venue.name.trim();
+    if(isVenue&&step===3)return !!venue.city.trim();
+    if(!isVenue&&step===1)return !!broker.office_name.trim();
+    if(!isVenue&&step===2)return !!broker.city.trim();
+    return true;
   };
 
   if(success){
@@ -406,8 +436,10 @@ export default function CompleteProfile() {
                 <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">في أي مدينة؟</h2>
                 <div className="relative mt-8">
                   <IconPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"/>
-                  <input value={broker.city} onChange={e=>setBroker(p=>({...p,city:e.target.value}))} placeholder="اكتب اسم المدينة"
+                  <input required value={broker.city} onChange={e=>setBroker(p=>({...p,city:e.target.value}))} placeholder="اكتب اسم المدينة"
+                    aria-invalid={!broker.city.trim()}
                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 pr-12 text-base font-medium outline-none focus:border-[#FF385C] transition-all"/>
+                  {!broker.city.trim()&&<p className="text-xs text-red-400 font-bold mt-2">مطلوب</p>}
                 </div>
               </div>
             )}
@@ -496,8 +528,10 @@ export default function CompleteProfile() {
                 <p className="text-slate-500 text-sm mb-8">اكتب اسم المدينة اللي فيها {role}ك</p>
                 <div className="relative">
                   <IconPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"/>
-                  <input value={venue.city} onChange={e=>setV('city',e.target.value)} placeholder="مثال: الرياض"
+                  <input required value={venue.city} onChange={e=>setV('city',e.target.value)} placeholder="مثال: الرياض"
+                    aria-invalid={!venue.city.trim()}
                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 pr-12 text-base font-medium outline-none focus:border-[#FF385C] transition-all"/>
+                  {!venue.city.trim()&&<p className="text-xs text-red-400 font-bold mt-2">مطلوب</p>}
                 </div>
               </div>
             )}
@@ -525,7 +559,26 @@ export default function CompleteProfile() {
                   <p className="text-[12px] text-slate-500 font-bold">أول صورة ستكون الغلاف العلوي للصفحة</p>
                 </div>
                 <input ref={imgRef} type="file" accept="image/*" multiple className="hidden" onChange={uploadImgs}/>
-                <div className="grid grid-cols-3 gap-3">
+                {venue.images.length<10&&(
+                  <button
+                    type="button"
+                    onClick={()=>imgRef.current?.click()}
+                    onDragEnter={(e)=>{e.preventDefault();e.stopPropagation();setDraggingImgs(true);}}
+                    onDragOver={(e)=>{e.preventDefault();e.stopPropagation();setDraggingImgs(true);}}
+                    onDragLeave={(e)=>{e.preventDefault();e.stopPropagation();setDraggingImgs(false);}}
+                    onDrop={handleImageDrop}
+                    className={`w-full min-h-[230px] md:min-h-[270px] rounded-[2rem] border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 group mb-4 px-6 text-center ${draggingImgs?'border-[#FF385C] bg-[#FF385C]/5':'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400'}`}
+                  >
+                    {uploadingImgs?<Loader2 className="w-9 h-9 text-slate-400 animate-spin"/>:<>
+                      <div className="w-20 h-20 bg-white rounded-[1.75rem] shadow-sm flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                      </div>
+                      <span className="text-base text-slate-600 font-black">اضغط لرفع الصور أو اسحبها هنا</span>
+                      <span className="text-xs text-slate-400 font-bold">يدعم رفع عدة صور دفعة واحدة — المتبقي {10-venue.images.length} صور</span>
+                    </>}
+                  </button>
+                )}
+                {venue.images.length>0&&(<div className="grid grid-cols-3 gap-3">
                   {venue.images.map((img,i)=>(
                     <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group">
                       <img src={img} alt="" className="w-full h-full object-cover"/>
@@ -533,18 +586,7 @@ export default function CompleteProfile() {
                       <button onClick={()=>setV('images',venue.images.filter((_,j)=>j!==i))} className="absolute top-1.5 left-1.5 w-6 h-6 bg-red-500 text-white rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity flex"><Trash2 className="w-3 h-3"/></button>
                     </div>
                   ))}
-                  {venue.images.length<10&&(
-                    <button onClick={()=>imgRef.current?.click()} className="aspect-square rounded-[2rem] border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 transition-all flex flex-col items-center justify-center gap-2 group">
-                      {uploadingImgs?<Loader2 className="w-7 h-7 text-slate-400 animate-spin"/>:<>
-                        <div className="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                        </div>
-                        <span className="text-xs text-slate-500 font-bold">اضغط لرفع الصور</span>
-                        <span className="text-[10px] text-slate-400">أو اسحب وأفلت</span>
-                      </>}
-                    </button>
-                  )}
-                </div>
+                </div>)}
                 {/* حسابات التواصل — اختيارية */}
                 <div className="mt-5 pt-4 border-t border-slate-100">
                   <p className="text-xs font-bold text-slate-400 mb-3">حسابات التواصل الاجتماعي — اختياري، يمكن إعدادها لاحقاً</p>
@@ -778,11 +820,11 @@ export default function CompleteProfile() {
                   {saving?<><Loader2 className="w-4 h-4 animate-spin"/>جاري الحفظ...</>:<>احفظ وانشر <Check className="w-4 h-4"/></>}
                 </button>
               ):!isVenue&&step===brokerSteps?(
-                <button onClick={saveBroker} disabled={saving||!broker.office_name.trim()} className={`px-8 py-3.5 rounded-full font-bold ${BTN} shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-60`}>
+                <button onClick={saveBroker} disabled={saving||!broker.office_name.trim()||!broker.city.trim()} className={`px-8 py-3.5 rounded-full font-bold ${BTN} shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-60`}>
                   {saving?<><Loader2 className="w-4 h-4 animate-spin"/>جاري الحفظ...</>:<>ابدأ <Check className="w-4 h-4"/></>}
                 </button>
               ):step!==99?(
-                <button onClick={next} disabled={isVenue&&step===1&&!venue.name.trim()}
+                <button onClick={next} disabled={!canGoNext()}
                   className={`px-8 py-3.5 rounded-full font-bold ${BTN} shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed`}>
                   متابعة <ArrowLeft className="w-4 h-4"/>
                 </button>
