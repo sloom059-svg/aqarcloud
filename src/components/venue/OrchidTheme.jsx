@@ -294,7 +294,7 @@ export default function OrchidTheme({
                   </div>
                 </article>
               )}
-              {venue.booking_terms && (
+              {venue.show_terms && venue.booking_terms && (
                 <article style={{ padding: 30, borderRadius: 40, background: '#fff', border: `1px solid ${BLUSH}`, boxShadow: '0 25px 50px -12px rgba(203,163,150,.15)' }}>
                   <h3 style={{ margin: '0 0 12px', fontSize: 24, fontWeight: 800, color: CHARCOAL }}>شروط الحجز</h3>
                   <p style={{ margin: 0, color: STONE, fontSize: 16, fontWeight: 500, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{venue.booking_terms}</p>
