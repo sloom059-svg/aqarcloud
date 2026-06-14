@@ -231,7 +231,19 @@ export default function GlassTheme({
             </button>
             {calOpen && (
               <div style={{ marginBottom: 16 }}>
-                <VenueCalendar bookedDates={bookedDates} bookingForm={bookingForm} setBookingForm={setBookingForm} accent={accent} />
+                <VenueCalendar
+                  bookedDates={bookedDates}
+                  accent={accent}
+                  venueName={venue.name}
+                  onRangeSelect={(start, end) => {
+                    setBookingForm(p => ({ ...p, check_in: start, check_out: end }));
+                    // عند اكتمال اختيار التاريخين، افتح نافذة الحجز تلقائياً
+                    if (start && end) {
+                      setCalOpen(false);
+                      onBook();
+                    }
+                  }}
+                />
               </div>
             )}
 
