@@ -283,7 +283,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
     try { sessionStorage.removeItem(DRAFT_KEY); } catch {}
     const data = {
       ...form,
-      price: form.price_negotiable ? undefined : (form.price ? Number(form.price) : undefined),
+      price: (form.price_negotiable || form.price_on_request) ? undefined : (form.price ? Number(form.price) : undefined),
       area: form.area ? Number(form.area) : undefined,
       rental_period: form.listing_type === 'إيجار' ? (form.rental_period || undefined) : undefined,
       street_width: form.street_width ? Number(form.street_width) : undefined,
@@ -638,7 +638,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
 
   // ════════ خطوة 5: الصور والسعر ════════
   if (step === 5) {
-    const canSubmit = form.images.length > 0 && (form.price_negotiable || form.price);
+    const canSubmit = form.images.length > 0 && (form.price_negotiable || form.price_on_request || form.price);
     return (
       <div>
         <Style />
@@ -673,24 +673,46 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
               <Tag className="w-3.5 h-3.5 text-[#FF385C]" /> السعر
             </label>
 
-            {!form.price_negotiable && (
-              <input type="number" dir="ltr" value={form.price} onChange={e => handleChange('price', e.target.value)}
-                placeholder="مثال: 500000" className={inputClass} />
+            {/* اختيار طريقة عرض السعر */}
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <button type="button"
+                onClick={() => setForm(p => ({ ...p, price_negotiable: false, price_on_request: false }))}
+                className={`py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all ${!form.price_negotiable && !form.price_on_request ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40'}`}>
+                تحديد السعر
+              </button>
+              <button type="button"
+                onClick={() => setForm(p => ({ ...p, price_negotiable: true, price_on_request: false, price: '' }))}
+                className={`py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all ${form.price_negotiable ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40'}`}>
+                على السوم
+              </button>
+              <button type="button"
+                onClick={() => setForm(p => ({ ...p, price_on_request: true, price_negotiable: false, price: '' }))}
+                className={`py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all ${form.price_on_request ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40'}`}>
+                بانتظار العروض
+              </button>
+            </div>
+
+            {/* حقل السعر يظهر فقط عند "تحديد السعر" */}
+            {!form.price_negotiable && !form.price_on_request && (
+              <>
+                <input type="number" dir="ltr" value={form.price} onChange={e => handleChange('price', e.target.value)}
+                  placeholder="مثال: 500000" className={inputClass} />
+                {form.price && (
+                  <p className="text-sm font-bold text-[#FF385C] bg-[#FF385C]/5 rounded-xl px-3 py-2 mt-2">
+                    {Number(form.price).toLocaleString('en-US')} ر.س
+                  </p>
+                )}
+              </>
             )}
 
-            {form.listing_type !== 'إيجار' && (
-              <div className="flex gap-2 mt-2">
-                <button type="button"
-                  onClick={() => { handleChange('price_negotiable', !form.price_negotiable); if (!form.price_negotiable) handleChange('price', ''); }}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all ${form.price_negotiable ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40'}`}>
-                  على السوم
-                </button>
-              </div>
+            {form.price_negotiable && (
+              <p className="text-sm font-bold text-zinc-500 bg-zinc-50 rounded-xl px-3 py-2.5 text-center">
+                سيظهر السعر كـ "على السوم"
+              </p>
             )}
-
-            {form.price && !form.price_negotiable && (
-              <p className="text-sm font-bold text-[#FF385C] bg-[#FF385C]/5 rounded-xl px-3 py-2 mt-2">
-                {Number(form.price).toLocaleString('en-US')} ر.س
+            {form.price_on_request && (
+              <p className="text-sm font-bold text-zinc-500 bg-zinc-50 rounded-xl px-3 py-2.5 text-center">
+                سيظهر السعر كـ "بانتظار العروض"
               </p>
             )}
           </div>
