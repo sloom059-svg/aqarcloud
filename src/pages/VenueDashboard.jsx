@@ -200,7 +200,20 @@ export default function VenueDashboard() {
 
   const unreadSubNotifs = subNotifs.filter(n => !n.is_read);
 
+  // وقت آخر مشاهدة للإشعارات (محفوظ محلياً لكل مستخدم) — لإخفاء عدّاد الحجوزات بعد الاطلاع
+  const seenKey = user?.id ? `bookingsSeenAt_${user.id}` : 'bookingsSeenAt';
+  const [bookingsSeenAt, setBookingsSeenAt] = useState(() => {
+    try { return Number(localStorage.getItem(seenKey)) || 0; } catch { return 0; }
+  });
+
   const markNotifsRead = async () => {
+    // علّم الحجوزات الجديدة كـ "مُطّلع عليها" بحفظ الوقت الحالي
+    try {
+      const now = Date.now();
+      localStorage.setItem(seenKey, String(now));
+      setBookingsSeenAt(now);
+    } catch (_) {}
+    // علّم إشعارات الاشتراك كمقروءة
     if (!unreadSubNotifs.length) return;
     try {
       await supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false);
@@ -236,8 +249,14 @@ export default function VenueDashboard() {
     .reduce((sum, b) => sum + (b.total_price ? Number(b.total_price) : venuePrice(b.venue_id)), 0);
 
   const newBookings = bookings.filter(b => b.status === 'جديد');
-  const hasNotifications = newBookings.length > 0 || unreadSubNotifs.length > 0;
-  const totalNotifCount = newBookings.length + unreadSubNotifs.length;
+  // الحجوزات الجديدة غير المُطّلع عليها (وصلت بعد آخر فتح للإشعارات) — للعدّاد فقط
+  const unseenBookings = newBookings.filter(b => {
+    const raw = b.created_date || b.created_at || b.check_in;
+    const t = raw ? new Date(raw).getTime() : 0;
+    return t > bookingsSeenAt;
+  });
+  const hasNotifications = unseenBookings.length > 0 || unreadSubNotifs.length > 0;
+  const totalNotifCount = unseenBookings.length + unreadSubNotifs.length;
 
   // ── منطق الاشتراك الموحّد ──
   const subState = getSubscriptionState(user);
