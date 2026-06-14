@@ -305,7 +305,7 @@ export default function ResortTheme({
                     </div>
                   </article>
                 )}
-                {venue.booking_terms && (
+                {venue.show_terms && venue.booking_terms && (
                   <article data-rv style={{ ...rv, padding: 30, borderRadius: 36, background: 'rgba(255,255,255,.7)', border: '1px solid rgba(72,57,38,.10)', boxShadow: '0 16px 42px rgba(22,19,15,.05)' }}>
                     <h3 style={{ margin: '0 0 12px', fontSize: 24, fontWeight: 800, color: FOREST }}>شروط الحجز</h3>
                     <p style={{ margin: 0, color: '#62584e', fontSize: 16, fontWeight: 500, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{venue.booking_terms}</p>
