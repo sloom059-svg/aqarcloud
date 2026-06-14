@@ -169,6 +169,13 @@ function ProfileMenu({ onLogout }) {
   );
 }
 
+const GLASS_DEFAULTS = {
+  hero_badge: 'متاح للحجز',
+  about_title: 'تجربة لا تُنسى',
+  about_text: 'مكانك المثالي لقضاء أجمل الأوقات وتجديد طاقتك. حرصنا على توفير بيئة مريحة وهادئة تجمع بين الخصوصية وتكامل المرافق، لتصنع فيه ذكريات لا تُنسى مع عائلتك ومن تحب.',
+  footer_text: 'صممنا هذا المكان بحب، ليكون وجهتك الأولى للراحة',
+};
+
 export default function VenueForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -181,7 +188,7 @@ export default function VenueForm() {
   const [form, setForm] = useState({
     name: '', venue_type: '', description: '', city: '',
     maps_url: '', images: [], video_url: '',
-    hero_badge: '', hero_title: '', footer_text: '',
+    hero_badge: '', hero_title: '', footer_text: '', about_title: '', about_text: '',
     youtube_urls: [],
     custom_features: [],
     social: { instagram: '', snapchat: '', tiktok: '', x: '' },
@@ -217,6 +224,8 @@ export default function VenueForm() {
       hero_badge: existing.hero_badge || '',
       hero_title: existing.hero_title || '',
       footer_text: existing.footer_text || '',
+      about_title: existing.about_title || '',
+      about_text: existing.about_text || '',
       social: { instagram: '', snapchat: '', tiktok: '', x: '', ...(existing.social || {}) },
       booking_enabled: existing.booking_enabled !== false,
       booking_terms: existing.booking_terms || prev.booking_terms || DEFAULT_BOOKING_TERMS,
@@ -544,7 +553,14 @@ export default function VenueForm() {
                 <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">تيل داكن فاخر بلمسات ذهبية</div>
               </button>
 
-              <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'glass' }))}
+              <button type="button" onClick={() => setForm(p => ({
+                ...p,
+                page_theme: 'glass',
+                hero_badge: p.hero_badge || GLASS_DEFAULTS.hero_badge,
+                about_title: p.about_title || GLASS_DEFAULTS.about_title,
+                about_text: p.about_text || GLASS_DEFAULTS.about_text,
+                footer_text: p.footer_text || GLASS_DEFAULTS.footer_text,
+              }))}
                 className={`relative rounded-xl border-2 p-2.5 text-right transition-all ${form.page_theme === 'glass' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
                 {form.page_theme === 'glass' && <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-2.5 h-2.5" strokeWidth={3} /></div>}
                 <div className="h-10 rounded-lg mb-2 border border-[#CBA396]/40 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#fdfcfb,#e8ddd6)' }}>
@@ -555,8 +571,8 @@ export default function VenueForm() {
               </button>
             </div>
 
-            {/* تخصيص نصوص ثيم أوركيد / الكريستال */}
-            {(form.page_theme === 'orchid' || form.page_theme === 'glass') && (
+            {/* تخصيص نصوص ثيم أوركيد */}
+            {form.page_theme === 'orchid' && (
               <div className="space-y-3 pt-3 border-t border-border">
                 <p className="text-xs font-bold text-foreground">✏️ تخصيص نصوص الثيم</p>
                 <div className="space-y-2">
@@ -588,6 +604,56 @@ export default function VenueForm() {
                   />
                 </div>
                 <p className="text-[11px] text-muted-foreground">اتركها فاضية لاستخدام النصوص الافتراضية</p>
+              </div>
+            )}
+
+            {/* تخصيص نصوص ثيم الكريستال */}
+            {form.page_theme === 'glass' && (
+              <div className="space-y-3 pt-3 border-t border-border">
+                <p className="text-xs font-bold text-foreground">✏️ تخصيص نصوص الثيم</p>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">الشارة الصغيرة (فوق العنوان)</Label>
+                  <Input
+                    value={form.hero_badge || ''}
+                    onChange={e => setForm(p => ({ ...p, hero_badge: e.target.value }))}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">العنوان الرئيسي (الهيرو)</Label>
+                  <Input
+                    value={form.hero_title || ''}
+                    onChange={e => setForm(p => ({ ...p, hero_title: e.target.value }))}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">عنوان النبذة (العريض)</Label>
+                  <Input
+                    value={form.about_title || ''}
+                    onChange={e => setForm(p => ({ ...p, about_title: e.target.value }))}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">نص النبذة (تحت العنوان)</Label>
+                  <Textarea
+                    value={form.about_text || ''}
+                    onChange={e => setForm(p => ({ ...p, about_text: e.target.value }))}
+                    className="text-sm resize-none"
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">نص الفوتر التسويقي</Label>
+                  <Textarea
+                    value={form.footer_text || ''}
+                    onChange={e => setForm(p => ({ ...p, footer_text: e.target.value }))}
+                    className="text-sm resize-none"
+                    rows={2}
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">العبارات الافتراضية معبّأة تلقائياً، عدّلها كما تحب.</p>
               </div>
             )}
 
