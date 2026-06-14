@@ -189,7 +189,7 @@ export default function VenueForm() {
     price_weekday: '', price_weekend: '',
     whatsapp: '', check_in_time: '14:00', check_out_time: '12:00',
     booking_enabled: true,
-    booking_terms: DEFAULT_BOOKING_TERMS, features: [], status: 'نشط', slug: '',
+    booking_terms: DEFAULT_BOOKING_TERMS, show_terms: false, show_whatsapp_fab: true, features: [], status: 'نشط', slug: '',
     theme_color: '#c9a96e',
   });
   const [uploading, setUploading] = useState(false);
@@ -220,6 +220,8 @@ export default function VenueForm() {
       social: { instagram: '', snapchat: '', tiktok: '', x: '', ...(existing.social || {}) },
       booking_enabled: existing.booking_enabled !== false,
       booking_terms: existing.booking_terms || prev.booking_terms || DEFAULT_BOOKING_TERMS,
+      show_terms: existing.show_terms === true,
+      show_whatsapp_fab: existing.show_whatsapp_fab !== false,
     }));
   }, [existing]);
 
@@ -541,6 +543,16 @@ export default function VenueForm() {
                 <div className="font-bold text-sm">المنتجع الفاخر</div>
                 <div className="text-xs text-muted-foreground mt-0.5">تيل داكن فاخر بلمسات ذهبية</div>
               </button>
+
+              <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'glass' }))}
+                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'glass' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'glass' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
+                <div className="h-16 rounded-xl mb-3 border border-[#CBA396]/40 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#fdfcfb,#e8ddd6)' }}>
+                  <Sparkles className="w-6 h-6" style={{ color: '#CBA396' }} />
+                </div>
+                <div className="font-bold text-sm">الكريستال</div>
+                <div className="text-xs text-muted-foreground mt-0.5">زجاجي عصري بلمسة دافئة</div>
+              </button>
             </div>
 
             {/* تخصيص نصوص ثيم أوركيد */}
@@ -612,6 +624,40 @@ export default function VenueForm() {
               <p className="text-xs text-muted-foreground pt-2 border-t border-border">
                 ثيم المنتجع الفاخر يستخدم ألوان التيل الداكن والذهبي تلقائياً، لذلك لا حاجة لاختيار لون.
               </p>
+            )}
+
+            {form.page_theme === 'glass' && (
+              <div className="space-y-4 pt-2 border-t border-border">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">لون الثيم</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {THEME_COLORS.map(c => {
+                      const active = form.theme_color === c.value;
+                      return (
+                        <button key={c.value} type="button" title={c.name}
+                          onClick={() => setForm(p => ({ ...p, theme_color: c.value }))}
+                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${active ? 'scale-110' : 'hover:scale-110'}`}
+                          style={{ background: c.value, outline: active ? `2px solid ${c.value}` : 'none', outlineOffset: '2px' }}>
+                          {active && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <label className="flex items-center justify-between gap-3 bg-muted/40 border border-border rounded-2xl px-4 py-3 cursor-pointer select-none">
+                  <span className="text-sm font-bold">إظهار زر الواتساب العائم</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={form.show_whatsapp_fab !== false}
+                    onClick={() => setForm(p => ({ ...p, show_whatsapp_fab: p.show_whatsapp_fab === false ? true : false }))}
+                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${form.show_whatsapp_fab !== false ? 'bg-[#CBA396]' : 'bg-zinc-300'}`}
+                  >
+                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${form.show_whatsapp_fab !== false ? 'translate-x-[-22px]' : 'translate-x-[-2px]'}`} />
+                  </button>
+                </label>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -755,6 +801,19 @@ export default function VenueForm() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 flex-shrink-0"><path d="M9 12h6m-3-3v6M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
                 يتم حفظ هذه الشروط في الحقل نفسه booking_terms المستخدم في سند الاستلام.
               </p>
+
+              <label className="flex items-center justify-between gap-3 mt-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 cursor-pointer select-none">
+                <span className="text-sm font-bold text-zinc-800">عرض الشروط في صفحتك العامة؟</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={form.show_terms === true}
+                  onClick={() => setForm(p => ({ ...p, show_terms: !p.show_terms }))}
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${form.show_terms ? 'bg-[#FF385C]' : 'bg-zinc-300'}`}
+                >
+                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${form.show_terms ? 'translate-x-[-22px]' : 'translate-x-[-2px]'}`} />
+                </button>
+              </label>
             </div>
           </CardContent>
         </Card>
