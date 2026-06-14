@@ -477,12 +477,6 @@ export default function VenuePublicPage() {
               <Sparkles className="w-8 h-8 text-[#d4af37] mb-6 animate-pulse opacity-80" />
               <h1 className="text-4xl md:text-6xl font-black text-white mb-5 tracking-tight leading-tight max-w-3xl drop-shadow-2xl">
                 {venue.name}
-                {ownerVerified && (
-                  <svg viewBox="0 0 24 24" className="inline-block w-7 h-7 mr-2 align-middle" aria-label="موثّق">
-                    <path fill="#d4af37" d="M12 2.25l2.02 1.51 2.52-.21 1.06 2.29 2.32 1.01-.23 2.52L21.2 12l-1.51 2.63.23 2.52-2.32 1.01-1.06 2.29-2.52-.21L12 21.75l-2.02-1.51-2.52.21-1.06-2.29-2.32-1.01.23-2.52L2.8 12l1.51-2.63-.23-2.52L6.4 5.84l1.06-2.29 2.52.21L12 2.25z" />
-                    <path d="M8.7 12.2l2.05 2.05 4.7-5" fill="none" stroke="#020617" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
               </h1>
               {venue.city && (
                 <div className="flex items-center gap-1.5 text-[#d4af37] font-bold text-sm mb-5">
@@ -824,12 +818,6 @@ export default function VenuePublicPage() {
             </div>
             <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-3 drop-shadow-lg">
               {venue.name}
-              {ownerVerified && (
-                <svg viewBox="0 0 24 24" className="inline-block w-7 h-7 mr-2 align-middle" aria-label="موثّق">
-                  <path fill="#FF385C" d="M12 2.25l2.02 1.51 2.52-.21 1.06 2.29 2.32 1.01-.23 2.52L21.2 12l-1.51 2.63.23 2.52-2.32 1.01-1.06 2.29-2.52-.21L12 21.75l-2.02-1.51-2.52.21-1.06-2.29-2.32-1.01.23-2.52L2.8 12l1.51-2.63-.23-2.52L6.4 5.84l1.06-2.29 2.52.21L12 2.25z" />
-                  <path d="M8.7 12.2l2.05 2.05 4.7-5" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
             </h1>
             <div className="flex items-center gap-4 text-sm font-medium text-gray-200">
               {venue.city && (
