@@ -122,9 +122,9 @@ export default function GlassTheme({
 
         {/* نبذة + أوقات الدخول/الخروج */}
         <div className="glass-fade" style={{ ...glassCard, ...fadeStyle, borderRadius: 40, padding: 28, boxShadow: '0 8px 32px rgba(0,0,0,0.05)', marginBottom: 32 }}>
-          <h3 style={{ fontWeight: 900, fontSize: 24, marginBottom: 12, color: '#1e293b' }}>تجربة لا تُنسى</h3>
+          <h3 style={{ fontWeight: 900, fontSize: 24, marginBottom: 12, color: '#1e293b' }}>{venue.about_title || 'تجربة لا تُنسى'}</h3>
           <p style={{ color: '#64748b', fontSize: 15, lineHeight: 1.9, fontWeight: 600, marginBottom: 24 }}>
-            {venue.description || 'مكانك المثالي لقضاء أجمل الأوقات وتجديد طاقتك. بيئة مريحة وهادئة تجمع بين الخصوصية وتكامل المرافق، لتصنع ذكريات لا تُنسى مع عائلتك ومن تحب.'}
+            {venue.about_text || venue.description || 'مكانك المثالي لقضاء أجمل الأوقات وتجديد طاقتك. بيئة مريحة وهادئة تجمع بين الخصوصية وتكامل المرافق، لتصنع ذكريات لا تُنسى مع عائلتك ومن تحب.'}
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, paddingTop: 16, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
             <div style={{ background: 'rgba(255,255,255,0.4)', borderRadius: 16, padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
