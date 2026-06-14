@@ -199,8 +199,8 @@ export default function GlassTheme({
             </div>
             <div style={{ display: 'flex', overflowX: 'auto', gap: 16, paddingBottom: 16, scrollSnapType: 'x mandatory', position: 'relative', zIndex: 10 }} className="glass-scroll">
               {allReviews.slice(0, 8).map((r, i) => {
-                const uname = r.user?.name || r.username || r.author_name || 'ضيف';
-                const txt = r.snippet || r.description || r.text || 'إقامة رائعة ومكان نظيف.';
+                const uname = r.author || r.user?.name || r.username || r.author_name || 'ضيف';
+                const txt = r.text || r.snippet || r.description || 'إقامة رائعة ومكان نظيف.';
                 return (
                   <div key={i} style={{ width: 300, flexShrink: 0, scrollSnapAlign: 'center', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 32, padding: 24 }}>
                     <div style={{ display: 'flex', gap: 4, color: '#facc15', fontSize: 12, marginBottom: 16 }}>★★★★★</div>
