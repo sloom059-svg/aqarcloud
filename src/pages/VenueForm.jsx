@@ -555,8 +555,8 @@ export default function VenueForm() {
               </button>
             </div>
 
-            {/* تخصيص نصوص ثيم أوركيد */}
-            {form.page_theme === 'orchid' && (
+            {/* تخصيص نصوص ثيم أوركيد / الكريستال */}
+            {(form.page_theme === 'orchid' || form.page_theme === 'glass') && (
               <div className="space-y-3 pt-3 border-t border-border">
                 <p className="text-xs font-bold text-foreground">✏️ تخصيص نصوص الثيم</p>
                 <div className="space-y-2">
