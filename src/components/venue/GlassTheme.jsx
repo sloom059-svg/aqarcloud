@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, Star, ArrowRight, Heart, Share2, LogIn, LogOut, Wifi, Waves, Bed, UtensilsCrossed, Car, ShieldCheck, Calendar } from 'lucide-react';
+import { MapPin, Star, ArrowRight, Share2, LogIn, LogOut, ShieldCheck, Calendar } from 'lucide-react';
 import VenueCalendar from './VenueCalendar';
 import { getFeatureMeta } from '@/lib/featureCatalog';
 
@@ -9,11 +9,6 @@ import { getFeatureMeta } from '@/lib/featureCatalog';
   طريقة الحجز نفس ثيم المنتجع (onBook يفتح BookingSheet).
   زر واتساب عائم يظهر حسب إعداد show_whatsapp_fab.
 */
-
-const FEATURE_ICONS = {
-  'مسبح': Waves, 'غرف نوم': Bed, 'مطبخ': UtensilsCrossed,
-  'موقف سيارات': Car, 'واي فاي': Wifi, 'خصوصية': ShieldCheck,
-};
 
 export default function GlassTheme({
   venue, imgs = [], logo = '', reviews = [], youtubeVideos = [], getYoutubeId,
@@ -64,7 +59,7 @@ export default function GlassTheme({
   const glassCard = { background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.5)' };
 
   const allFeatures = [
-    ...features.map((f) => ({ name: f, meta: getFeatureMeta ? getFeatureMeta(f) : null })),
+    ...features.map((f) => ({ name: f, meta: getFeatureMeta(f, venue.venue_type) })),
     ...customFeatures.map((f) => ({ name: typeof f === 'string' ? f : f.name, meta: null, custom: true })),
   ];
 
@@ -155,7 +150,7 @@ export default function GlassTheme({
             <h3 style={{ fontWeight: 900, fontSize: 24, color: '#1e293b', marginBottom: 24 }}>مميزات المكان</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16 }}>
               {allFeatures.map((f, i) => {
-                const Icon = FEATURE_ICONS[f.name] || ShieldCheck;
+                const Icon = (f.meta && f.meta.Icon) ? f.meta.Icon : ShieldCheck;
                 return (
                   <div key={i} style={{ background: '#f8fafc', borderRadius: 32, padding: 16, display: 'flex', alignItems: 'flex-start', gap: 16, border: '1px solid #f1f5f9' }}>
                     <div style={{ width: 48, height: 48, borderRadius: 16, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: accent, border: '1px solid #e2e8f0' }}>
@@ -163,6 +158,9 @@ export default function GlassTheme({
                     </div>
                     <div style={{ paddingTop: 4 }}>
                       <h4 style={{ fontWeight: 900, color: '#1e293b', marginBottom: 4 }}>{f.name}</h4>
+                      {f.meta && f.meta.desc && (
+                        <p style={{ color: '#64748b', fontSize: 12, fontWeight: 600, lineHeight: 1.7, margin: 0 }}>{f.meta.desc}</p>
+                      )}
                     </div>
                   </div>
                 );
