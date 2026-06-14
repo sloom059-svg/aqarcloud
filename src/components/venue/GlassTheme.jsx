@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, Star, ArrowRight, Share2, LogIn, LogOut, ShieldCheck, Calendar } from 'lucide-react';
+import { MapPin, Star, Share2, LogIn, LogOut, ShieldCheck, Calendar } from 'lucide-react';
 import VenueCalendar from './VenueCalendar';
 import { getFeatureMeta } from '@/lib/featureCatalog';
 
@@ -67,15 +67,10 @@ export default function GlassTheme({
     <div dir="rtl" style={{ fontFamily: 'Tajawal, sans-serif', background: '#fdfcfb', color: '#1e293b', paddingBottom: 40, minHeight: '100vh' }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');`}</style>
 
-      {/* أزرار عائمة علوية */}
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', padding: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 50, pointerEvents: 'none' }}>
-        <div onClick={() => window.history.back()} style={{ ...glassCard, pointerEvents: 'auto', width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.05)' }}>
-          <ArrowRight size={20} />
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div onClick={() => { if (navigator.share) navigator.share({ title: venue.name, url: window.location.href }); }} style={{ ...glassCard, pointerEvents: 'auto', width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.05)' }}>
-            <Share2 size={18} />
-          </div>
+      {/* زر المشاركة العائم */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', padding: 20, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', zIndex: 50, pointerEvents: 'none' }}>
+        <div onClick={() => { if (navigator.share) navigator.share({ title: venue.name, url: window.location.href }); }} style={{ ...glassCard, pointerEvents: 'auto', width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.05)' }}>
+          <Share2 size={18} />
         </div>
       </div>
 
