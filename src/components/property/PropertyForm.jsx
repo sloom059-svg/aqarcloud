@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import {
   ArrowRight, Loader2, MapPin, Upload, X, Sparkles,
-  Home, Building, Building2, LandPlot, Store, Warehouse, Trees, Briefcase,
+  Home, Building, Building2, LandPlot, Store, Warehouse, Trees, Briefcase, Sprout,
   CheckCircle2, PartyPopper, Eye, Share2, Download, Tag, Layers, Maximize,
   BedDouble, Bath, Sofa, Compass, Ruler, FileText, Image as ImageIcon
 } from 'lucide-react';
@@ -26,6 +26,7 @@ const PROPERTY_TYPES = [
   { id: 'مكتب',       Icon: Briefcase, desc: 'مكتب إداري' },
   { id: 'عمارة',      Icon: Building2, desc: 'عمارة سكنية كاملة' },
   { id: 'استراحة',    Icon: Trees,     desc: 'استراحة للإيجار' },
+  { id: 'مزرعة',      Icon: Sprout,    desc: 'مزرعة أو شبه' },
   { id: 'مستودع',     Icon: Warehouse, desc: 'مستودع أو صالة' },
 ];
 
@@ -33,22 +34,26 @@ const PROPERTY_TYPES = [
 const LAND_TYPES = ['أرض'];
 const UNIT_TYPES = ['شقة', 'فيلا', 'عمارة'];
 const COMMERCIAL_TYPES = ['محل تجاري', 'مكتب'];
-const REST_TYPES = ['استراحة'];
+const REST_TYPES = ['استراحة', 'مزرعة'];
 const WAREHOUSE_TYPES = ['مستودع'];
 const SALE_ONLY_TYPES = ['أرض'];
 
 // المميزات حسب النوع
 const FEATURES_BY_TYPE = {
-  default: ["مصعد","موقف سيارات","حديقة","مسبح","غرفة خادمة","مجلس","مطبخ مجهز","تكييف مركزي","شرفة","مدخل خاص"],
-  'أرض': ["مسوّرة","على شارعين","على ثلاثة شوارع","على أربعة شوارع","زاوية","قريبة من خدمات","صالحة للبناء التجاري","صالحة للبناء السكني","أرض مستوية"],
+  default: ["مصعد","موقف سيارات","حديقة","مسبح","غرفة خادمة","مجلس","مطبخ مجهز","تكييف مركزي","شرفة","مدخل خاص","حي راقي","قريب من الخدمات","تشطيب فاخر","موقع مميز"],
+  'أرض': ["مسوّرة","على شارعين","على ثلاثة شوارع","على أربعة شوارع","زاوية","قريبة من خدمات","صالحة للبناء التجاري","صالحة للبناء السكني","أرض مستوية","منطقة سكنية","منطقة تجارية","قريبة من مسجد","قريبة من مدارس","موقع مميز","فرصة استثمارية"],
   'مستودع': ["رافعة شوكية","تبريد","حارس أمن","بوابة كبيرة","كهرباء صناعية","حوش واسع","منطقة تحميل","أرضية مقواة"],
-  'مكتب': ["مصعد","موقف سيارات","تكييف مركزي","قاعة اجتماعات","استقبال","مدخل خاص","مفروش","انترنت"],
-  'استراحة': ["حوش واسع","مسبح","مجلس كبير","مطبخ خارجي","مواقف متعددة","أشجار ونخيل","ملعب"],
-  'فيلا': ["مطبخ راكب","مدخل سيارة","عداد مستقل","دور أول","دور ثاني","دور علوي","دور أرضي","ملحق علوي مع السطح","ملحق خارجي","حديقة خاصة","مسبح","مجلس","غرفة خادمة","مصعد","درج داخلي"],
-  'شقة': ["مطبخ راكب","مدخل خاص","عداد مستقل","دور أول","دور ثاني","دور أرضي","دور علوي","ملحق علوي مع السطح","مصعد","موقف سيارات","تكييف مركزي","شرفة"],
-  'محل تجاري': ["واجهة زجاجية","موقف عملاء","تكييف","إضاءة جيدة","مستودع ملحق","دورة مياه","تأسيس مطعم"],
-  'عمارة': ["مصعد","موقف سيارات","حراسة","صيانة دورية","عدادات مستقلة","شقق مفروشة"],
+  'مكتب': ["مصعد","موقف سيارات","تكييف مركزي","قاعة اجتماعات","استقبال","مدخل خاص","مفروش","انترنت","موقع مميز","قريب من الخدمات"],
+  'استراحة': ["حوش واسع","مسبح","مجلس كبير","مطبخ خارجي","مواقف متعددة","أشجار ونخيل","ملعب","ألعاب أطفال","جلسات خارجية","مشبّ / شبّة","مسطحات خضراء"],
+  'مزرعة': ["بئر ماء","مسبح","مجلس","مطبخ","نخيل","أشجار مثمرة","مزروعات","حظيرة مواشي","بيت ريفي","خزان مياه","مولد كهرباء","مسطحات خضراء","جلسات خارجية","مشبّ / شبّة","سور كامل","مضخة ماء"],
+  'فيلا': ["مطبخ راكب","مدخل سيارة","عداد مستقل","دور أول","دور ثاني","دور علوي","دور أرضي","ملحق علوي مع السطح","ملحق خارجي","حديقة خاصة","مسبح","مجلس","غرفة خادمة","مصعد","درج داخلي","حي راقي","قريب من الخدمات","تشطيب فاخر","موقع مميز"],
+  'شقة': ["مطبخ راكب","مدخل خاص","عداد مستقل","دور أول","دور ثاني","دور أرضي","دور علوي","ملحق علوي مع السطح","مصعد","موقف سيارات","تكييف مركزي","شرفة","حي راقي","قريب من الخدمات","تشطيب فاخر","موقع مميز"],
+  'محل تجاري': ["واجهة زجاجية","موقف عملاء","تكييف","إضاءة جيدة","مستودع ملحق","دورة مياه","تأسيس مطعم","موقع حيوي","قريب من الخدمات"],
+  'عمارة': ["مصعد","موقف سيارات","حراسة","صيانة دورية","عدادات مستقلة","شقق مفروشة","حي راقي","موقع مميز","دخل استثماري"],
 };
+
+// خيارات الاستثمار للأرض (مناسبة لمكاتب العقار)
+const LAND_INVESTMENT_FEATURES = ["مخطط معتمد","فرصة استثمارية","عائد إيجاري متوقع","قابلة للتقسيم","ترخيص تجاري","نمو عمراني بالمنطقة","قريبة من مشاريع حكومية","مناسبة لبناء عمائر","مناسبة لمجمع تجاري"];
 
 const RENTAL_PERIODS = ["سنوي","شهري","يومي"];
 const MAX_IMAGES = 10;
@@ -160,6 +165,7 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
     return savedDraft?.step || 0;
   });
   const [uploading, setUploading] = useState(false);
+  const [customFeature, setCustomFeature] = useState('');
   const [fetchingPlaces, setFetchingPlaces] = useState(false);
   const [placesError, setPlacesError] = useState('');
 
@@ -194,7 +200,10 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
   const isRest = REST_TYPES.includes(form.type);
   const isWarehouse = WAREHOUSE_TYPES.includes(form.type);
   const isSaleOnly = SALE_ONLY_TYPES.includes(form.type);
-  const availableFeatures = FEATURES_BY_TYPE[form.type] || FEATURES_BY_TYPE.default;
+  const baseFeatures = FEATURES_BY_TYPE[form.type] || FEATURES_BY_TYPE.default;
+  const availableFeatures = (form.type === 'أرض' && form.listing_type === 'استثمار')
+    ? [...baseFeatures, ...LAND_INVESTMENT_FEATURES]
+    : baseFeatures;
 
   const handleChange = (field, value) => {
     setForm(prev => {
@@ -236,6 +245,16 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
       ...prev,
       features: prev.features.includes(feature) ? prev.features.filter(f => f !== feature) : [...prev.features, feature]
     }));
+  };
+
+  // إضافة ميزة مخصّصة كتبها المستخدم
+  const addCustomFeature = () => {
+    const val = customFeature.trim();
+    if (!val) return;
+    if (!form.features.includes(val)) {
+      setForm(prev => ({ ...prev, features: [...prev.features, val] }));
+    }
+    setCustomFeature('');
   };
 
   const fetchNearbyPlaces = async () => {
@@ -389,9 +408,16 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
               </div>
             </Field>
           ) : (
-            <div className="bg-[#FF385C]/5 border border-[#FF385C]/10 rounded-2xl px-4 py-3 text-sm font-bold text-[#FF385C] flex items-center gap-2">
-              <Tag className="w-4 h-4" /> الأرض للبيع فقط
-            </div>
+            <Field label="نوع العرض" icon={Layers}>
+              <div className="flex gap-2">
+                {['بيع', 'استثمار'].map(lt => (
+                  <button key={lt} type="button" onClick={() => handleChange('listing_type', lt)}
+                    className={`flex-1 py-3 rounded-2xl text-sm font-bold border transition-all ${form.listing_type === lt ? 'bg-[#FF385C] text-white border-[#FF385C]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#FF385C]/40'}`}>
+                    {lt}
+                  </button>
+                ))}
+              </div>
+            </Field>
           )}
 
           {form.listing_type === 'إيجار' && (
@@ -570,6 +596,32 @@ export default function PropertyForm({ initialData, onSubmit, isLoading, success
             {availableFeatures.map(f => (
               <Chip key={f} active={form.features.includes(f)} onClick={() => toggleFeature(f)} label={f} />
             ))}
+            {/* المميزات المخصّصة التي أضافها المستخدم (غير الموجودة في القائمة) */}
+            {form.features.filter(f => !availableFeatures.includes(f)).map(f => (
+              <Chip key={f} active={true} onClick={() => toggleFeature(f)} label={f} />
+            ))}
+          </div>
+
+          {/* إضافة ميزة مخصّصة */}
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 mb-2">مميزات إضافية (اكتب أي ميزة غير موجودة)</label>
+            <div className="flex gap-2">
+              <input
+                value={customFeature}
+                onChange={e => setCustomFeature(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomFeature(); } }}
+                placeholder="مثال: بئر ارتوازي، غرفة حارس..."
+                className={inputClass + ' flex-1'}
+              />
+              <button
+                type="button"
+                onClick={addCustomFeature}
+                disabled={!customFeature.trim()}
+                className="shrink-0 px-5 rounded-2xl bg-zinc-950 text-white text-sm font-black transition-all hover:bg-black disabled:opacity-40"
+              >
+                إضافة
+              </button>
+            </div>
           </div>
 
           <Field label="وصف إضافي" icon={FileText} optional>
