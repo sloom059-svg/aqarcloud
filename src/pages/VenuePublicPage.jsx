@@ -11,6 +11,7 @@ import VenueCalendar from '@/components/venue/VenueCalendar';
 import BookingSheet from '@/components/venue/BookingSheet';
 import ResortTheme from '@/components/venue/ResortTheme';
 import OrchidTheme from '@/components/venue/OrchidTheme';
+import GlassTheme from '@/components/venue/GlassTheme';
 import { isPublicPageActive, isVerified } from '@/lib/subscription';
 import {
   MapPin, Clock, Loader2, ChevronLeft, ChevronRight,
@@ -388,6 +389,40 @@ export default function VenuePublicPage() {
   /* ════════════════════════════════════════════════════════
      ثيم المنتجع الفاخر (resort)
   ════════════════════════════════════════════════════════ */
+  if (venue?.page_theme === 'glass') {
+    return (
+      <>
+        <GlassTheme
+          venue={venue}
+          accent={venue?.theme_color || '#CBA396'}
+          imgs={imgs}
+          logo={venueLogo}
+          reviews={venue.google_reviews || []}
+          youtubeVideos={youtubeVideos}
+          getYoutubeId={getYoutubeId}
+          bookingsEnabled={bookingsEnabled}
+          onBook={() => setBookingOpen(true)}
+          bookingForm={bookingForm}
+          setBookingForm={setBookingForm}
+          bookedDates={bookedDates}
+        />
+        <BookingSheet
+          open={bookingOpen}
+          onClose={() => setBookingOpen(false)}
+          accent={venue?.theme_color || '#CBA396'}
+          venueName={venue.name}
+          bookingForm={bookingForm}
+          setBookingForm={setBookingForm}
+          bookingDone={bookingDone}
+          setBookingDone={setBookingDone}
+          bookedDates={bookedDates}
+          handleBook={handleBook}
+          isPending={bookMutation.isPending}
+        />
+      </>
+    );
+  }
+
   if (venue?.page_theme === 'resort') {
     return (
       <>
@@ -644,7 +679,7 @@ export default function VenuePublicPage() {
             )}
 
             {/* شروط الإقامة */}
-            {bookingsEnabled && venue.booking_terms && (
+            {bookingsEnabled && venue.show_terms && venue.booking_terms && (
               <div className="mb-12">
                 <button onClick={() => setTermsOpen(o => !o)}
                   className="w-full flex items-center justify-between glass-dark-r border border-[#d4af37]/20 rounded-2xl p-4 transition hover:border-[#d4af37]/40">
