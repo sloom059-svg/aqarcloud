@@ -56,12 +56,43 @@ const getFeatureIcon = (feature = '') => {
   return CheckCircle2;
 };
 
-function SpecPill({ icon: Icon, children }) {
-  if (!children) return null;
+function hasValue(value) {
+  return value !== undefined && value !== null && value !== '' && value !== 0;
+}
+
+const getPropertyKindLabel = (property) => {
+  const parts = [property.listing_type, property.type].filter(Boolean);
+  return parts.join(' / ') || 'عقار';
+};
+
+const getFloorLabel = (property) => {
+  if (hasValue(property.floor)) return property.floor;
+  const floorFeature = property.features?.find((feature) =>
+    ['دور أرضي', 'الدور الأرضي', 'دور علوي', 'الدور العلوي', 'دور أول', 'الدور الأول', 'دور ثاني', 'الدور الثاني', 'ملحق علوي'].some((term) => feature.includes(term))
+  );
+  return floorFeature || '';
+};
+
+function SmartSpec({ icon: Icon, label, value }) {
+  if (!hasValue(value)) return null;
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-600">
-      <Icon className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
-      {children}
+    <div className="min-h-[72px] sm:min-h-[78px] rounded-[1.1rem] border border-zinc-100 bg-white px-2.5 py-3 flex flex-col justify-center gap-1.5">
+      <span className="flex items-center gap-1.5 text-[11px] sm:text-xs font-black text-zinc-400 whitespace-nowrap">
+        <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: AIRBNB }} />
+        {label}
+      </span>
+      <strong className="text-sm sm:text-base font-black text-zinc-900 leading-snug truncate">{value}</strong>
+    </div>
+  );
+}
+
+function FeatureChip({ feature }) {
+  if (!feature) return null;
+  const Icon = getFeatureIcon(feature);
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-zinc-100 px-2.5 py-1 text-[11px] font-black text-zinc-500">
+      <Icon className="w-3 h-3" style={{ color: AIRBNB }} />
+      {feature}
     </span>
   );
 }
@@ -70,16 +101,48 @@ function PropertyPublicCard({ property }) {
   const image = property.images?.[0];
   const location = [property.neighborhood, property.city].filter(Boolean).join('، ');
   const isLand = property.type === 'أرض';
+  const isRent = property.listing_type === 'إيجار';
+  const floorLabel = getFloorLabel(property);
+  const dimensions = property.length_street && property.length_depth
+    ? `${toEn(property.length_street)} × ${toEn(property.length_depth)} م`
+    : '';
   const price = property.price_on_request
     ? 'السعر عند الطلب'
     : property.price_negotiable
     ? 'السعر قابل للتفاوض'
     : formatPrice(property.price);
 
+  const residentialSpecs = [
+    { icon: BedDouble, label: 'الغرف', value: property.bedrooms ? `${toEn(property.bedrooms)} غرف` : '' },
+    { icon: Bath, label: 'دورات المياه', value: property.bathrooms ? `${toEn(property.bathrooms)} دورات` : '' },
+    { icon: Sofa, label: 'الصالات', value: property.halls ? `${toEn(property.halls)} صالات` : '' },
+    { icon: Layers, label: 'الدور', value: floorLabel },
+    { icon: Maximize, label: 'المساحة', value: property.area ? `${toEn(property.area)} م²` : '' },
+  ].filter((item) => hasValue(item.value));
+
+  const landSpecs = [
+    { icon: Maximize, label: 'المساحة', value: property.area ? `${toEn(property.area)} م²` : '' },
+    { icon: Ruler, label: 'عرض الشارع', value: property.street_width ? `${toEn(property.street_width)} م` : '' },
+    { icon: Compass, label: 'الواجهة', value: property.facade },
+    { icon: Building2, label: 'نوع الأرض', value: property.type },
+  ].filter((item) => hasValue(item.value));
+
+  const commercialSpecs = [
+    { icon: Maximize, label: 'المساحة', value: property.area ? `${toEn(property.area)} م²` : '' },
+    { icon: Bath, label: 'دورات المياه', value: property.bathrooms ? `${toEn(property.bathrooms)} دورات` : '' },
+    { icon: Compass, label: 'الواجهة', value: property.facade },
+    { icon: Ruler, label: 'عرض الشارع', value: property.street_width ? `${toEn(property.street_width)} م` : '' },
+  ].filter((item) => hasValue(item.value));
+
+  const specs = isLand ? landSpecs : (residentialSpecs.length ? residentialSpecs : commercialSpecs);
+  const gridClass = !isLand && specs.length >= 5
+    ? 'grid-cols-2 sm:grid-cols-5'
+    : 'grid-cols-2 sm:grid-cols-4';
+
   return (
     <Link
       to={`/property/${property.id}`}
-      className="group block bg-white rounded-[1.8rem] overflow-hidden border border-zinc-100 shadow-sm hover:shadow-2xl hover:shadow-zinc-200/70 transition-all duration-500"
+      className="group block bg-white rounded-[1.9rem] overflow-hidden border border-zinc-100 shadow-sm hover:shadow-2xl hover:shadow-zinc-200/70 transition-all duration-500"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-zinc-100">
         {image ? (
@@ -93,75 +156,112 @@ function PropertyPublicCard({ property }) {
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/35 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/60 to-transparent" />
 
-        <div className="absolute top-3 right-3 flex gap-2">
-          {property.listing_type && (
-            <span className="rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-950 shadow-sm">
-              {property.listing_type}
-            </span>
-          )}
-          {property.type && (
-            <span className="rounded-full bg-zinc-950/85 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white shadow-sm">
-              {property.type}
+        <div className="absolute top-3 right-3 left-3 z-10 flex items-start justify-between gap-2">
+          <div className="flex gap-2 flex-wrap">
+            {property.listing_type && (
+              <span className="rounded-full bg-zinc-950/90 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white shadow-sm">
+                {property.listing_type}
+              </span>
+            )}
+            {property.type && (
+              <span className="rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-950 shadow-sm">
+                {property.type}
+              </span>
+            )}
+          </div>
+
+          {property.facade && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm border border-white/70">
+              <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+              واجهة {property.facade}
             </span>
           )}
         </div>
 
-        <div className="absolute bottom-3 right-3 left-3 flex items-end justify-between gap-3">
-          <div className="rounded-2xl bg-white px-3 py-2 shadow-lg">
-            <p className="text-[10px] font-black text-zinc-400 mb-0.5">السعر</p>
-            <p className="text-base font-black leading-none" style={{ color: AIRBNB }}>{price}</p>
+        <div className="absolute bottom-3 right-3 left-3 z-10 flex items-end justify-between gap-3">
+          <div className="rounded-2xl bg-white/95 backdrop-blur px-3 py-2.5 shadow-lg min-w-[130px] text-center">
+            <p className="text-[10px] font-black text-zinc-400 mb-1">{isRent ? 'السعر' : 'السعر'}</p>
+            <p className="text-base sm:text-lg font-black leading-none text-zinc-950">{price}</p>
           </div>
 
-          <div className="flex flex-col items-end gap-1.5">
-            {property.facade && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm">
-                <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
-                واجهة {property.facade}
-              </span>
-            )}
-            {property.area && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white">
-                <Maximize className="w-3.5 h-3.5" />
-                {toEn(property.area)} م²
-              </span>
-            )}
-          </div>
+          {property.area && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-black/50 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white">
+              <Maximize className="w-3.5 h-3.5" />
+              {toEn(property.area)} م²
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="p-4 space-y-3">
-        <div>
-          <h3 className="font-black text-zinc-950 text-base leading-snug line-clamp-2 group-hover:text-[#FF385C] transition-colors">
-            {property.title || 'عقار مميز'}
-          </h3>
-          {location && (
-            <p className="mt-2 flex items-center gap-1.5 text-xs font-bold text-zinc-500">
-              <MapPin className="w-3.5 h-3.5" />
-              <span className="line-clamp-1">{location}</span>
-            </p>
-          )}
+      <div className="p-4 sm:p-5 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="font-black text-zinc-950 text-base sm:text-lg leading-snug line-clamp-2 group-hover:text-[#FF385C] transition-colors">
+              {property.title || 'عقار مميز'}
+            </h3>
+            {location && (
+              <p className="mt-2 flex items-center gap-1.5 text-xs font-bold text-zinc-500">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                <span className="line-clamp-1">{location}</span>
+              </p>
+            )}
+          </div>
+
+          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-2xl bg-zinc-50 border border-zinc-100 px-3 py-2 text-[11px] font-black text-zinc-600 whitespace-nowrap">
+            <Building2 className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+            {getPropertyKindLabel(property)}
+          </span>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-zinc-100">
-          <SpecPill icon={Layers}>{property.listing_type}</SpecPill>
-          <SpecPill icon={Building2}>{property.type}</SpecPill>
-          {property.street_width && <SpecPill icon={Ruler}>شارع {toEn(property.street_width)} م</SpecPill>}
-          {!isLand && property.bedrooms && <SpecPill icon={BedDouble}>{toEn(property.bedrooms)} غرف</SpecPill>}
-          {!isLand && property.bathrooms && <SpecPill icon={Bath}>{toEn(property.bathrooms)} دورات</SpecPill>}
-          {!isLand && property.halls && <SpecPill icon={Sofa}>{toEn(property.halls)} صالات</SpecPill>}
-        </div>
+        {specs.length > 0 && (
+          <div className="rounded-[1.35rem] border border-zinc-100 bg-zinc-50/75 p-3.5">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <strong className="text-sm font-black text-zinc-800">أهم التفاصيل</strong>
+              <span className="text-[11px] font-black text-zinc-400">{getPropertyKindLabel(property)}</span>
+            </div>
+            <div className={`grid ${gridClass} gap-2.5`}>
+              {specs.map((spec) => (
+                <SmartSpec key={`${spec.label}-${spec.value}`} icon={spec.icon} label={spec.label} value={spec.value} />
+              ))}
+            </div>
+
+            {isLand && (dimensions || property.length_street || property.length_depth) && (
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {dimensions && (
+                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-zinc-200 bg-white px-3.5 py-3">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-400">
+                      <Ruler className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                      الأبعاد
+                    </span>
+                    <strong className="text-sm font-black text-zinc-900 whitespace-nowrap">{dimensions}</strong>
+                  </div>
+                )}
+                {property.length_street && (
+                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-zinc-200 bg-white px-3.5 py-3">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-400">
+                      <Ruler className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                      على الشارع
+                    </span>
+                    <strong className="text-sm font-black text-zinc-900 whitespace-nowrap">{toEn(property.length_street)} م</strong>
+                  </div>
+                )}
+                {property.length_depth && (
+                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-zinc-200 bg-white px-3.5 py-3">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-400">
+                      <Ruler className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                      العمق
+                    </span>
+                    <strong className="text-sm font-black text-zinc-900 whitespace-nowrap">{toEn(property.length_depth)} م</strong>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {property.features?.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {property.features.slice(0, 4).map((feature) => {
-              const Icon = getFeatureIcon(feature);
-              return (
-                <span key={feature} className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1 text-[11px] font-bold text-zinc-500">
-                  <Icon className="w-3 h-3" style={{ color: AIRBNB }} />
-                  {feature}
-                </span>
-              );
-            })}
+            {property.features.slice(0, 4).map((feature) => <FeatureChip key={feature} feature={feature} />)}
             {property.features.length > 4 && (
               <span className="rounded-full bg-zinc-100 border border-zinc-200 px-2.5 py-1 text-[11px] font-bold text-zinc-500">
                 +{toEn(property.features.length - 4)}
@@ -170,9 +270,9 @@ function PropertyPublicCard({ property }) {
           </div>
         )}
 
-        <div className="flex items-center justify-end pt-2">
+        <div className="flex items-center justify-end pt-1">
           <span
-            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-100 bg-zinc-50 px-3 py-1.5 text-[11px] font-black text-zinc-700 transition-all group-hover:border-[#FF385C]/20 group-hover:bg-[#FFF1F2] group-hover:text-[#FF385C]"
+            className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-zinc-950 px-4 py-2.5 text-xs font-black text-white transition-all group-hover:bg-black"
             aria-hidden="true"
           >
             عرض التفاصيل
@@ -235,8 +335,8 @@ export default function AgentProfile() {
   return (
     <div dir="rtl" className="min-h-screen bg-[#F7F7F7] font-sans pb-20 relative overflow-x-hidden">
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        body { font-family: 'Tajawal', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
       `}} />
 
       <div className="absolute inset-x-0 top-0 h-[240px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
@@ -244,60 +344,65 @@ export default function AgentProfile() {
       <div className="absolute top-28 left-[-90px] w-72 h-72 rounded-full bg-zinc-900/5 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 pt-4 sm:pt-6">
-        <header className="rounded-[2rem] bg-white/95 border border-zinc-200 shadow-[0_14px_44px_rgba(0,0,0,0.07)] backdrop-blur-xl p-4 sm:p-5">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.7rem] bg-gradient-to-br from-white to-zinc-100 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.08)] flex-shrink-0">
-                {officeLogo ? (
-                  <img src={officeLogo} alt={officeName} className="w-full h-full object-cover" />
-                ) : (
-                  <Building2 className="w-9 h-9 text-zinc-700" />
-                )}
-              </div>
+        <header className="relative overflow-hidden rounded-[2.1rem] bg-white/95 border border-zinc-100 shadow-[0_22px_60px_rgba(0,0,0,0.08)] backdrop-blur-xl p-4 sm:p-7">
+          <div className="absolute inset-0 bg-gradient-to-l from-white/80 via-transparent to-white/70 pointer-events-none" />
 
-              <div className="min-w-0">
-                <p className="text-[11px] sm:text-xs font-black text-zinc-400 mb-1">صفحة الوسيط العقاري</p>
-                <h1 className="text-2xl sm:text-4xl font-black text-zinc-950 leading-tight truncate">{officeName}</h1>
-
-                <div className="mt-3 space-y-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {agent.city && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500 whitespace-nowrap">
-                        <MapPin className="w-3.5 h-3.5" />
-                        {agent.city}
-                      </span>
-                    )}
-
-                    <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500 whitespace-nowrap">
-                      <Building2 className="w-3.5 h-3.5" />
-                      {toEn(properties.length)} عقار
-                    </span>
-                  </div>
-
-                  {agent.license_number && (
-                    <div className="flex">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 border border-zinc-100 px-2.5 py-1.5 text-[11px] font-bold text-zinc-500 max-w-full">
-                        <BadgeCheck className="w-3.5 h-3.5 flex-shrink-0" style={{ color: AIRBNB }} />
-                        <span className="whitespace-nowrap">رخصة موثوق:</span>
-                        <span dir="ltr" className="truncate">{agent.license_number}</span>
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {agent.bio && (
-                  <p className="mt-3 text-sm font-bold text-zinc-500 leading-7 max-w-2xl">{agent.bio}</p>
-                )}
-              </div>
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_auto] gap-4 sm:gap-6 items-center">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[1.75rem] bg-gradient-to-b from-white to-zinc-50 overflow-hidden flex items-center justify-center border border-zinc-200 shadow-[0_16px_34px_rgba(0,0,0,0.06)] mx-auto sm:mx-0 flex-shrink-0">
+              {officeLogo ? (
+                <img src={officeLogo} alt={officeName} className="w-full h-full object-cover" />
+              ) : (
+                <Building2 className="w-11 h-11 text-zinc-700" />
+              )}
             </div>
 
-            <div className="flex gap-2 md:flex-col lg:flex-row">
+            <div className="min-w-0 text-center sm:text-right">
+              <p className="text-[13px] sm:text-[15px] font-black text-zinc-400 mb-1">صفحة الوسيط العقاري</p>
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-black text-zinc-950 leading-tight tracking-[-0.04em] truncate max-w-full">
+                  {officeName}
+                </h1>
+                {agent.license_number && (
+                  <span className="w-8 h-8 sm:w-9 sm:h-9 inline-flex items-center justify-center rounded-full bg-[#FFF1F2] border border-[#FF385C]/15 text-[#FF385C] flex-shrink-0" title="موثق">
+                    <BadgeCheck className="w-5 h-5" />
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-4 flex items-center justify-center sm:justify-start flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-50 border border-zinc-100 px-3 py-2 text-[12px] font-black text-zinc-600 whitespace-nowrap">
+                  <Building2 className="w-4 h-4 text-zinc-400" />
+                  {toEn(properties.length)} عقارات
+                </span>
+                {agent.city && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-50 border border-zinc-100 px-3 py-2 text-[12px] font-black text-zinc-600 whitespace-nowrap">
+                    <MapPin className="w-4 h-4 text-zinc-400" />
+                    {agent.city}
+                  </span>
+                )}
+                {agent.license_number && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF8F8] border border-[#FF385C]/15 px-3 py-2 text-[12px] font-black text-zinc-600 max-w-full">
+                    <BadgeCheck className="w-4 h-4 flex-shrink-0" style={{ color: AIRBNB }} />
+                    <span className="whitespace-nowrap">رخصة موثوقة:</span>
+                    <span dir="ltr" className="truncate">{agent.license_number}</span>
+                  </span>
+                )}
+              </div>
+
+              {(agent.bio || agent.city) && (
+                <p className="mt-4 text-sm sm:text-base font-bold text-zinc-500 leading-7 max-w-2xl mx-auto sm:mx-0">
+                  {agent.bio || `مكتب عقاري في مدينة ${agent.city}`}
+                </p>
+              )}
+            </div>
+
+            <div className="hidden lg:flex items-center gap-3 justify-end whitespace-nowrap">
               {waNumber && (
                 <a
                   href={`https://wa.me/${waNumber}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white px-5 py-3 rounded-2xl text-sm font-black shadow-sm transition-all"
+                  className="inline-flex min-w-[128px] items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white px-5 py-3.5 rounded-[1.1rem] text-sm font-black shadow-sm transition-all"
                 >
                   <MessageCircle className="w-4 h-4" style={{ color: '#25D366' }} />
                   واتساب
@@ -306,12 +411,34 @@ export default function AgentProfile() {
 
               <button
                 onClick={shareProfile}
-                className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-800 px-5 py-3 rounded-2xl text-sm font-black shadow-sm transition-all"
+                className="inline-flex min-w-[116px] items-center justify-center gap-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-800 px-5 py-3.5 rounded-[1.1rem] text-sm font-black shadow-sm transition-all"
               >
                 <Share2 className="w-4 h-4" />
                 مشاركة
               </button>
             </div>
+          </div>
+
+          <div className="relative z-10 grid grid-cols-2 gap-2 mt-4 lg:hidden">
+            {waNumber && (
+              <a
+                href={`https://wa.me/${waNumber}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 bg-zinc-950 hover:bg-black text-white px-4 py-3 rounded-[1.1rem] text-sm font-black shadow-sm transition-all"
+              >
+                <MessageCircle className="w-4 h-4" style={{ color: '#25D366' }} />
+                واتساب
+              </a>
+            )}
+
+            <button
+              onClick={shareProfile}
+              className="inline-flex items-center justify-center gap-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-800 px-4 py-3 rounded-[1.1rem] text-sm font-black shadow-sm transition-all"
+            >
+              <Share2 className="w-4 h-4" />
+              مشاركة
+            </button>
           </div>
         </header>
 
