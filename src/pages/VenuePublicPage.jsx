@@ -394,7 +394,7 @@ export default function VenuePublicPage() {
       <>
         <GlassTheme
           venue={venue}
-          accent={venue?.theme_color || '#CBA396'}
+          accent={'#CBA396'}
           imgs={imgs}
           logo={venueLogo}
           reviews={venue.google_reviews || []}
@@ -409,7 +409,7 @@ export default function VenuePublicPage() {
         <BookingSheet
           open={bookingOpen}
           onClose={() => setBookingOpen(false)}
-          accent={venue?.theme_color || '#CBA396'}
+          accent={'#CBA396'}
           venueName={venue.name}
           bookingForm={bookingForm}
           setBookingForm={setBookingForm}
