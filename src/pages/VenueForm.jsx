@@ -205,6 +205,38 @@ export default function VenueForm() {
   const [showRevenue, setShowRevenue] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showSocial, setShowSocial] = useState(false);
+  // تتبّع التعديلات غير المحفوظة عبر مقارنة لقطة
+  const [isDirty, setIsDirty] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
+  const snapshotRef = useRef(null);
+
+  // كل ما تغيّر الفورم، قارن مع آخر لقطة محفوظة
+  useEffect(() => {
+    if (snapshotRef.current === null) return;
+    setIsDirty(JSON.stringify(form) !== snapshotRef.current);
+  }, [form]);
+
+  // للشاليه الجديد (لا existing): التقط لقطة أولية بعد أول رندر
+  useEffect(() => {
+    if (!isEdit && snapshotRef.current === null) {
+      setForm(curr => { snapshotRef.current = JSON.stringify(curr); return curr; });
+    }
+  }, [isEdit]);
+
+  // تحذير عند إغلاق التبويب/المتصفح
+  useEffect(() => {
+    const handler = (e) => {
+      if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+  // محاولة الخروج: لو فيه تعديلات، اعرض المودال بدل الخروج المباشر
+  const attemptLeave = () => {
+    if (isDirty) setShowExitModal(true);
+    else navigate('/venue');
+  };
 
   const { data: existing } = useQuery({
     queryKey: ['venue', id],
@@ -232,9 +264,12 @@ export default function VenueForm() {
       show_terms: existing.show_terms === true,
       show_whatsapp_fab: existing.show_whatsapp_fab !== false,
     }));
+    // التقط لقطة بعد تحميل البيانات (المرجع لمقارنة التعديلات)
+    setTimeout(() => {
+      setForm(curr => { snapshotRef.current = JSON.stringify(curr); return curr; });
+      setIsDirty(false);
+    }, 0);
   }, [existing]);
-
-  // افتح قسم السوشيال تلقائياً عند تحميل البيانات لو فيه محتوى
   useEffect(() => {
     if (existing) {
       const hasSocial = Object.values(existing.social || {}).some(v => v?.trim());
@@ -314,6 +349,7 @@ export default function VenueForm() {
         await queryClient.invalidateQueries({ queryKey: ['venues'] });
         await queryClient.invalidateQueries({ queryKey: ['venue', id] });
         toast.success('تم تحديث الشاليه بنجاح');
+        setIsDirty(false);
         navigate('/venue');
       } else {
         const created = await base44.entities.Venue.create(data);
@@ -384,7 +420,7 @@ export default function VenueForm() {
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <button
                   type="button"
-                  onClick={() => navigate('/venue')}
+                  onClick={attemptLeave}
                   className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-all text-zinc-800 flex items-center justify-center shadow-sm active:scale-[0.98] shrink-0"
                   title="العودة للوحة التحكم"
                 >
@@ -616,14 +652,6 @@ export default function VenueForm() {
                   <Input
                     value={form.hero_badge || ''}
                     onChange={e => setForm(p => ({ ...p, hero_badge: e.target.value }))}
-                    className="text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">العنوان الرئيسي (الهيرو)</Label>
-                  <Input
-                    value={form.hero_title || ''}
-                    onChange={e => setForm(p => ({ ...p, hero_title: e.target.value }))}
                     className="text-sm"
                   />
                 </div>
@@ -937,6 +965,53 @@ export default function VenueForm() {
           {saving ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جاري الحفظ...</> : isEdit ? 'حفظ التعديلات' : 'إضافة المكان'}
         </Button>
       </form>
+
+      {/* نافذة تأكيد الخروج عند وجود تعديلات غير محفوظة */}
+      {showExitModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          onClick={() => setShowExitModal(false)}
+        >
+          <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm" />
+          <div
+            dir="rtl"
+            onClick={e => e.stopPropagation()}
+            className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-zinc-100 p-6 animate-in fade-in zoom-in-95 duration-200"
+          >
+            <div className="mx-auto mb-4 flex items-center justify-center w-14 h-14 rounded-2xl bg-[#FF385C]/10">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#FF385C" strokeWidth="2" className="w-7 h-7"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <h3 className="text-center text-lg font-black text-zinc-950 mb-1.5">عندك تعديلات غير محفوظة</h3>
+            <p className="text-center text-sm text-zinc-500 font-medium leading-6 mb-6">
+              لو خرجت الحين بتفقد التغييرات اللي سويتها. تبي تحفظها قبل لا تطلع؟
+            </p>
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => { setShowExitModal(false); handleSubmit({ preventDefault: () => {} }); }}
+                className="w-full h-12 rounded-2xl bg-[#FF385C] hover:bg-[#E31C5F] text-white font-black text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+              >
+                {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> جاري الحفظ...</> : 'حفظ والخروج'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setIsDirty(false); setShowExitModal(false); navigate('/venue'); }}
+                className="w-full h-12 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 text-zinc-700 font-bold text-sm transition-all"
+              >
+                تجاهل التغييرات والخروج
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowExitModal(false)}
+                className="w-full h-11 rounded-2xl text-zinc-400 hover:text-zinc-600 font-bold text-sm transition-all"
+              >
+                البقاء في الصفحة
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
