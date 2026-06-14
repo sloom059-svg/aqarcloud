@@ -233,6 +233,21 @@ export default function PropertyDetail() {
                 </p>
               )}
 
+              {property.maps_url && (
+                <a
+                  href={property.maps_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-[#FF385C] px-5 py-3 text-sm font-black text-white shadow-sm transition-all hover:bg-[#E31C5F] active:scale-[0.98]"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  افتح الموقع على الخريطة
+                </a>
+              )}
+
               {property.description && (
                 <p className="mt-4 text-sm font-medium text-zinc-500 leading-8">{property.description}</p>
               )}
