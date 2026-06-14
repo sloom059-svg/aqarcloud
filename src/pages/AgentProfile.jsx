@@ -76,12 +76,12 @@ const getFloorLabel = (property) => {
 function SmartSpec({ icon: Icon, label, value }) {
   if (!hasValue(value)) return null;
   return (
-    <div className="min-h-[72px] sm:min-h-[78px] rounded-[1.1rem] border border-zinc-100 bg-white px-2.5 py-3 flex flex-col justify-center gap-1.5">
-      <span className="flex items-center gap-1.5 text-[11px] sm:text-xs font-black text-zinc-400 whitespace-nowrap">
+    <div className="min-h-[72px] sm:min-h-[78px] rounded-[1.1rem] border border-zinc-100 bg-white px-2.5 py-3 flex flex-col justify-center gap-1.5 overflow-hidden">
+      <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black text-zinc-400 leading-tight">
         <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: AIRBNB }} />
-        {label}
+        <span className="truncate">{label}</span>
       </span>
-      <strong className="text-sm sm:text-base font-black text-zinc-900 leading-snug truncate">{value}</strong>
+      <strong className="text-[13px] sm:text-base font-black text-zinc-900 leading-snug break-words">{value}</strong>
     </div>
   );
 }
@@ -359,7 +359,7 @@ export default function AgentProfile() {
             <div className="min-w-0 text-center sm:text-right">
               <p className="text-[13px] sm:text-[15px] font-black text-zinc-400 mb-1">صفحة الوسيط العقاري</p>
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-black text-zinc-950 leading-tight tracking-[-0.04em] truncate max-w-full">
+                <h1 className="text-[1.9rem] sm:text-5xl lg:text-6xl font-black text-zinc-950 leading-[1.25] sm:leading-tight tracking-[-0.04em] pb-1 max-w-full break-words">
                   {officeName}
                 </h1>
                 {agent.license_number && (
