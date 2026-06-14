@@ -145,11 +145,11 @@ export default function GlassTheme({
             <h3 style={{ fontWeight: 900, fontSize: 24, color: '#1e293b', marginBottom: 24 }}>مميزات المكان</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16 }}>
               {allFeatures.map((f, i) => {
-                const Icon = (f.meta && f.meta.Icon) ? f.meta.Icon : ShieldCheck;
+                const Icon = (f.meta && f.meta.Icon) ? f.meta.Icon : null;
                 return (
                   <div key={i} style={{ background: '#f8fafc', borderRadius: 32, padding: 16, display: 'flex', alignItems: 'flex-start', gap: 16, border: '1px solid #f1f5f9' }}>
                     <div style={{ width: 48, height: 48, borderRadius: 16, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: accent, border: '1px solid #e2e8f0' }}>
-                      <Icon size={24} />
+                      {Icon ? <Icon style={{ width: 24, height: 24 }} /> : <ShieldCheck style={{ width: 24, height: 24 }} />}
                     </div>
                     <div style={{ paddingTop: 4 }}>
                       <h4 style={{ fontWeight: 900, color: '#1e293b', marginBottom: 4 }}>{f.name}</h4>
