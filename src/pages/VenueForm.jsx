@@ -503,55 +503,55 @@ export default function VenueForm() {
         <Card>
           <CardHeader><CardTitle className="text-base">شكل صفحة العرض (الثيم)</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'classic' }))}
-                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'classic' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
-                {form.page_theme === 'classic' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
-                <div className="h-16 rounded-xl mb-3 bg-gradient-to-br from-gray-50 to-gray-200 border border-gray-200 flex items-center justify-center">
-                  <Sun className="w-6 h-6 text-amber-500" />
+                className={`relative rounded-xl border-2 p-2.5 text-right transition-all ${form.page_theme === 'classic' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'classic' && <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-2.5 h-2.5" strokeWidth={3} /></div>}
+                <div className="h-10 rounded-lg mb-2 bg-gradient-to-br from-gray-50 to-gray-200 border border-gray-200 flex items-center justify-center">
+                  <Sun className="w-5 h-5 text-amber-500" />
                 </div>
-                <div className="font-bold text-sm">فاتح كلاسيكي</div>
-                <div className="text-xs text-muted-foreground mt-0.5">تصميم نظيف بلون قابل للتخصيص</div>
+                <div className="font-bold text-xs leading-tight">فاتح كلاسيكي</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">تصميم نظيف بلون قابل للتخصيص</div>
               </button>
 
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'orchid' }))}
-                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'orchid' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
-                {form.page_theme === 'orchid' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
-                <div className="h-16 rounded-xl mb-3 border flex items-center justify-center" style={{ background: '#FCFBF8', borderColor: '#F4EAE6' }}>
-                  <span style={{ fontSize: 28 }}>🌸</span>
+                className={`relative rounded-xl border-2 p-2.5 text-right transition-all ${form.page_theme === 'orchid' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'orchid' && <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-2.5 h-2.5" strokeWidth={3} /></div>}
+                <div className="h-10 rounded-lg mb-2 border flex items-center justify-center" style={{ background: '#FCFBF8', borderColor: '#F4EAE6' }}>
+                  <span style={{ fontSize: 20 }}>🌸</span>
                 </div>
-                <div className="font-bold text-sm">أوركيد الناعم</div>
-                <div className="text-xs text-muted-foreground mt-0.5">روز جولد ناعم وأنيق</div>
+                <div className="font-bold text-xs leading-tight">أوركيد الناعم</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">روز جولد ناعم وأنيق</div>
               </button>
 
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'royal' }))}
-                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'royal' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
-                {form.page_theme === 'royal' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
-                <div className="h-16 rounded-xl mb-3 bg-gradient-to-br from-[#020617] to-[#0f172a] border border-[#d4af37]/30 flex items-center justify-center">
-                  <Crown className="w-6 h-6 text-[#d4af37]" />
+                className={`relative rounded-xl border-2 p-2.5 text-right transition-all ${form.page_theme === 'royal' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'royal' && <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-2.5 h-2.5" strokeWidth={3} /></div>}
+                <div className="h-10 rounded-lg mb-2 bg-gradient-to-br from-[#020617] to-[#0f172a] border border-[#d4af37]/30 flex items-center justify-center">
+                  <Crown className="w-5 h-5 text-[#d4af37]" />
                 </div>
-                <div className="font-bold text-sm">الأسود الملكي</div>
-                <div className="text-xs text-muted-foreground mt-0.5">فخامة سوداء بلمسات ذهبية</div>
+                <div className="font-bold text-xs leading-tight">الأسود الملكي</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">فخامة سوداء بلمسات ذهبية</div>
               </button>
 
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'resort' }))}
-                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'resort' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
-                {form.page_theme === 'resort' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
-                <div className="h-16 rounded-xl mb-3 border border-[#D4B982]/40 flex items-center justify-center" style={{ background: '#E8F0F0' }}>
-                  <Sparkles className="w-6 h-6" style={{ color: '#0A2629' }} />
+                className={`relative rounded-xl border-2 p-2.5 text-right transition-all ${form.page_theme === 'resort' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'resort' && <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-2.5 h-2.5" strokeWidth={3} /></div>}
+                <div className="h-10 rounded-lg mb-2 border border-[#D4B982]/40 flex items-center justify-center" style={{ background: '#E8F0F0' }}>
+                  <Sparkles className="w-5 h-5" style={{ color: '#0A2629' }} />
                 </div>
-                <div className="font-bold text-sm">المنتجع الفاخر</div>
-                <div className="text-xs text-muted-foreground mt-0.5">تيل داكن فاخر بلمسات ذهبية</div>
+                <div className="font-bold text-xs leading-tight">المنتجع الفاخر</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">تيل داكن فاخر بلمسات ذهبية</div>
               </button>
 
               <button type="button" onClick={() => setForm(p => ({ ...p, page_theme: 'glass' }))}
-                className={`relative rounded-2xl border-2 p-4 text-right transition-all ${form.page_theme === 'glass' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
-                {form.page_theme === 'glass' && <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-3 h-3" strokeWidth={3} /></div>}
-                <div className="h-16 rounded-xl mb-3 border border-[#CBA396]/40 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#fdfcfb,#e8ddd6)' }}>
-                  <Sparkles className="w-6 h-6" style={{ color: '#CBA396' }} />
+                className={`relative rounded-xl border-2 p-2.5 text-right transition-all ${form.page_theme === 'glass' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/40'}`}>
+                {form.page_theme === 'glass' && <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-2.5 h-2.5" strokeWidth={3} /></div>}
+                <div className="h-10 rounded-lg mb-2 border border-[#CBA396]/40 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#fdfcfb,#e8ddd6)' }}>
+                  <Sparkles className="w-5 h-5" style={{ color: '#CBA396' }} />
                 </div>
-                <div className="font-bold text-sm">الكريستال</div>
-                <div className="text-xs text-muted-foreground mt-0.5">زجاجي عصري بلمسة دافئة</div>
+                <div className="font-bold text-xs leading-tight">الكريستال</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">زجاجي عصري بلمسة دافئة</div>
               </button>
             </div>
 
@@ -628,22 +628,9 @@ export default function VenueForm() {
 
             {form.page_theme === 'glass' && (
               <div className="space-y-4 pt-2 border-t border-border">
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">لون الثيم</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {THEME_COLORS.map(c => {
-                      const active = form.theme_color === c.value;
-                      return (
-                        <button key={c.value} type="button" title={c.name}
-                          onClick={() => setForm(p => ({ ...p, theme_color: c.value }))}
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${active ? 'scale-110' : 'hover:scale-110'}`}
-                          style={{ background: c.value, outline: active ? `2px solid ${c.value}` : 'none', outlineOffset: '2px' }}>
-                          {active && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  ثيم الكريستال يستخدم لونه الأساسي الدافئ تلقائياً، لذلك لا حاجة لاختيار لون.
+                </p>
 
                 <label className="flex items-center justify-between gap-3 bg-muted/40 border border-border rounded-2xl px-4 py-3 cursor-pointer select-none">
                   <span className="text-sm font-bold">إظهار زر الواتساب العائم</span>
