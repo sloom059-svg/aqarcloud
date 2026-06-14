@@ -67,9 +67,9 @@ export default function PropertyCard({ property, index = 0 }) {
   const mainImage = property.images?.[0];
   const location = [property.neighborhood, property.city].filter(Boolean).join('، ');
   const priceText = property.price_on_request
-    ? 'السعر عند الطلب'
+    ? 'بانتظار العروض'
     : property.price_negotiable
-    ? 'السعر قابل للتفاوض'
+    ? 'على السوم'
     : formatPrice(property.price);
 
   const specs = [
