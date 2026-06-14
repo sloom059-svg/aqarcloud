@@ -11,6 +11,7 @@ import {
   Loader2,
   Search,
   Compass,
+  Tag,
   Maximize,
   BedDouble,
   Bath,
@@ -29,6 +30,7 @@ import {
   Plug,
   Phone,
   ArrowUpLeft,
+  FileText,
 } from 'lucide-react';
 
 const AIRBNB = '#FF385C';
@@ -106,11 +108,13 @@ function PropertyPublicCard({ property }) {
   const dimensions = property.length_street && property.length_depth
     ? `${toEn(property.length_street)} × ${toEn(property.length_depth)} م`
     : '';
-  const price = property.price_on_request
-    ? 'السعر عند الطلب'
+  const priceStatusLabel = property.price_on_request
+    ? 'بانتظار العروض'
     : property.price_negotiable
-    ? 'السعر قابل للتفاوض'
-    : formatPrice(property.price);
+    ? 'على السوم'
+    : '';
+  const hasNumericPrice = !priceStatusLabel && hasValue(property.price);
+  const price = hasNumericPrice ? formatPrice(property.price) : priceStatusLabel;
 
   const residentialSpecs = [
     { icon: BedDouble, label: 'الغرف', value: property.bedrooms ? `${toEn(property.bedrooms)} غرف` : '' },
@@ -170,19 +174,30 @@ function PropertyPublicCard({ property }) {
             )}
           </div>
 
-          {property.facade && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm border border-white/70">
-              <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
-              واجهة {property.facade}
-            </span>
-          )}
+          <div className="flex flex-col items-end gap-2">
+            {property.facade && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1.5 text-[11px] font-black text-zinc-800 shadow-sm border border-white/70">
+                <Compass className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                واجهة {property.facade}
+              </span>
+            )}
+            {priceStatusLabel && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-3 py-1.5 text-[11px] font-black text-white shadow-sm">
+                <Tag className="w-3.5 h-3.5" />
+                {priceStatusLabel}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="absolute bottom-3 right-3 left-3 z-10 flex items-end justify-between gap-3">
-          <div className="rounded-2xl bg-white/95 backdrop-blur px-3 py-2.5 shadow-lg min-w-[130px] text-center">
-            <p className="text-[10px] font-black text-zinc-400 mb-1">{isRent ? 'السعر' : 'السعر'}</p>
-            <p className="text-base sm:text-lg font-black leading-none text-zinc-950">{price}</p>
-          </div>
+          {hasNumericPrice && (
+            <div className="rounded-2xl bg-white/95 backdrop-blur px-3 py-2.5 shadow-lg min-w-[130px] text-center">
+              <p className="text-[10px] font-black text-zinc-400 mb-1">السعر</p>
+              <p className="text-base sm:text-lg font-black leading-none text-zinc-950">{price}</p>
+            </div>
+          )}
+          {!hasNumericPrice && <div />}
 
           {property.area && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-black/50 backdrop-blur px-3 py-1.5 text-[11px] font-black text-white">
@@ -225,33 +240,51 @@ function PropertyPublicCard({ property }) {
               ))}
             </div>
 
-            {isLand && (dimensions || property.length_street || property.length_depth) && (
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {isLand && (dimensions || property.length_street || property.length_depth || property.plot_number || property.parcel_number) && (
+              <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {dimensions && (
-                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-zinc-200 bg-white px-3.5 py-3">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-400">
-                      <Ruler className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                  <div className="flex flex-col items-start gap-1 rounded-2xl border border-dashed border-zinc-200 bg-white px-3 py-2.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-zinc-400">
+                      <Ruler className="w-3 h-3 shrink-0" style={{ color: AIRBNB }} />
                       الأبعاد
                     </span>
-                    <strong className="text-sm font-black text-zinc-900 whitespace-nowrap">{dimensions}</strong>
+                    <strong className="text-[13px] sm:text-sm font-black text-zinc-900">{dimensions}</strong>
                   </div>
                 )}
                 {property.length_street && (
-                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-zinc-200 bg-white px-3.5 py-3">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-400">
-                      <Ruler className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                  <div className="flex flex-col items-start gap-1 rounded-2xl border border-dashed border-zinc-200 bg-white px-3 py-2.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-zinc-400">
+                      <Ruler className="w-3 h-3 shrink-0" style={{ color: AIRBNB }} />
                       على الشارع
                     </span>
-                    <strong className="text-sm font-black text-zinc-900 whitespace-nowrap">{toEn(property.length_street)} م</strong>
+                    <strong className="text-[13px] sm:text-sm font-black text-zinc-900">{toEn(property.length_street)} م</strong>
                   </div>
                 )}
                 {property.length_depth && (
-                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-zinc-200 bg-white px-3.5 py-3">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-400">
-                      <Ruler className="w-3.5 h-3.5" style={{ color: AIRBNB }} />
+                  <div className="flex flex-col items-start gap-1 rounded-2xl border border-dashed border-zinc-200 bg-white px-3 py-2.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-zinc-400">
+                      <Ruler className="w-3 h-3 shrink-0" style={{ color: AIRBNB }} />
                       العمق
                     </span>
-                    <strong className="text-sm font-black text-zinc-900 whitespace-nowrap">{toEn(property.length_depth)} م</strong>
+                    <strong className="text-[13px] sm:text-sm font-black text-zinc-900">{toEn(property.length_depth)} م</strong>
+                  </div>
+                )}
+                {property.plot_number && (
+                  <div className="flex flex-col items-start gap-1 rounded-2xl border border-dashed border-zinc-200 bg-white px-3 py-2.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-zinc-400">
+                      <FileText className="w-3 h-3 shrink-0" style={{ color: AIRBNB }} />
+                      المخطط
+                    </span>
+                    <strong className="text-[13px] sm:text-sm font-black text-zinc-900">{toEn(property.plot_number)}</strong>
+                  </div>
+                )}
+                {property.parcel_number && (
+                  <div className="flex flex-col items-start gap-1 rounded-2xl border border-dashed border-zinc-200 bg-white px-3 py-2.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-zinc-400">
+                      <FileText className="w-3 h-3 shrink-0" style={{ color: AIRBNB }} />
+                      القطعة
+                    </span>
+                    <strong className="text-[13px] sm:text-sm font-black text-zinc-900">{toEn(property.parcel_number)}</strong>
                   </div>
                 )}
               </div>
