@@ -111,9 +111,9 @@ export default function PropertyDetail() {
   const isLand = property.type === 'أرض';
   const images = property.images?.length ? property.images : ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'];
   const priceText = property.price_on_request
-    ? 'السعر عند الطلب'
+    ? 'بانتظار العروض'
     : property.price_negotiable
-    ? 'السعر قابل للتفاوض'
+    ? 'على السوم'
     : formatPrice(property.price);
   const priceDetail = property.price_on_request || property.price_negotiable
     ? ''
