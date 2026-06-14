@@ -106,7 +106,7 @@ export default function GlassTheme({
         <div style={{ position: 'absolute', bottom: 48, left: 0, width: '100%', padding: 32, color: '#fff', zIndex: 10 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <span style={{ background: 'rgba(30,41,59,0.6)', backdropFilter: 'blur(12px)', padding: '6px 16px', borderRadius: 100, fontSize: 12, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid rgba(255,255,255,0.1)' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} /> متاح للحجز
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} /> {venue.hero_badge || 'متاح للحجز'}
             </span>
             {showRating && (
               <span style={{ background: 'rgba(30,41,59,0.6)', backdropFilter: 'blur(12px)', padding: '6px 16px', borderRadius: 100, fontSize: 12, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4, border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -114,7 +114,7 @@ export default function GlassTheme({
               </span>
             )}
           </div>
-          <h1 style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', fontWeight: 900, marginBottom: 12, lineHeight: 1.15, textShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>{venue.name}</h1>
+          <h1 style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', fontWeight: 900, marginBottom: 12, lineHeight: 1.15, textShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>{venue.hero_title || venue.name}</h1>
           {venue.city && (
             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
               <MapPin size={18} style={{ color: accent }} /> {venue.city}
@@ -257,6 +257,9 @@ export default function GlassTheme({
         <div style={{ position: 'absolute', top: -128, right: -128, width: 320, height: 320, background: `${accent}33`, borderRadius: '50%', filter: 'blur(100px)' }} />
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px', textAlign: 'center', position: 'relative', zIndex: 20 }}>
           <h2 style={{ fontSize: 30, fontWeight: 900, marginBottom: 24 }}>{venue.name}</h2>
+          {venue.footer_text && (
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 15, fontWeight: 500, lineHeight: 1.9, maxWidth: 560, margin: '0 auto 24px' }}>{venue.footer_text}</p>
+          )}
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 32 }}>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 700, marginTop: 8 }}>© 2026 جميع الحقوق محفوظة - عقار كلاود</p>
           </div>
