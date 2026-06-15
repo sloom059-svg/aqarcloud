@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Building, MapPin, Calendar, Maximize, Bath, BedDouble, Armchair, ChefHat, Sun, Diamond, Home, Crosshair, QrCode, Phone, MessageCircle, CheckCircle2, Car, Trees, ShieldCheck } from 'lucide-react';
+import { Building, MapPin, Calendar, Maximize, Bath, BedDouble, Armchair, ChefHat, Sun, Diamond, Home, Crosshair, QrCode, Phone, MessageCircle, CheckCircle2, Car, Trees, ShieldCheck, Download } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 export default function PropertyCardExport({ property, agent, onClose }) {
