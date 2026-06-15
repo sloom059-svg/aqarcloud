@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
@@ -384,12 +383,8 @@ export default function Dashboard() {
 
       <SiteFooter className="mt-4" />
 
-      {/* Export Dialog */}
-      <Dialog open={!!exportProperty} onOpenChange={() => setExportProperty(null)}>
-        <DialogContent className="max-w-md p-5 max-h-[92vh] overflow-y-auto bg-transparent border-0 shadow-none">
-          {exportProperty && <PropertyCardExport property={exportProperty} agent={user} onClose={() => setExportProperty(null)} />}
-        </DialogContent>
-      </Dialog>
+      {/* Export Overlay (المكوّن نفسه overlay كامل الشاشة) */}
+      {exportProperty && <PropertyCardExport property={exportProperty} agent={user} onClose={() => setExportProperty(null)} />}
     </div>
   );
 }
