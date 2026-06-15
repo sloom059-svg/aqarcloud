@@ -1,329 +1,301 @@
-import React, { useRef } from 'react';
-import { toast } from 'sonner';
-import {
-  MapPin, Maximize, Compass, CheckCircle2, Download, X, Building2,
-  Phone, Sofa, Home, FileText, CalendarClock, Car, Waves, Trees,
-  Utensils, Wind, DoorOpen, ShieldCheck, Wifi, Plug, Snowflake,
-  BedDouble, Bath, Layers, Ruler, MessageCircle, Sparkles,
-} from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import React, { useRef, useState } from 'react';
+import { toPng } from 'html-to-image';
+import { Button } from '@/components/ui/button';
+import { Building, MapPin, Calendar, Maximize, Bath, BedDouble, Armchair, ChefHat, Sun, Diamond, Home, Crosshair, QrCode, Phone, MessageCircle } from 'lucide-react';
+// Note: Assuming you have lucide-react installed for icons. 
+// If you prefer font-awesome as in the original HTML, you'll need to load it in your project.
 
-const AIRBNB = '#FF385C';
-const toEn = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
-const formatPrice = (p) => (p ? toEn(p) : '');
-const periodLabel = (p) => ({ سنوي: 'سنوياً', شهري: 'شهرياً', يومي: 'يومياً' }[p] || '');
+export default function PropertyCardExport({ propertyData }) {
+    const cardRef = useRef(null);
+    const [isExporting, setIsExporting] = useState(false);
+    const [exportedImage, setExportedImage] = useState(null);
 
-const getFeatureIcon = (feature = '') => {
-  if (feature.includes('موقف') || feature.includes('سيارة')) return Car;
-  if (feature.includes('مسبح')) return Waves;
-  if (feature.includes('حديقة') || feature.includes('أشجار') || feature.includes('نخيل') || feature.includes('حوش') || feature.includes('مزروعات') || feature.includes('مسطح')) return Trees;
-  if (feature.includes('مطبخ') || feature.includes('مطعم')) return Utensils;
-  if (feature.includes('تكييف')) return Wind;
-  if (feature.includes('تبريد') || feature.includes('ثلاجة')) return Snowflake;
-  if (feature.includes('مدخل') || feature.includes('بوابة') || feature.includes('واجهة') || feature.includes('زجاج')) return DoorOpen;
-  if (feature.includes('حارس') || feature.includes('أمن') || feature.includes('حراسة') || feature.includes('سور')) return ShieldCheck;
-  if (feature.includes('انترنت') || feature.includes('واي')) return Wifi;
-  if (feature.includes('كهرباء') || feature.includes('عداد') || feature.includes('مولد')) return Plug;
-  if (feature.includes('راقي') || feature.includes('مميز') || feature.includes('فاخر') || feature.includes('فرصة')) return Sparkles;
-  return CheckCircle2;
-};
+    // Default placeholder data if some props are missing
+    const data = {
+        title: propertyData?.title || 'فيلا فاخرة للإيجار',
+        location: propertyData?.location || 'الرياض - حي النرجس',
+        refId: propertyData?.refId || 'A-2024-1258',
+        price: propertyData?.price || '120,000',
+        area: propertyData?.area || '450',
+        age: propertyData?.age || '3 سنوات',
+        rooms: propertyData?.rooms || '5',
+        baths: propertyData?.baths || '6',
+        halls: propertyData?.halls || '2',
+        kitchens: propertyData?.kitchens || '1',
+        type: propertyData?.type || 'فيلا',
+        status: propertyData?.status || 'متاح',
+        license: propertyData?.license || '7200123456',
+        phone: propertyData?.phone || '050 123 4567',
+        social: propertyData?.social || 'mthaal.realestate',
+        // Placeholders for images
+        mainImage: propertyData?.mainImage || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        subImage1: propertyData?.subImage1 || 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        subImage2: propertyData?.subImage2 || 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+    };
 
-function SpecCell({ icon: Icon, label, value }) {
-  if (value === undefined || value === null || value === '') return null;
-  return (
-    <div className="spec-cell">
-      <div className="spec-ic"><Icon className="spec-ic-svg" /></div>
-      <div className="spec-label">{label}</div>
-      <div className="spec-value">{value}</div>
-    </div>
-  );
-}
+    const handleExport = async () => {
+        if (!cardRef.current) return;
+        
+        setIsExporting(true);
+        
+        try {
+            // Using html-to-image which generally handles RTL and text positioning better than html2canvas
+            const dataUrl = await toPng(cardRef.current, {
+                quality: 1,
+                pixelRatio: 2, // High resolution
+                cacheBust: true,
+                style: {
+                    transform: 'scale(1)', // Ensure no scaling issues during render
+                    transformOrigin: 'top left',
+                }
+            });
+            
+            setExportedImage(dataUrl);
+        } catch (error) {
+            console.error('Error exporting image:', error);
+            alert('حدث خطأ أثناء إنشاء الصورة. يرجى التأكد من أن الصور المستخدمة تدعم CORS.');
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
-function DetailRow({ label, value }) {
-  if (value === undefined || value === null || value === '') return null;
-  return (
-    <div className="detail-row">
-      <span className="detail-label">{label}</span>
-      <span className="detail-value">{value}</span>
-    </div>
-  );
-}
-
-export default function PropertyCardExport({ property, agent, onClose }) {
-  const cardRef = useRef(null);
-  if (!property) return null;
-
-  const isLand = property.type === 'أرض';
-  const isRent = property.listing_type === 'إيجار';
-  const officeName = agent?.office_name || agent?.full_name || 'مكتب عقاري';
-  const officeDesc = agent?.bio || 'خدمات عقارية متكاملة';
-  const phoneNum = agent?.phone || '';
-  const waNum = agent?.whatsapp || agent?.phone || '';
-  const snap = agent?.social?.snapchat || agent?.snapchat || '';
-  const officeLogo = agent?.office_logo_url || agent?.profile_image_url;
-  const location = [property.city, property.neighborhood].filter(Boolean).join(' - ');
-
-  const priceText = property.price_on_request
-    ? 'بانتظار العروض'
-    : property.price_negotiable
-    ? 'على السوم'
-    : `${formatPrice(property.price)}`;
-  const isNumericPrice = !property.price_on_request && !property.price_negotiable && property.price;
-  const priceLabel = isRent ? `إيجار ${periodLabel(property.rental_period) || 'سنوي'}` : 'السعر';
-
-  const dimensionText = property.length_street && property.length_depth
-    ? `${toEn(property.length_street)} × ${toEn(property.length_depth)} م`
-    : '';
-
-  const images = (property.images || []).filter(Boolean);
-  const mainImage = images[0];
-  const sideImages = images.slice(1, 4);
-
-  const features = (property.features || []).slice(0, 5);
-  const offerNo = property.offer_number || (property.id ? `A-${String(property.id).slice(0, 8)}` : '');
-
-  const specs = isLand
-    ? [
-        { icon: Maximize, label: 'المساحة', value: property.area ? `${toEn(property.area)} م²` : '' },
-        { icon: Ruler, label: 'عرض الشارع', value: property.street_width ? `${toEn(property.street_width)} م` : '' },
-        { icon: Compass, label: 'الواجهة', value: property.facade },
-        { icon: Building2, label: 'نوع الأرض', value: property.type },
-        { icon: Ruler, label: 'الأبعاد', value: dimensionText },
-        { icon: FileText, label: 'المخطط', value: property.plot_number },
-        { icon: FileText, label: 'القطعة', value: property.parcel_number },
-        { icon: Ruler, label: 'العمق', value: property.length_depth ? `${toEn(property.length_depth)} م` : '' },
-      ]
-    : [
-        { icon: Maximize, label: 'المساحة', value: property.area ? `${toEn(property.area)} م²` : '' },
-        { icon: Utensils, label: 'المطبخ', value: property.features?.some(f => f.includes('مطبخ')) ? 'نعم' : '' },
-        { icon: Sofa, label: 'الصالات', value: property.halls ? toEn(property.halls) : '' },
-        { icon: Bath, label: 'دورات المياه', value: property.bathrooms ? toEn(property.bathrooms) : '' },
-        { icon: BedDouble, label: 'عدد الغرف', value: property.bedrooms ? toEn(property.bedrooms) : '' },
-        { icon: CalendarClock, label: 'عمر العقار', value: property.property_age },
-        { icon: Car, label: 'مدخل سياره', value: property.features?.some(f => f.includes('مدخل سيارة') || f.includes('موقف')) ? 'نعم' : '' },
-        { icon: Home, label: 'ملحق', value: property.features?.some(f => f.includes('ملحق')) ? 'نعم' : '' },
-        { icon: Waves, label: 'مسبح', value: property.features?.some(f => f.includes('مسبح')) ? 'نعم' : '' },
-        { icon: Trees, label: 'حوش', value: property.features?.some(f => f.includes('حوش') || f.includes('حديقة')) ? 'نعم' : '' },
-        { icon: Layers, label: 'التأثيث', value: property.features?.some(f => f.includes('مفروش')) ? 'مفروشة' : 'غير مفروشة' },
-        { icon: Layers, label: 'عدد الأدوار', value: property.features?.some(f => f.includes('دور ثاني')) ? '2' : '' },
-      ];
-  const visibleSpecs = specs.filter(s => s.value !== undefined && s.value !== null && s.value !== '').slice(0, 12);
-
-  const downloadCard = async () => {
-    if (!cardRef.current) return;
-    try {
-      const html2canvas = (await import('html2canvas')).default;
-      await document.fonts?.ready?.catch?.(() => {});
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#f1f0ee',
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 860,
-        windowHeight: cardRef.current.scrollHeight,
-      });
-      const link = document.createElement('a');
-      link.download = `${property.title || 'property-card'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      toast.success('تم حفظ البطاقة بنجاح');
-      onClose?.();
-    } catch (e) {
-      console.error(e);
-      toast.error('تعذر حفظ البطاقة');
-    }
-  };
-
-  return (
-    <div className="w-full max-w-[860px] mx-auto flex flex-col items-center">
-      <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-        .ex-card, .ex-card * { font-family: 'Tajawal', sans-serif !important; box-sizing: border-box; }
-        .ex-card { width: 860px; background: #f1f0ee; padding: 30px; direction: rtl; }
-        .ex-inner { background: #faf9f7; border-radius: 28px; padding: 28px; }
-        .ex-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
-        .ex-head-side { display: flex; align-items: center; gap: 12px; }
-        .ex-office-name { font-size: 20px; font-weight: 900; color: #1a1a1a; line-height: 1.3; }
-        .ex-office-desc { font-size: 12px; font-weight: 600; color: #9a9a9a; }
-        .ex-logo { width: 58px; height: 58px; border-radius: 16px; object-fit: cover; border: 1px solid #eee; }
-        .ex-logo-ph { width: 58px; height: 58px; border-radius: 16px; background: #fff; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; color: ${AIRBNB}; }
-        .ex-title-wrap { text-align: center; flex: 1; }
-        .ex-title { font-size: 30px; font-weight: 900; color: #1a1a1a; line-height: 1.2; }
-        .ex-loc { font-size: 15px; font-weight: 700; color: #6b6b6b; margin-top: 4px; display: inline-flex; align-items: center; gap: 5px; }
-        .ex-loc svg { width: 16px; height: 16px; color: ${AIRBNB}; }
-        .ex-gallery { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
-        .ex-gallery.has-side { grid-template-columns: 2.1fr 1fr; }
-        .ex-main-img-wrap { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 4/3; background: #e8e6e3; }
-        .ex-main-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .ex-side { display: grid; grid-template-rows: repeat(3, 1fr); gap: 12px; }
-        .ex-side-img { width: 100%; height: 100%; object-fit: cover; border-radius: 18px; background: #e8e6e3; display: block; min-height: 90px; }
-        .ex-offer { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.95); border-radius: 14px; padding: 8px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .ex-offer-l { font-size: 9px; font-weight: 700; color: #9a9a9a; }
-        .ex-offer-v { font-size: 14px; font-weight: 900; color: ${AIRBNB}; }
-        .ex-price-tag { position: absolute; bottom: 16px; right: 16px; background: rgba(255,255,255,0.96); border-radius: 18px; padding: 14px 22px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); text-align: center; }
-        .ex-price-l { font-size: 12px; font-weight: 700; color: #9a9a9a; display: flex; align-items: center; gap: 5px; justify-content: center; }
-        .ex-price-l svg { width: 13px; height: 13px; }
-        .ex-price-v { font-size: 30px; font-weight: 900; color: #1a1a1a; line-height: 1.1; margin: 2px 0; }
-        .ex-price-c { font-size: 12px; font-weight: 700; color: #6b6b6b; }
-        .ex-section-t { text-align: center; font-size: 17px; font-weight: 900; color: #444; margin: 26px 0 16px; position: relative; }
-        .ex-section-t::before, .ex-section-t::after { content: ''; position: absolute; top: 50%; width: 26%; height: 1px; background: #e2e0dc; }
-        .ex-section-t::before { right: 0; } .ex-section-t::after { left: 0; }
-        .ex-specs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; background: #fff; border-radius: 18px; overflow: hidden; }
-        .spec-cell { padding: 16px 6px; text-align: center; border-left: 1px solid #f0eeea; border-bottom: 1px solid #f0eeea; }
-        .spec-cell:nth-child(6n) { border-left: none; }
-        .spec-ic { display: flex; justify-content: center; margin-bottom: 8px; }
-        .spec-ic-svg { width: 22px; height: 22px; color: #b8b8b8; stroke-width: 1.6; }
-        .spec-label { font-size: 11px; font-weight: 600; color: #9a9a9a; margin-bottom: 3px; }
-        .spec-value { font-size: 14px; font-weight: 900; color: #1a1a1a; }
-        .ex-feats { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .ex-feat { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 150px; padding: 8px; }
-        .ex-feat-ic { width: 52px; height: 52px; border-radius: 50%; background: #f3f1ee; display: flex; align-items: center; justify-content: center; }
-        .ex-feat-ic svg { width: 22px; height: 22px; color: #8a8a8a; stroke-width: 1.6; }
-        .ex-feat-l { font-size: 12px; font-weight: 700; color: #6b6b6b; text-align: center; }
-        .ex-foot { display: grid; grid-template-columns: 1.1fr 0.9fr 1.1fr; gap: 14px; margin-top: 26px; }
-        .ex-fbox { background: #f3f1ee; border-radius: 18px; padding: 18px; }
-        .ex-fbox-t { font-size: 14px; font-weight: 900; color: #1a1a1a; margin-bottom: 14px; text-align: center; }
-        .ex-contact-row { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; font-size: 14px; font-weight: 700; color: #333; direction: ltr; justify-content: flex-end; }
-        .ex-contact-row svg { width: 17px; height: 17px; color: ${AIRBNB}; flex-shrink: 0; }
-        .ex-qr-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .ex-qr-label { font-size: 11px; font-weight: 700; color: #9a9a9a; margin-top: 10px; text-align: center; line-height: 1.5; }
-        .detail-row { display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid #e8e6e2; font-size: 12.5px; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: 600; color: #9a9a9a; }
-        .detail-value { font-weight: 800; color: #1a1a1a; }
-        .ex-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; padding-top: 16px; border-top: 1px solid #e6e4e0; }
-        .ex-bottom-l { font-size: 12px; font-weight: 700; color: #9a9a9a; display: flex; align-items: center; gap: 6px; }
-        .ex-bottom-l svg { width: 15px; height: 15px; color: ${AIRBNB}; }
-      `}} />
-
-      <div ref={cardRef} className="ex-card">
-        <div className="ex-inner">
-
-          <div className="ex-head">
-            <div className="ex-head-side">
-              {officeLogo ? (
-                <img src={officeLogo} alt="" className="ex-logo" crossOrigin="anonymous" />
-              ) : (
-                <div className="ex-logo-ph"><Building2 style={{ width: 28, height: 28 }} /></div>
-              )}
+    return (
+        <div className="flex flex-col items-center w-full max-w-4xl mx-auto font-[Cairo]">
+            
+            <div className="w-full flex justify-end mb-4">
+                 <Button 
+                    onClick={handleExport} 
+                    disabled={isExporting}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 flex items-center gap-2"
+                >
+                    {isExporting ? 'جاري الإنشاء...' : 'حفظ كصورة (تصدير البطاقة)'}
+                </Button>
             </div>
-            <div className="ex-title-wrap">
-              <div className="ex-title">{property.title}</div>
-              {location && <div className="ex-loc"><MapPin />{location}</div>}
-            </div>
-            <div className="ex-head-side" style={{ flexDirection: 'column', alignItems: 'flex-start', textAlign: 'right' }}>
-              <div className="ex-office-name">{officeName}</div>
-              <div className="ex-office-desc">{officeDesc}</div>
-            </div>
-          </div>
 
-          <div className={`ex-gallery ${sideImages.length ? 'has-side' : ''}`}>
-            <div className="ex-main-img-wrap">
-              {mainImage && <img src={mainImage} alt="" className="ex-main-img" crossOrigin="anonymous" />}
-              {offerNo && (
-                <div className="ex-offer">
-                  <div className="ex-offer-l">رقم العرض</div>
-                  <div className="ex-offer-v">{offerNo}</div>
-                </div>
-              )}
-              <div className="ex-price-tag">
-                <div className="ex-price-l"><CalendarClock />{priceLabel}</div>
-                <div className="ex-price-v">{priceText}</div>
-                {isNumericPrice && <div className="ex-price-c">ريال سعودي</div>}
-              </div>
-            </div>
-            {sideImages.length > 0 && (
-              <div className="ex-side">
-                {sideImages.map((img, i) => (
-                  <img key={i} src={img} alt="" className="ex-side-img" crossOrigin="anonymous" />
-                ))}
-              </div>
-            )}
-          </div>
+            {/* The wrapper that will be exported */}
+            <div className="bg-gray-200 p-8 rounded-xl w-full flex justify-center overflow-x-auto">
+                <div 
+                    ref={cardRef}
+                    id="card-to-export"
+                    // Fixed width is crucial for consistent image generation without text overlap
+                    className="bg-white w-[800px] min-w-[800px] rounded-2xl shadow-xl overflow-hidden pb-8 relative"
+                    dir="rtl"
+                >
+                    {}
+                    <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                        {/* Agency Logo */}
+                        <div className="flex flex-col items-center">
+                            <div className="w-12 h-12 border-2 border-gray-800 rounded-lg flex items-center justify-center mb-1">
+                                <Building className="w-6 h-6 text-gray-800" />
+                            </div>
+                            <span className="text-sm font-bold text-gray-800">مكتب المثال العقاري</span>
+                            <span className="text-[10px] text-gray-500">خدمات عقارية متكاملة</span>
+                        </div>
+                        
+                        {/* Title & Location */}
+                        <div className="text-center flex-grow">
+                            <h1 className="text-3xl font-bold text-gray-800 mb-2 leading-tight">{data.title}</h1>
+                            <div className="flex items-center justify-center text-gray-600 gap-2">
+                                <span className="text-lg">{data.location}</span>
+                                <MapPin className="w-5 h-5 text-gray-400" />
+                            </div>
+                        </div>
 
-          {visibleSpecs.length > 0 && (
-            <>
-              <div className="ex-section-t">مواصفات العقار</div>
-              <div className="ex-specs">
-                {visibleSpecs.map((s, i) => (
-                  <SpecCell key={i} icon={s.icon} label={s.label} value={s.value} />
-                ))}
-              </div>
-            </>
-          )}
-
-          {features.length > 0 && (
-            <>
-              <div className="ex-section-t">مميزات العقار</div>
-              <div className="ex-feats">
-                {features.map((f, i) => {
-                  const Icon = getFeatureIcon(f);
-                  return (
-                    <div key={i} className="ex-feat">
-                      <div className="ex-feat-ic"><Icon /></div>
-                      <div className="ex-feat-l">{f}</div>
+                        {/* Platform Logo */}
+                        <div className="flex flex-col items-center gap-1 text-red-500 font-bold text-lg">
+                            {/* Placeholder for airbnb logo or similar */}
+                            <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs">منصة العرض</span>
+                        </div>
                     </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
 
-          <div className="ex-foot">
-            <div className="ex-fbox">
-              <div className="ex-fbox-t">للتواصل والاستفسار</div>
-              {phoneNum && <div className="ex-contact-row"><span>{phoneNum}</span><Phone /></div>}
-              {waNum && <div className="ex-contact-row"><span>{waNum}</span><MessageCircle /></div>}
-              {snap && <div className="ex-contact-row"><span>{snap}</span><Compass /></div>}
+                    {}
+                    <div className="relative p-6">
+                        {/* Floating Badges */}
+                        <div className="absolute top-10 right-10 z-10 bg-white/90 backdrop-blur rounded-xl p-3 shadow-lg border border-gray-100 text-center w-32">
+                            <div className="text-xs text-gray-500 mb-1">رقم العرض</div>
+                            <div className="font-bold text-gray-800 break-words">{data.refId}</div>
+                        </div>
+
+                        <div className="absolute bottom-10 right-10 z-10 bg-white/90 backdrop-blur rounded-xl p-4 shadow-lg border border-gray-100 text-center w-40">
+                            <div className="flex items-center justify-center gap-2 text-gray-600 mb-2 border-b pb-2">
+                                <span className="text-sm">السعر المعروض</span>
+                                <Calendar className="w-4 h-4 text-gray-400" />
+                            </div>
+                            <div className="text-3xl font-bold text-blue-900 mb-1 leading-none">{data.price}</div>
+                            <div className="text-sm text-gray-600">ريال سعودي</div>
+                        </div>
+
+                        {/* Main Grid */}
+                        <div className="grid grid-cols-3 gap-4 h-[400px]">
+                            {/* Main Large Image */}
+                            <div className="col-span-2 row-span-2 rounded-xl overflow-hidden shadow-sm relative">
+                                {/* Using img tags with crossOrigin="anonymous" is crucial if loading from external domains */}
+                                <img src={data.mainImage} alt="Main Property" crossOrigin="anonymous" className="w-full h-full object-cover" />
+                            </div>
+                            {/* Side Images */}
+                            <div className="rounded-xl overflow-hidden shadow-sm relative">
+                                <img src={data.subImage1} alt="Interior 1" crossOrigin="anonymous" className="w-full h-full object-cover" />
+                            </div>
+                            <div className="rounded-xl overflow-hidden shadow-sm relative">
+                                <img src={data.subImage2} alt="Interior 2" crossOrigin="anonymous" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {}
+                    <div className="px-8 mt-4">
+                        <div className="flex items-center justify-center mb-6">
+                            <div className="h-px bg-gray-200 flex-grow"></div>
+                            <span className="px-4 text-gray-600 font-bold text-lg bg-white">مواصفات العقار</span>
+                            <div className="h-px bg-gray-200 flex-grow"></div>
+                        </div>
+
+                        <div className="grid grid-cols-6 gap-4 text-center">
+                            <div className="flex flex-col items-center">
+                                <div className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-lg mb-2 text-gray-600"><Maximize className="w-5 h-5"/></div>
+                                <span className="text-xs text-gray-500 mb-1">المساحة</span>
+                                <span className="font-bold text-sm text-gray-800">{data.area} م²</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <div className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-lg mb-2 text-gray-600"><Calendar className="w-5 h-5"/></div>
+                                <span className="text-xs text-gray-500 mb-1">عمر العقار</span>
+                                <span className="font-bold text-sm text-gray-800">{data.age}</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <div className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-lg mb-2 text-gray-600"><BedDouble className="w-5 h-5"/></div>
+                                <span className="text-xs text-gray-500 mb-1">عدد الغرف</span>
+                                <span className="font-bold text-sm text-gray-800">{data.rooms}</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <div className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-lg mb-2 text-gray-600"><Bath className="w-5 h-5"/></div>
+                                <span className="text-xs text-gray-500 mb-1">دورات المياه</span>
+                                <span className="font-bold text-sm text-gray-800">{data.baths}</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <div className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-lg mb-2 text-gray-600"><Armchair className="w-5 h-5"/></div>
+                                <span className="text-xs text-gray-500 mb-1">الصالات</span>
+                                <span className="font-bold text-sm text-gray-800">{data.halls}</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <div className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-lg mb-2 text-gray-600"><ChefHat className="w-5 h-5"/></div>
+                                <span className="text-xs text-gray-500 mb-1">المطبخ</span>
+                                <span className="font-bold text-sm text-gray-800">{data.kitchens}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {}
+                    <div className="px-8 mt-8">
+                        <div className="flex items-center justify-center mb-6">
+                            <div className="h-px bg-gray-200 flex-grow"></div>
+                            <span className="px-4 text-gray-600 font-bold text-lg bg-white">مميزات العقار</span>
+                            <div className="h-px bg-gray-200 flex-grow"></div>
+                        </div>
+
+                        <div className="flex justify-around text-center px-10">
+                            <div className="flex flex-col items-center">
+                                <Sun className="w-6 h-6 text-gray-400 mb-2" />
+                                <span className="text-sm text-gray-600">إضاءة طبيعية</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <Diamond className="w-6 h-6 text-gray-400 mb-2" />
+                                <span className="text-sm text-gray-600">تشطيب فاخر</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <Home className="w-6 h-6 text-gray-400 mb-2" />
+                                <span className="text-sm text-gray-600">حي راقي وهادئ</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <Crosshair className="w-6 h-6 text-gray-400 mb-2" />
+                                <span className="text-sm text-gray-600">موقع مميز</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {}
+                    <div className="px-8 mt-10 grid grid-cols-3 gap-6">
+                        {/* Additional Details Table */}
+                        <div className="col-span-1 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            <h4 className="text-center font-bold text-gray-700 mb-3 border-b pb-2">تفاصيل إضافية</h4>
+                            <table className="w-full text-sm text-right">
+                                <tbody>
+                                    <tr className="border-b border-gray-200">
+                                        <td className="py-1 text-gray-500 whitespace-nowrap">نوع العقار</td>
+                                        <td className="py-1 font-semibold text-gray-800 text-left">{data.type}</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-200">
+                                        <td className="py-1 text-gray-500 whitespace-nowrap">حالة العقار</td>
+                                        <td className="py-1 font-semibold text-gray-800 text-left">{data.status}</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="py-1 text-gray-500 whitespace-nowrap">رقم الإعلان</td>
+                                        <td className="py-1 font-semibold text-gray-800 text-left text-xs">{data.license}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* QR Code Placeholder */}
+                        <div className="col-span-1 flex flex-col items-center justify-center">
+                            <div className="w-24 h-24 bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg mb-2">
+                                <QrCode className="w-10 h-10 text-gray-400" />
+                            </div>
+                            <span className="text-[10px] text-gray-500">امسح الكود للوصول للموقع</span>
+                        </div>
+
+                        {/* Contact Info */}
+                        <div className="col-span-1 bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col justify-center">
+                            <h4 className="text-center font-bold text-gray-700 mb-3 border-b pb-2">للتواصل والاستفسار</h4>
+                            <div className="space-y-3 text-sm">
+                                <div className="flex items-center gap-3" dir="ltr">
+                                    <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                    <span className="font-semibold text-gray-800 flex-grow text-right truncate">{data.phone}</span>
+                                </div>
+                                <div className="flex items-center gap-3" dir="ltr">
+                                    <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                    <span className="font-semibold text-gray-800 flex-grow text-right truncate">{data.phone}</span>
+                                </div>
+                                <div className="flex items-center gap-3" dir="ltr">
+                                    <span className="text-yellow-400 w-4 font-bold text-center flex-shrink-0">@</span>
+                                    <span className="font-semibold text-gray-800 flex-grow text-right truncate">{data.social}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="ex-fbox ex-qr-box">
-              {property.maps_url ? (
-                <>
-                  <QRCodeSVG value={property.maps_url} size={110} bgColor="#f3f1ee" fgColor="#1a1a1a" level="M" />
-                  <div className="ex-qr-label">امسح الكود للوصول للموقع</div>
-                </>
-              ) : (
-                <>
-                  <QRCodeSVG value={typeof window !== 'undefined' ? window.location.href : 'https://aqacloud.com'} size={110} bgColor="#f3f1ee" fgColor="#1a1a1a" level="M" />
-                  <div className="ex-qr-label">امسح الكود لعرض العقار</div>
-                </>
-              )}
-            </div>
-
-            <div className="ex-fbox">
-              <div className="ex-fbox-t">تفاصيل إضافية</div>
-              <DetailRow label="نوع العقار" value={property.type} />
-              <DetailRow label="حالة العقار" value={property.status || 'متاح'} />
-              <DetailRow label={priceLabel} value={isNumericPrice ? `${priceText} ريال` : priceText} />
-              <DetailRow label="رقم رخصة الإعلان" value={property.ad_license || agent?.license_number} />
-              <DetailRow label="تاريخ النشر" value={property.created_at ? new Date(property.created_at).toLocaleDateString('en-GB') : ''} />
-              <DetailRow label="قابل للتفاوض" value={property.price_negotiable ? 'نعم' : 'لا'} />
-            </div>
-          </div>
-
-          <div className="ex-bottom">
-            <div className="ex-bottom-l"><ShieldCheck />موثوقون في خدمتكم</div>
-            <div className="ex-bottom-l">كل العروض العقارية بين يديك<Home /></div>
-          </div>
+            {}
+            {exportedImage && (
+                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white p-6 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+                        <div className="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 className="text-xl font-bold">تم إنشاء الصورة بنجاح!</h3>
+                            <button 
+                                onClick={() => setExportedImage(null)}
+                                className="text-red-500 hover:bg-red-50 p-2 rounded-full transition font-bold"
+                            >
+                                إغلاق
+                            </button>
+                        </div>
+                        
+                        <div className="flex-grow overflow-auto border rounded-lg bg-gray-100 flex items-center justify-center p-4">
+                            <img src={exportedImage} alt="Exported Property Card" className="shadow-lg rounded max-w-full h-auto" />
+                        </div>
+                        
+                        <div className="mt-6 flex justify-center gap-4">
+                            <a 
+                                href={exportedImage} 
+                                download={`property_${data.refId}.png`} 
+                                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-8 rounded shadow transition flex items-center gap-2"
+                            >
+                                تحميل الصورة
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
-      </div>
-
-      <div className="flex gap-3 mt-5 w-full max-w-[470px]">
-        <button onClick={downloadCard}
-          className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-zinc-950 text-white py-4 font-black text-sm transition-all hover:bg-black">
-          <Download className="w-5 h-5" /> تصدير البطاقة كصورة
-        </button>
-        {onClose && (
-          <button onClick={onClose}
-            className="px-5 rounded-2xl bg-zinc-100 text-zinc-700 font-black text-sm transition-all hover:bg-zinc-200">
-            <X className="w-5 h-5" />
-          </button>
-        )}
-      </div>
-    </div>
-  );
+    );
 }
