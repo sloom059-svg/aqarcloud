@@ -416,7 +416,7 @@ export default function AgentProfile() {
                 {agent.license_number && (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF8F8] border border-[#FF385C]/15 px-3 py-2 text-[12px] font-black text-zinc-600 max-w-full">
                     <BadgeCheck className="w-4 h-4 flex-shrink-0" style={{ color: AIRBNB }} />
-                    <span className="whitespace-nowrap">رخصة موثوقة:</span>
+                    <span className="whitespace-nowrap">رخصة موثوق:</span>
                     <span dir="ltr" className="truncate">{agent.license_number}</span>
                   </span>
                 )}
