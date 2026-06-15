@@ -207,7 +207,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
             </div>
 
             {/* شبكة الصور */}
-            <div className="grid gap-3 h-[380px]" style={{ gridTemplateColumns: subImage1 || subImage2 ? '2fr 1fr' : '1fr' }}>
+            <div className="grid gap-3 h-[260px]" style={{ gridTemplateColumns: subImage1 || subImage2 ? '2fr 1fr' : '1fr' }}>
               {/* الصورة الرئيسية */}
               <div className="rounded-xl overflow-hidden bg-gray-100 h-full">
                 {mainImage
