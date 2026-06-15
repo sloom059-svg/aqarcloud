@@ -21,9 +21,8 @@ export default function PropertyCardExport({ property, agent, onClose }) {
         agencyName: agent?.office_name || 'مكتب عقاري',
         agencyLogo: agent?.office_logo_url || agent?.profile_image_url || null,
         
-        mainImage: property?.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        subImage1: property?.images?.[1] || 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        subImage2: property?.images?.[2] || 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        // جلب الصور الفعلية فقط (وإذا لم يوجد أي صورة، نضع صورة واحدة افتراضية)
+        propertyImages: property?.images?.length > 0 ? property.images : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'],
         
         features: property?.features || property?.amenities || []
     };
@@ -57,6 +56,16 @@ export default function PropertyCardExport({ property, agent, onClose }) {
         if (name.includes('حراس') || name.includes('أمن')) return <ShieldCheck className="w-6 h-6 text-gray-400 mb-2" />;
         return <CheckCircle2 className="w-6 h-6 text-gray-400 mb-2" />;
     };
+
+    // دالة مساعدة لعرض الصورة بدون تمغيط (مع خلفية ضبابية أنيقة تملأ الفراغ)
+    const renderImageBlock = (src, className = "") => (
+        <div className={`rounded-xl overflow-hidden shadow-sm relative bg-gray-900 border border-gray-100 ${className}`}>
+            {/* خلفية ضبابية تملأ الفراغ */}
+            <img src={src} crossOrigin="anonymous" className="absolute inset-0 w-full h-full object-cover opacity-50 blur-xl scale-110" alt="blur" />
+            {/* الصورة الفعلية مع object-contain لعدم التمغيط */}
+            <img src={src} crossOrigin="anonymous" className="relative z-10 w-full h-full object-contain" alt="Property" />
+        </div>
+    );
 
     const handleExport = async () => {
         if (!cardRef.current) return;
@@ -146,16 +155,26 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                             {property?.price && <div className="text-sm text-gray-500 font-medium">ريال سعودي</div>}
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4 h-[400px]">
-                            <div className="col-span-2 row-span-2 rounded-xl overflow-hidden shadow-sm relative bg-gray-50 border border-gray-100">
-                                <img src={data.mainImage} alt="Main Property" crossOrigin="anonymous" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="rounded-xl overflow-hidden shadow-sm relative bg-gray-50 border border-gray-100">
-                                <img src={data.subImage1} alt="Interior 1" crossOrigin="anonymous" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="rounded-xl overflow-hidden shadow-sm relative bg-gray-50 border border-gray-100">
-                                <img src={data.subImage2} alt="Interior 2" crossOrigin="anonymous" className="w-full h-full object-cover" />
-                            </div>
+                        {/* شبكة الصور الديناميكية بناءً على عدد الصور */}
+                        <div className="h-[400px]">
+                            {data.propertyImages.length === 1 && (
+                                <div className="w-full h-full">
+                                    {renderImageBlock(data.propertyImages[0], "w-full h-full")}
+                                </div>
+                            )}
+                            {data.propertyImages.length === 2 && (
+                                <div className="grid grid-cols-2 gap-4 h-full">
+                                    {renderImageBlock(data.propertyImages[0], "w-full h-full")}
+                                    {renderImageBlock(data.propertyImages[1], "w-full h-full")}
+                                </div>
+                            )}
+                            {data.propertyImages.length >= 3 && (
+                                <div className="grid grid-cols-3 gap-4 h-full">
+                                    {renderImageBlock(data.propertyImages[0], "col-span-2 row-span-2 w-full h-full")}
+                                    {renderImageBlock(data.propertyImages[1], "w-full h-full")}
+                                    {renderImageBlock(data.propertyImages[2], "w-full h-full")}
+                                </div>
+                            )}
                         </div>
                     </div>
 
