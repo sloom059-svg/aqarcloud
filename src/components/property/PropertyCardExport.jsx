@@ -82,10 +82,17 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                 });
             }
 
+            // انتظار تحميل الخطوط بالكامل قبل التصوير (يمنع تلاصق الحروف العربية)
+            if (document.fonts && document.fonts.ready) {
+                try { await document.fonts.ready; } catch (_) {}
+            }
+            await new Promise(r => setTimeout(r, 300));
+
             const canvas = await window.html2canvas(cardRef.current, {
                 scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff',
+                letterRendering: true,
                 onclone: (clonedDoc) => {
                     const element = clonedDoc.getElementById('card-to-export');
                     if (element) {
@@ -105,7 +112,12 @@ export default function PropertyCardExport({ property, agent, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 z-[200] bg-zinc-900/90 backdrop-blur-sm overflow-auto flex flex-col items-center py-6 px-4" style={{ fontFamily: "'Cairo', 'Tajawal', sans-serif" }}>
+        <div className="fixed inset-0 z-[200] bg-zinc-900/90 backdrop-blur-sm overflow-auto flex flex-col items-center py-6 px-4" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+            {/* حقن خط Tajawal لضمان توفّره أثناء التصدير */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+                #card-to-export, #card-to-export * { font-family: 'Tajawal', sans-serif !important; }
+            `}} />
 
             {/* شريط الأزرار العلوي الثابت */}
             <div className="sticky top-0 z-50 flex items-center gap-3 bg-white/95 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-zinc-200 mb-6">
