@@ -71,37 +71,41 @@ export default function PropertyCardExport({ property, agent, onClose }) {
         if (!cardRef.current) return;
         setIsExporting(true);
         try {
-            if (!window.html2canvas) {
+            // تحميل مكتبة html-to-image (تتعامل مع النص العربي بشكل صحيح عبر SVG)
+            if (!window.htmlToImage) {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
-                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                    script.crossOrigin = 'anonymous';
-                    script.onload = () => resolve(window.html2canvas);
-                    script.onerror = () => reject(new Error('Failed to load html2canvas'));
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+                    script.onload = () => resolve(window.htmlToImage);
+                    script.onerror = () => reject(new Error('Failed to load html-to-image'));
                     document.head.appendChild(script);
                 });
             }
 
-            // انتظار تحميل الخطوط بالكامل قبل التصوير (يمنع تلاصق الحروف العربية)
+            // انتظار تحميل الخطوط بالكامل قبل التصوير
             if (document.fonts && document.fonts.ready) {
                 try { await document.fonts.ready; } catch (_) {}
             }
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, 350));
 
-            const canvas = await window.html2canvas(cardRef.current, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                letterRendering: true,
-                onclone: (clonedDoc) => {
-                    const element = clonedDoc.getElementById('card-to-export');
-                    if (element) {
-                        element.style.transform = 'scale(1)';
-                    }
-                }
-            });
+            const node = cardRef.current;
+            // إلغاء التصغير مؤقتاً ليُصوَّر بالحجم الكامل ثم إرجاعه
+            const scaleWrap = node.closest('.ex-preview-scale');
+            const prevZoom = scaleWrap ? scaleWrap.style.zoom : '';
+            const prevTransform = scaleWrap ? scaleWrap.style.transform : '';
+            if (scaleWrap) { scaleWrap.style.zoom = '1'; scaleWrap.style.transform = 'none'; }
+            await new Promise(r => setTimeout(r, 50));
 
-            const dataUrl = canvas.toDataURL('image/png');
+            let dataUrl;
+            try {
+                dataUrl = await window.htmlToImage.toPng(node, {
+                    pixelRatio: 2,
+                    backgroundColor: '#ffffff',
+                    cacheBust: true,
+                });
+            } finally {
+                if (scaleWrap) { scaleWrap.style.zoom = prevZoom; scaleWrap.style.transform = prevTransform; }
+            }
             setExportedImage(dataUrl);
         } catch (error) {
             console.error('Error exporting image:', error);
