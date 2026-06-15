@@ -98,28 +98,12 @@ export default function PropertyCardExport({ property, agent, onClose }) {
     return (
         <div className="flex flex-col items-center w-full max-w-4xl mx-auto font-[Cairo]">
             
-            <div className="w-full flex justify-between items-center mb-4">
-                <Button 
-                    variant="outline"
-                    onClick={onClose}
-                    className="text-gray-500 hover:text-gray-800 font-bold"
-                >
-                    إلغاء
-                </Button>
-                <Button 
-                    onClick={handleExport} 
-                    disabled={isExporting}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 flex items-center gap-2"
-                >
-                    {isExporting ? 'جاري الإنشاء...' : 'حفظ كصورة (تصدير البطاقة)'}
-                </Button>
-            </div>
-
-            <div className="bg-gray-200 p-8 rounded-xl w-full flex justify-center overflow-x-auto">
+            {/* The wrapper that will be exported (Hidden from view while configuring) */}
+            <div className="w-full overflow-x-auto rounded-xl">
                 <div 
                     ref={cardRef}
                     id="card-to-export"
-                    className="bg-white w-[800px] min-w-[800px] rounded-2xl shadow-xl overflow-hidden pb-8 relative"
+                    className="bg-white w-[800px] min-w-[800px] rounded-2xl shadow-xl overflow-hidden pb-8 relative mx-auto"
                     dir="rtl"
                 >
                     {/* Header */}
@@ -137,7 +121,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                         </div>
                         
                         <div className="text-center flex-grow px-4">
-                            <h1 className="text-3xl font-bold text-gray-800 mb-2 pb-2">{data.title}</h1>
+                            <h1 className="text-3xl font-bold text-gray-800 mb-2 pb-2 leading-tight">{data.title}</h1>
                             <div className="flex items-center justify-center text-gray-500 gap-2">
                                 <span className="text-lg font-medium">{data.location}</span>
                                 <MapPin className="w-5 h-5 text-gray-400" />
@@ -292,52 +276,79 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                             <span className="text-[11px] text-gray-500 font-medium">امسح الكود للوصول للموقع</span>
                         </div>
 
-                        <div className="col-span-1 bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col justify-center">
-                            <h4 className="text-center font-bold text-gray-600 mb-3 border-b pb-2">للتواصل والاستفسار</h4>
-                            <div className="space-y-4 text-sm w-full">
-                                <div className="flex items-center gap-3 w-full" dir="ltr">
-                                    <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                    <span className="font-bold text-gray-800 w-full text-right break-all">{data.phone}</span>
+                        <div className="col-span-1 bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col justify-center items-center text-center">
+                            <h4 className="font-bold text-gray-600 mb-4 border-b pb-2 w-full">للتواصل والاستفسار</h4>
+                            
+                            {/* Contact Info (Modified to be side-by-side icons and large text) */}
+                            <div className="flex flex-col items-center gap-3 w-full">
+                                <div className="flex items-center justify-center gap-3 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 w-full">
+                                    <div className="flex gap-2 text-green-500 bg-green-50 p-1.5 rounded-lg">
+                                        <Phone className="w-5 h-5" />
+                                        <MessageCircle className="w-5 h-5" />
+                                    </div>
+                                    <span className="font-bold text-gray-800 text-lg tracking-wider" dir="ltr">{data.phone}</span>
                                 </div>
-                                <div className="flex items-center gap-3 w-full" dir="ltr">
-                                    <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                    <span className="font-bold text-gray-800 w-full text-right break-all">{data.phone}</span>
-                                </div>
-                                <div className="flex items-center gap-3 w-full" dir="ltr">
-                                    <span className="text-yellow-500 w-4 font-black text-center flex-shrink-0">@</span>
-                                    <span className="font-bold text-gray-800 w-full text-right break-all leading-tight">{data.social}</span>
-                                </div>
+                                
+                                {data.social && data.social !== 'غير متوفر' && (
+                                    <div className="flex items-center justify-center gap-2 text-sm">
+                                        <span className="text-yellow-500 font-black">@</span>
+                                        <span className="font-bold text-gray-600">{data.social}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Export Modal */}
-            {exportedImage && (
-                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white p-5 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col">
-                        <div className="flex justify-between items-center mb-3 border-b pb-3 flex-shrink-0">
-                            <h3 className="text-lg font-bold text-gray-800">تم إنشاء الصورة بنجاح!</h3>
+            {/* Export Modal (The actual modal seen by user after processing) */}
+            {!exportedImage ? (
+                <div className="flex flex-col items-center w-full mt-4">
+                    <Button 
+                        onClick={handleExport} 
+                        disabled={isExporting}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-2xl shadow-lg transition duration-300 flex items-center gap-3 text-lg w-full max-w-sm"
+                    >
+                        {isExporting ? 'جاري تجهيز الصورة...' : 'معاينة وتصدير البطاقة'}
+                    </Button>
+                    <Button 
+                        variant="ghost"
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-800 font-bold mt-2"
+                    >
+                        إلغاء
+                    </Button>
+                </div>
+            ) : (
+                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 sm:p-6">
+                    <div className="bg-white p-4 sm:p-6 rounded-[2rem] w-full max-w-lg flex flex-col shadow-2xl">
+                        
+                        <div className="flex justify-between items-center mb-4 sm:mb-6 flex-shrink-0 px-2">
+                            <h3 className="text-xl font-black text-gray-800">الصورة جاهزة!</h3>
                             <button 
                                 onClick={() => setExportedImage(null)}
-                                className="text-gray-500 hover:bg-gray-100 p-2 rounded-full transition font-bold"
+                                className="text-gray-400 hover:text-rose-500 hover:bg-rose-50 p-2 rounded-full transition font-bold"
                             >
                                 إغلاق
                             </button>
                         </div>
                         
-                        <div className="flex-grow min-h-0 overflow-hidden border border-gray-200 rounded-2xl bg-gray-50 flex items-center justify-center p-3 relative">
-                            <img src={exportedImage} alt="Exported Property Card" className="shadow-sm rounded-xl max-w-full max-h-full object-contain" />
+                        {/* Smaller thumbnail preview container */}
+                        <div className="flex-grow w-full max-h-[50vh] sm:max-h-[60vh] overflow-hidden border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 flex items-center justify-center p-2 sm:p-4 relative">
+                            <img 
+                                src={exportedImage} 
+                                alt="Exported Property Card" 
+                                className="shadow-md rounded-xl w-auto h-full max-w-full object-contain" 
+                            />
                         </div>
                         
-                        <div className="mt-4 flex justify-center flex-shrink-0">
+                        <div className="mt-4 sm:mt-6 flex justify-center flex-shrink-0">
                             <a 
                                 href={exportedImage} 
                                 download={`property_${data.refId}.png`} 
-                                className="bg-zinc-900 w-full justify-center hover:bg-black text-white font-bold py-3.5 px-8 rounded-2xl shadow-md transition flex items-center gap-2"
+                                className="bg-zinc-900 w-full justify-center hover:bg-black text-white font-black py-4 px-8 rounded-2xl shadow-xl transition flex items-center gap-3 text-lg"
                             >
-                                <Download className="w-5 h-5"/>
+                                <Download className="w-6 h-6"/>
                                 تحميل الصورة لجهازك
                             </a>
                         </div>
