@@ -4,7 +4,7 @@ import {
   Building, MapPin, Calendar, Maximize, Bath, BedDouble, Armchair,
   ChefHat, Sun, Diamond, Home, Crosshair, Phone, MessageCircle,
   Download, X, Car, Waves, Trees, ShieldCheck, Wifi, Snowflake,
-  CheckCircle2, Sparkles
+  CheckCircle2, Sparkles, Ruler
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -62,25 +62,24 @@ export default function PropertyCardExport({ property, agent, onClose }) {
   const snap = agent?.social?.snapchat || agent?.snapchat || '';
   const licenseNo = property.ad_license || agent?.license_number || '';
 
-  // ── مواصفات العقار ──
-  const specs = isLand
+  // ── مواصفات العقار — تظهر دائماً ──
+  const visibleSpecs = isLand
     ? [
-        { label: 'المساحة', value: property.area ? `${toEn(property.area)} م²` : null, Icon: Maximize },
-        { label: 'نوع الأرض', value: property.type, Icon: Home },
-        { label: 'الواجهة', value: property.facade, Icon: Crosshair },
-        { label: 'عرض الشارع', value: property.street_width ? `${toEn(property.street_width)} م` : null, Icon: Maximize },
-        { label: 'المخطط', value: property.plot_number, Icon: CheckCircle2 },
-        { label: 'رقم القطعة', value: property.parcel_number, Icon: CheckCircle2 },
+        { label: 'المساحة',       value: property.area           ? `${toEn(property.area)} م²`                              : '—', Icon: Maximize },
+        { label: 'نوع الأرض',    value: property.type           || '—',                                                           Icon: Home },
+        { label: 'الواجهة',      value: property.facade          || '—',                                                           Icon: Crosshair },
+        { label: 'عرض الشارع',  value: property.street_width   ? `${toEn(property.street_width)} م`                   : '—', Icon: Maximize },
+        { label: 'على الشارع',  value: property.length_street  ? `${toEn(property.length_street)} م`                  : '—', Icon: Ruler },
+        { label: 'العمق',         value: property.length_depth   ? `${toEn(property.length_depth)} م`                   : '—', Icon: Ruler },
       ]
     : [
-        { label: 'المساحة', value: property.area ? `${toEn(property.area)} م²` : null, Icon: Maximize },
-        { label: 'عمر العقار', value: property.property_age, Icon: Calendar },
-        { label: 'عدد الغرف', value: property.bedrooms ? toEn(property.bedrooms) : null, Icon: BedDouble },
-        { label: 'دورات المياه', value: property.bathrooms ? toEn(property.bathrooms) : null, Icon: Bath },
-        { label: 'الصالات', value: property.halls ? toEn(property.halls) : null, Icon: Armchair },
-        { label: 'المطبخ', value: property.kitchens ? toEn(property.kitchens) : (property.features?.some(f => f.includes('مطبخ')) ? '1' : null), Icon: ChefHat },
+        { label: 'المساحة',        value: property.area          ? `${toEn(property.area)} م²`  : '—', Icon: Maximize },
+        { label: 'عمر العقار',    value: property.property_age   || '—',                        Icon: Calendar },
+        { label: 'عدد الغرف',     value: property.bedrooms       ? toEn(property.bedrooms)      : '—', Icon: BedDouble },
+        { label: 'دورات المياه',  value: property.bathrooms      ? toEn(property.bathrooms)     : '—', Icon: Bath },
+        { label: 'الصالات',       value: property.halls          ? toEn(property.halls)         : '—', Icon: Armchair },
+        { label: 'المطبخ',        value: property.kitchens ? toEn(property.kitchens) : (property.features?.some(f => f.includes('مطبخ')) ? '1' : '—'), Icon: ChefHat },
       ];
-  const visibleSpecs = specs.filter(s => s.value);
 
   // ── QR Code URL ──
   const qrUrl = property.maps_url
@@ -237,7 +236,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
           </div>
 
           {/* ── المواصفات ── */}
-          {visibleSpecs.length > 0 && (
+          {(
             <div className="px-8 mt-2">
               <div className="flex items-center gap-3 mb-5">
                 <div className="h-px bg-gray-100 flex-grow" />
