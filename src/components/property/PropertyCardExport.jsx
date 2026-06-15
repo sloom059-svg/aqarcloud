@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Building, MapPin, Calendar, Maximize, Bath, BedDouble, Armchair, ChefHat, Sun, Diamond, Home, Crosshair, QrCode, Phone, MessageCircle, CheckCircle2, Car, Trees, ShieldCheck, Download, Compass, Ruler, Signpost } from 'lucide-react';
+import { Building, MapPin, Calendar, Maximize, Bath, BedDouble, Armchair, ChefHat, Sun, Diamond, Home, Crosshair, QrCode, Phone, MessageCircle, CheckCircle2, Car, Trees, ShieldCheck, Download, Compass, Ruler, Signpost, X } from 'lucide-react';
 
 export default function PropertyCardExport({ property, agent, onClose }) {
     const cardRef = useRef(null);
@@ -20,16 +20,16 @@ export default function PropertyCardExport({ property, agent, onClose }) {
         social: agent?.username || agent?.office_name || 'غير متوفر',
         agencyName: agent?.office_name || 'مكتب عقاري',
         agencyLogo: agent?.office_logo_url || agent?.profile_image_url || null,
-        
+
         // جلب الصور الفعلية فقط (وإذا لم يوجد أي صورة، نضع صورة واحدة افتراضية)
         propertyImages: property?.images?.length > 0 ? property.images : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'],
-        
+
         features: property?.features || property?.amenities || []
     };
 
     // تجهيز المواصفات الديناميكية بناءً على نوع العقار
     const isLand = data.type.includes('أرض') || data.type.includes('ارض');
-    
+
     // مواصفات عامة وسكنية
     const specs = {
         area: property?.area || property?.space || '-',
@@ -81,7 +81,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                     document.head.appendChild(script);
                 });
             }
-            
+
             const canvas = await window.html2canvas(cardRef.current, {
                 scale: 2,
                 useCORS: true,
@@ -93,7 +93,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                     }
                 }
             });
-            
+
             const dataUrl = canvas.toDataURL('image/png');
             setExportedImage(dataUrl);
         } catch (error) {
@@ -105,11 +105,37 @@ export default function PropertyCardExport({ property, agent, onClose }) {
     };
 
     return (
-        <div className="flex flex-col items-center w-full max-w-4xl mx-auto font-[Cairo]">
-            
-            {/* The wrapper that will be exported (Hidden from view while configuring) */}
-            <div className="w-full overflow-x-auto rounded-xl">
-                <div 
+        <div className="fixed inset-0 z-[200] bg-zinc-900/90 backdrop-blur-sm overflow-auto flex flex-col items-center py-6 px-4" style={{ fontFamily: "'Cairo', 'Tajawal', sans-serif" }}>
+
+            {/* شريط الأزرار العلوي الثابت */}
+            <div className="sticky top-0 z-50 flex items-center gap-3 bg-white/95 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-zinc-200 mb-6">
+                <button
+                    onClick={handleExport}
+                    disabled={isExporting}
+                    className="flex items-center gap-2 bg-zinc-950 text-white px-5 py-2.5 rounded-xl font-black text-xs hover:bg-black transition-all shadow-sm disabled:opacity-60"
+                >
+                    <Download className="w-4 h-4" />
+                    {isExporting ? 'جاري التجهيز...' : 'تنزيل البطاقة كصورة'}
+                </button>
+                <button
+                    onClick={onClose}
+                    className="flex items-center gap-2 bg-zinc-100 text-zinc-600 px-5 py-2.5 rounded-xl font-black text-xs hover:bg-zinc-200 transition-all"
+                >
+                    <X className="w-4 h-4" />
+                    إغلاق المعاينة
+                </button>
+            </div>
+
+            {/* غلاف المعاينة: يصغّر البطاقة (800px) لتناسب الشاشة دون لمس التصميم */}
+            <div className="ex-preview-scale shrink-0">
+                <style dangerouslySetInnerHTML={{ __html: `
+                    .ex-preview-scale { zoom: 0.8; }
+                    @supports not (zoom: 1) { .ex-preview-scale { transform: scale(0.8); transform-origin: top center; } }
+                    @media (max-width: 850px) { .ex-preview-scale { zoom: 0.42; } @supports not (zoom: 1) { .ex-preview-scale { transform: scale(0.42); } } }
+                `}} />
+
+                {/* The wrapper that will be exported */}
+                <div
                     ref={cardRef}
                     id="card-to-export"
                     className="bg-white w-[800px] min-w-[800px] rounded-2xl shadow-xl overflow-hidden pb-8 relative mx-auto"
@@ -128,7 +154,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                             <span className="text-[15px] font-bold text-gray-800 text-center pb-1">{data.agencyName}</span>
                             <span className="text-[11px] text-gray-500">خدمات عقارية متكاملة</span>
                         </div>
-                        
+
                         <div className="text-center flex-grow px-4">
                             <h1 className="text-3xl font-bold text-gray-800 mb-2 pb-2 leading-tight">{data.title}</h1>
                             <div className="flex items-center justify-center text-gray-500 gap-2">
@@ -192,7 +218,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                                 <span className="text-xs text-gray-500 mb-1 font-medium">المساحة</span>
                                 <span className="font-bold text-sm text-gray-800">{specs.area} {specs.area !== '-' && 'م²'}</span>
                             </div>
-                            
+
                             {isLand ? (
                                 <>
                                     <div className="flex flex-col items-center">
@@ -297,7 +323,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
 
                         <div className="col-span-1 bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col justify-center items-center text-center">
                             <h4 className="font-bold text-gray-600 mb-4 border-b pb-2 w-full">للتواصل والاستفسار</h4>
-                            
+
                             {/* Contact Info (Modified to be side-by-side icons and large text) */}
                             <div className="flex flex-col items-center gap-3 w-full">
                                 <div className="flex items-center justify-center gap-3 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 w-full">
@@ -307,7 +333,7 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                                     </div>
                                     <span className="font-bold text-gray-800 text-lg tracking-wider" dir="ltr">{data.phone}</span>
                                 </div>
-                                
+
                                 {data.social && data.social !== 'غير متوفر' && (
                                     <div className="flex items-center justify-center gap-2 text-sm">
                                         <span className="text-yellow-500 font-black">@</span>
@@ -320,51 +346,34 @@ export default function PropertyCardExport({ property, agent, onClose }) {
                 </div>
             </div>
 
-            {/* Export Modal (The actual modal seen by user after processing) */}
-            {!exportedImage ? (
-                <div className="flex flex-col items-center w-full mt-4">
-                    <Button 
-                        onClick={handleExport} 
-                        disabled={isExporting}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-2xl shadow-lg transition duration-300 flex items-center gap-3 text-lg w-full max-w-sm"
-                    >
-                        {isExporting ? 'جاري تجهيز الصورة...' : 'معاينة وتصدير البطاقة'}
-                    </Button>
-                    <Button 
-                        variant="ghost"
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-800 font-bold mt-2"
-                    >
-                        إلغاء
-                    </Button>
-                </div>
-            ) : (
-                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 sm:p-6">
+            {/* نافذة الصورة الجاهزة بعد التصدير (تنزيل نظيف) */}
+            {exportedImage && (
+                <div className="fixed inset-0 bg-black/80 z-[210] flex items-center justify-center p-4 sm:p-6">
                     <div className="bg-white p-4 sm:p-6 rounded-[2rem] w-full max-w-lg flex flex-col shadow-2xl">
-                        
+
                         <div className="flex justify-between items-center mb-4 sm:mb-6 flex-shrink-0 px-2">
                             <h3 className="text-xl font-black text-gray-800">الصورة جاهزة!</h3>
-                            <button 
+                            <button
                                 onClick={() => setExportedImage(null)}
                                 className="text-gray-400 hover:text-rose-500 hover:bg-rose-50 p-2 rounded-full transition font-bold"
                             >
-                                إغلاق
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
-                        
-                        {/* Smaller thumbnail preview container */}
+
+                        {/* معاينة مصغّرة للصورة الناتجة */}
                         <div className="flex-grow w-full max-h-[50vh] sm:max-h-[60vh] overflow-hidden border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 flex items-center justify-center p-2 sm:p-4 relative">
-                            <img 
-                                src={exportedImage} 
-                                alt="Exported Property Card" 
-                                className="shadow-md rounded-xl w-auto h-full max-w-full object-contain" 
+                            <img
+                                src={exportedImage}
+                                alt="Exported Property Card"
+                                className="shadow-md rounded-xl w-auto h-full max-w-full object-contain"
                             />
                         </div>
-                        
+
                         <div className="mt-4 sm:mt-6 flex justify-center flex-shrink-0">
-                            <a 
-                                href={exportedImage} 
-                                download={`property_${data.refId}.png`} 
+                            <a
+                                href={exportedImage}
+                                download={`property_${data.refId}.png`}
                                 className="bg-zinc-900 w-full justify-center hover:bg-black text-white font-black py-4 px-8 rounded-2xl shadow-xl transition flex items-center gap-3 text-lg"
                             >
                                 <Download className="w-6 h-6"/>
