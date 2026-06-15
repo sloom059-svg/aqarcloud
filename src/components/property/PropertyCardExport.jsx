@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import { toPng } from 'html-to-image';
 import { Button } from '@/components/ui/button';
 import { Building, MapPin, Calendar, Maximize, Bath, BedDouble, Armchair, ChefHat, Sun, Diamond, Home, Crosshair, QrCode, Phone, MessageCircle } from 'lucide-react';
 // Note: Assuming you have lucide-react installed for icons. 
@@ -39,17 +38,31 @@ export default function PropertyCardExport({ propertyData }) {
         setIsExporting(true);
         
         try {
-            // Using html-to-image which generally handles RTL and text positioning better than html2canvas
-            const dataUrl = await toPng(cardRef.current, {
-                quality: 1,
-                pixelRatio: 2, // High resolution
-                cacheBust: true,
-                style: {
-                    transform: 'scale(1)', // Ensure no scaling issues during render
-                    transformOrigin: 'top left',
+            // استدعاء مكتبة html2canvas بشكل ديناميكي لتفادي أي مشاكل في البناء (Build) على Vercel
+            if (!window.html2canvas) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            
+            const canvas = await window.html2canvas(cardRef.current, {
+                scale: 2, // جودة عالية
+                useCORS: true, // ضروري لدعم الصور الخارجية
+                backgroundColor: '#ffffff',
+                onclone: (clonedDoc) => {
+                    // التأكد من عدم وجود تمدد في الحجم أثناء النسخ
+                    const element = clonedDoc.getElementById('card-to-export');
+                    if (element) {
+                        element.style.transform = 'scale(1)';
+                    }
                 }
             });
             
+            const dataUrl = canvas.toDataURL('image/png');
             setExportedImage(dataUrl);
         } catch (error) {
             console.error('Error exporting image:', error);
