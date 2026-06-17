@@ -59,11 +59,8 @@ export default function PropertyCardExport({ property, agent, onClose }) {
 
     // دالة مساعدة لعرض الصورة بدون تمغيط (مع خلفية ضبابية أنيقة تملأ الفراغ)
     const renderImageBlock = (src, className = "") => (
-        <div className={`rounded-xl overflow-hidden shadow-sm relative bg-gray-900 border border-gray-100 ${className}`}>
-            {/* خلفية ضبابية تملأ الفراغ */}
-            <img src={src} crossOrigin="anonymous" className="absolute inset-0 w-full h-full object-cover opacity-50 blur-xl scale-110" alt="blur" />
-            {/* الصورة الفعلية مع object-contain لعدم التمغيط */}
-            <img src={src} crossOrigin="anonymous" className="relative z-10 w-full h-full object-contain" alt="Property" />
+        <div className={`rounded-xl overflow-hidden shadow-sm relative bg-gray-100 border border-gray-100 ${className}`}>
+            <img src={src} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Property" />
         </div>
     );
 
@@ -183,12 +180,12 @@ export default function PropertyCardExport({ property, agent, onClose }) {
 
                     {/* Images Section */}
                     <div className="relative p-6">
-                        <div className="absolute top-10 right-10 z-10 bg-white/95 backdrop-blur rounded-xl p-3 shadow-lg border border-gray-100 text-center w-36">
+                        <div className="absolute z-10 bg-white rounded-xl p-3 shadow-lg border border-gray-100 text-center w-36" style={{ top: 40, right: 40 }}>
                             <div className="text-xs text-gray-500 mb-1 font-medium">رقم العرض</div>
                             <div className="font-bold text-gray-800 break-words text-lg pb-1">{data.refId}</div>
                         </div>
 
-                        <div className="absolute bottom-10 right-10 z-10 bg-white/95 backdrop-blur rounded-xl p-4 shadow-lg border border-gray-100 text-center w-44">
+                        <div className="absolute z-10 bg-white rounded-xl p-4 shadow-lg border border-gray-100 text-center w-44" style={{ bottom: 40, right: 40 }}>
                             <div className="flex items-center justify-center gap-2 text-gray-500 mb-2 border-b pb-2">
                                 <span className="text-sm font-medium">السعر المعروض</span>
                                 <Calendar className="w-4 h-4 text-gray-400" />
