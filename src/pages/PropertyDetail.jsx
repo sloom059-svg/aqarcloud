@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
   MapPin,
+  Tag,
   BedDouble,
   Bath,
   Maximize,
@@ -115,6 +116,8 @@ export default function PropertyDetail() {
     : property.price_negotiable
     ? 'على السوم'
     : formatPrice(property.price);
+  const priceStatusLabel = property.price_on_request ? 'بانتظار العروض' : property.price_negotiable ? 'على السوم' : '';
+  const hasNumericPrice = !priceStatusLabel && property.price;
   const priceDetail = property.price_on_request || property.price_negotiable
     ? ''
     : property.listing_type === 'إيجار'
@@ -179,11 +182,18 @@ export default function PropertyDetail() {
               )}
 
               <div className="absolute bottom-4 right-4 left-4 flex items-end justify-between gap-3">
-                <div className="rounded-[1.4rem] bg-white px-4 py-3 shadow-xl">
-                  <p className="text-[11px] font-black text-zinc-400 mb-1">السعر</p>
-                  <p className="text-2xl font-black leading-none" style={{ color: AIRBNB }}>{priceText}</p>
-                  {priceDetail && <p className="text-[11px] font-bold text-zinc-400 mt-1">{priceDetail}</p>}
-                </div>
+                {hasNumericPrice ? (
+                  <div className="rounded-[1.4rem] bg-white px-4 py-3 shadow-xl">
+                    <p className="text-[11px] font-black text-zinc-400 mb-1">السعر</p>
+                    <p className="text-2xl font-black leading-none" style={{ color: AIRBNB }}>{priceText}</p>
+                    {priceDetail && <p className="text-[11px] font-bold text-zinc-400 mt-1">{priceDetail}</p>}
+                  </div>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF385C] px-4 py-2.5 text-sm font-black text-white shadow-xl">
+                    <Tag className="w-4 h-4" />
+                    {priceStatusLabel}
+                  </span>
+                )}
 
                 <div className="flex flex-col items-end gap-2">
                   {property.facade && (
